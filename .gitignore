@@ -1,0 +1,54 @@
+# 依赖目录
+node_modules/
+**/node_modules/
+
+# 环境变量文件（包含敏感密钥）
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# 保留 .env.example 作为模板
+!.env.example
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 编辑器和IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 构建输出
+dist/
+build/
+*.tsbuildinfo
+
+# 临时文件
+tmp/
+temp/
+.cache/
+
+# 测试覆盖率
+coverage/
+
+# 密钥和证书
+*.pem
+*.key
+*.crt
+secrets/
+
+# Claude 相关
+.claude/

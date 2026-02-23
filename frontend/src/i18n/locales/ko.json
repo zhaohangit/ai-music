@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "AI Music Pro",
+    "tagline": "지능형 음악 창작 플랫폼",
+    "description": "AI 기술로 독특한 음악 만들기"
+  },
+  "nav": {
+    "create": "만들기",
+    "library": "라이브러리",
+    "history": "기록",
+    "explore": "탐색",
+    "settings": "설정"
+  },
+  "create": {
+    "title": "음악 만들기",
+    "promptLabel": "원하는 음악을 설명하세요",
+    "promptPlaceholder": "예: 캐치한 멜로디의 밝은 팝송...",
+    "generateBtn": "음악 생성",
+    "generating": "생성 중...",
+    "customMode": "사용자 정의 모드",
+    "simpleMode": "간단 모드"
+  },
+  "mood": {
+    "title": "무드",
+    "energetic": "에너지 넘치는",
+    "romantic": "낭만적인",
+    "melancholic": "우울한",
+    "peaceful": "평화로운",
+    "epic": "웅장한",
+    "playful": "즐거운"
+  },
+  "genre": {
+    "title": "장르",
+    "electronic": "일렉트로닉",
+    "pop": "팝",
+    "rock": "록",
+    "classical": "클래식",
+    "jazz": "재즈",
+    "hiphop": "힙합",
+    "country": "컨트리",
+    "rnb": "R&B"
+  },
+  "player": {
+    "play": "재생",
+    "pause": "일시정지",
+    "stop": "중지",
+    "next": "다음",
+    "previous": "이전",
+    "volume": "볼륨",
+    "progress": "진행률",
+    "download": "다운로드",
+    "share": "공유"
+  },
+  "recent": {
+    "title": "최근 만든 항목",
+    "viewAll": "모두 보기",
+    "noRecent": "최근 만든 항목이 없습니다"
+  },
+  "settings": {
+    "title": "설정",
+    "language": "언어",
+    "theme": "테마",
+    "darkMode": "다크 모드",
+    "notifications": "알림",
+    "about": "정보",
+    "version": "버전"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "delete": "삭제",
+    "edit": "편집"
+  }
+}

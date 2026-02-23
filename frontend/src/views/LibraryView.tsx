@@ -1,0 +1,805 @@
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import {
+  Play,
+  Pause,
+  Heart,
+  MoreVertical,
+  Download,
+  Share2,
+  Search,
+  Grid3x3,
+  List,
+  Filter,
+  Music,
+  Clock,
+  Loader2,
+  Trash2
+} from 'lucide-react';
+import { musicApi, MusicInfo } from '../services/api';
+import { useAppStore } from '../hooks/useMusicStore';
+import { downloadFile, shareTrack } from '../utils/helpers';
+import { useToast } from '../hooks/useToast';
+
+const LibraryContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const LibraryHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const LibraryTitle = styled.h1`
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+`;
+
+const LibrarySubtitle = styled.p`
+  font-size: 1rem;
+  color: #8B8B9F;
+  margin: 8px 0 0 0;
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const SearchBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 16px;
+  width: 280px;
+
+  &:focus-within {
+    border-color: rgba(102, 126, 234, 0.5);
+  }
+`;
+
+const SearchInput = styled.input`
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 0.875rem;
+  outline: none;
+
+  &::placeholder {
+    color: #8B8B9F;
+  }
+`;
+
+const ViewToggle = styled.div`
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 4px;
+`;
+
+const ViewButton = styled.button<{ $active?: boolean }>`
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'transparent'};
+  border-radius: 8px;
+  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #FFFFFF;
+  }
+`;
+
+const FilterBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const FilterButton = styled.button<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+  border: ${props => props.$active ? '1px solid rgba(102, 126, 234, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'};
+  border-radius: 10px;
+  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+  }
+`;
+
+const MusicGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+`;
+
+const CardOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+`;
+
+const MusicCard = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+
+    ${CardOverlay} {
+      opacity: 1;
+    }
+  }
+`;
+
+const PlayOverlayButton = styled.button`
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667EEA, #764BA2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
+const CardCover = styled.div<{ $imageUrl?: string }>`
+  width: 100%;
+  aspect-ratio: 1;
+  background: ${props => props.$imageUrl
+    ? `url(${props.$imageUrl}) center/cover`
+    : 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))'};
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+`;
+
+const CardInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const CardTitle = styled.h3`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const CardMeta = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: #8B8B9F;
+`;
+
+const CardGenre = styled.span`
+  background: rgba(102, 126, 234, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #667EEA;
+  font-size: 0.75rem;
+  font-weight: 500;
+`;
+
+const CardStatus = styled.span<{ $status?: string }>`
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: ${props => {
+    switch (props.$status) {
+      case 'complete': return 'rgba(16, 185, 129, 0.2)';
+      case 'processing': return 'rgba(245, 158, 11, 0.2)';
+      case 'error': return 'rgba(239, 68, 68, 0.2)';
+      default: return 'rgba(107, 114, 128, 0.2)';
+    }
+  }};
+  color: ${props => {
+    switch (props.$status) {
+      case 'complete': return '#10B981';
+      case 'processing': return '#F59E0B';
+      case 'error': return '#EF4444';
+      default: return '#6B7280';
+    }
+  }};
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
+const CardActionButton = styled.button<{ $active?: boolean; $variant?: 'default' | 'danger' }>`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: ${props => {
+    if (props.$variant === 'danger') return 'rgba(239, 68, 68, 0.1)';
+    return props.$active ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)';
+  }};
+  border: 1px solid ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 8px;
+  color: ${props => {
+    if (props.$variant === 'danger') return '#EF4444';
+    return props.$active ? '#EF4444' : '#8B8B9F';
+  }};
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
+    color: ${props => props.$variant === 'danger' ? '#EF4444' : '#FFFFFF'};
+  }
+`;
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+`;
+
+const EmptyIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+`;
+
+const EmptyTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 8px 0;
+`;
+
+const EmptyDescription = styled.p`
+  font-size: 0.9375rem;
+  color: #8B8B9F;
+  margin: 0;
+  max-width: 360px;
+`;
+
+const EmptyButton = styled.button`
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667EEA, #764BA2);
+  border: none;
+  border-radius: 12px;
+  color: #FFFFFF;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+  }
+`;
+
+const LoadingState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  gap: 16px;
+`;
+
+const LoadingText = styled.p`
+  font-size: 0.9375rem;
+  color: #8B8B9F;
+  margin: 0;
+`;
+
+const ErrorMessage = styled.div`
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  color: #EF4444;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+const RetryButton = styled.button`
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #EF4444;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.3);
+  }
+`;
+
+interface MusicTrack {
+  id: string;
+  title: string;
+  genre: string;
+  duration: string;
+  createdAt: string;
+  status: 'processing' | 'complete' | 'error';
+  imageUrl?: string;
+}
+
+// Helper function to convert MusicInfo to MusicTrack
+const toMusicTrack = (music: MusicInfo): MusicTrack => {
+  const duration = music.duration
+    ? `${Math.floor(music.duration / 60)}:${(music.duration % 60).toString().padStart(2, '0')}`
+    : '--:--';
+
+  const createdAt = music.createdAt
+    ? new Date(music.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })
+    : 'Unknown';
+
+  return {
+    id: music.id,
+    title: music.title || 'Untitled Track',
+    genre: 'AI Generated',
+    duration,
+    createdAt,
+    status: music.status,
+    imageUrl: music.imageUrl,
+  };
+};
+
+// Format duration in seconds to mm:ss
+const formatDuration = (seconds?: number): string => {
+  if (!seconds) return '--:--';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Format date to relative time
+const formatRelativeTime = (dateString?: string): string => {
+  if (!dateString) return 'Unknown';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+export const LibraryView: React.FC = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [tracks, setTracks] = useState<MusicTrack[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  const { recentTracks, setCurrentTrack, setIsPlaying, currentTrack, isPlaying } = useAppStore();
+
+  // Fetch tracks from API
+  const fetchTracks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await musicApi.getList(1, 50);
+
+      if (response.success && response.data) {
+        const apiTracks = Array.isArray(response.data)
+          ? response.data
+          : response.data.tracks || [];
+
+        const convertedTracks = apiTracks.map(toMusicTrack);
+        setTracks(convertedTracks);
+      } else {
+        // If API returns empty or fails, use store's recent tracks as fallback
+        const storeTracks = recentTracks.map(toMusicTrack);
+        setTracks(storeTracks);
+      }
+    } catch (err) {
+      console.error('Failed to fetch tracks:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load tracks');
+
+      // Fallback to store's recent tracks
+      const storeTracks = recentTracks.map(toMusicTrack);
+      setTracks(storeTracks);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTracks();
+  }, []);
+
+  // Toggle favorite status
+  const toggleFavorite = async (e: React.MouseEvent, trackId: string) => {
+    e.stopPropagation();
+    try {
+      await musicApi.toggleFavorite(trackId);
+      setFavorites(prev => {
+        const newFavorites = new Set(prev);
+        if (newFavorites.has(trackId)) {
+          newFavorites.delete(trackId);
+          showSuccess('Removed from favorites', 'Favorite Updated');
+        } else {
+          newFavorites.add(trackId);
+          showSuccess('Added to favorites', 'Favorite Updated');
+        }
+        return newFavorites;
+      });
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err);
+      showError('Failed to update favorite status', 'Error');
+    }
+  };
+
+  // Delete track
+  const deleteTrack = async (e: React.MouseEvent, trackId: string) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this track?')) {
+      return;
+    }
+
+    try {
+      await musicApi.delete(trackId);
+      setTracks(prev => prev.filter(t => t.id !== trackId));
+      showSuccess('Track deleted successfully', 'Delete Complete');
+    } catch (err) {
+      console.error('Failed to delete track:', err);
+      showError('Failed to delete track', 'Delete Failed');
+    }
+  };
+
+  // Handle play/pause
+  const handlePlayPause = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+
+    // Find the corresponding MusicInfo from tracks or store
+    const musicInfo: MusicInfo = {
+      id: track.id,
+      status: track.status,
+      title: track.title,
+      imageUrl: track.imageUrl,
+      audioUrl: track.status === 'complete' ? `/api/music/${track.id}/download` : undefined,
+    };
+
+    if (currentTrack?.id === track.id && isPlaying) {
+      setIsPlaying(false);
+    } else {
+      setCurrentTrack(musicInfo);
+      setIsPlaying(true);
+    }
+  };
+
+  // Handle download
+  const handleDownload = async (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+
+    if (track.status !== 'complete') {
+      showError('Track is not ready for download', 'Download Failed');
+      return;
+    }
+
+    try {
+      const filename = `${track.title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+      const audioUrl = `/api/music/${track.id}/download`;
+      await downloadFile(audioUrl, filename);
+      showSuccess('Track downloaded successfully', 'Download Complete');
+    } catch (err) {
+      console.error('Download error:', err);
+      showError('Failed to download track. Please try again.', 'Download Failed');
+    }
+  };
+
+  // Handle share
+  const handleShare = async (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+
+    const musicInfo: MusicInfo = {
+      id: track.id,
+      status: track.status,
+      title: track.title,
+      imageUrl: track.imageUrl,
+      audioUrl: track.status === 'complete' ? `${window.location.origin}/track/${track.id}` : undefined,
+    };
+
+    try {
+      await shareTrack(musicInfo);
+      showSuccess('Track shared successfully', 'Share Success');
+    } catch (err) {
+      console.error('Share error:', err);
+      showError('Failed to share track. Please try again.', 'Share Failed');
+    }
+  };
+
+  // Filter tracks based on selected filter and search query
+  const filteredTracks = tracks.filter(track => {
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (!track.title.toLowerCase().includes(query) &&
+          !track.genre.toLowerCase().includes(query)) {
+        return false;
+      }
+    }
+
+    // Category filter
+    switch (selectedFilter) {
+      case 'all':
+        return true;
+      case 'favorites':
+        return favorites.has(track.id);
+      case 'recent':
+        // Show tracks from last 7 days
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return track.status === 'complete';
+      case 'processing':
+        return track.status === 'processing';
+      case 'complete':
+        return track.status === 'complete';
+      case 'error':
+        return track.status === 'error';
+      default:
+        // Genre filter
+        return track.genre.toLowerCase().includes(selectedFilter.toLowerCase());
+    }
+  });
+
+  const filters = [
+    { id: 'all', label: t('library.allTracks') },
+    { id: 'favorites', label: t('library.favorites') },
+    { id: 'recent', label: t('library.recent') },
+  ];
+
+  const genres = ['Pop', 'Electronic', 'Rock', 'Jazz', 'Classical', 'Hip-Hop', 'Lo-Fi'];
+
+  return (
+    <LibraryContainer>
+      <LibraryHeader>
+        <div>
+          <LibraryTitle>{t('library.title')}</LibraryTitle>
+          <LibrarySubtitle>
+            {loading ? t('common.loading') : `${tracks.length} ${t('common.tracks')}`}
+          </LibrarySubtitle>
+        </div>
+        <HeaderActions>
+          <SearchBar>
+            <Search size={18} color="#8B8B9F" />
+            <SearchInput
+              type="text"
+              placeholder={t('common.search') + '...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </SearchBar>
+          <ViewToggle>
+            <ViewButton $active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>
+              <Grid3x3 size={18} />
+            </ViewButton>
+            <ViewButton $active={viewMode === 'list'} onClick={() => setViewMode('list')}>
+              <List size={18} />
+            </ViewButton>
+          </ViewToggle>
+        </HeaderActions>
+      </LibraryHeader>
+
+      <FilterBar>
+        {filters.map((filter) => (
+          <FilterButton
+            key={filter.id}
+            $active={selectedFilter === filter.id}
+            onClick={() => setSelectedFilter(filter.id)}
+          >
+            {filter.id === 'favorites' && <Heart size={16} />}
+            {filter.id === 'recent' && <Clock size={16} />}
+            {filter.label}
+          </FilterButton>
+        ))}
+        {genres.map((genre) => (
+          <FilterButton
+            key={genre}
+            $active={selectedFilter === genre}
+            onClick={() => setSelectedFilter(genre)}
+          >
+            {genre}
+          </FilterButton>
+        ))}
+      </FilterBar>
+
+      {error && (
+        <ErrorMessage>
+          <span>{error}</span>
+          <RetryButton onClick={fetchTracks}>Retry</RetryButton>
+        </ErrorMessage>
+      )}
+
+      {loading ? (
+        <LoadingState>
+          <Loader2 size={40} color="#667EEA" className="spin" />
+          <LoadingText>{t('common.loading')}</LoadingText>
+        </LoadingState>
+      ) : filteredTracks.length > 0 ? (
+        <MusicGrid>
+          {filteredTracks.map((track) => (
+            <MusicCard
+              key={track.id}
+              onClick={() => handlePlayPause(undefined as unknown as React.MouseEvent, track)}
+            >
+              <CardOverlay>
+                <PlayOverlayButton onClick={(e) => handlePlayPause(e, track)}>
+                  {currentTrack?.id === track.id && isPlaying ? (
+                    <Pause size={24} color="white" fill="white" />
+                  ) : (
+                    <Play size={24} color="white" fill="white" />
+                  )}
+                </PlayOverlayButton>
+              </CardOverlay>
+              <CardCover $imageUrl={track.imageUrl}>
+                {!track.imageUrl && <Music size={40} color="#667EEA" strokeWidth={1.5} />}
+              </CardCover>
+              <CardInfo>
+                <CardTitle>{track.title}</CardTitle>
+                <CardMeta>
+                  <span>{track.duration}</span>
+                  <CardGenre>{track.genre}</CardGenre>
+                </CardMeta>
+              </CardInfo>
+              <CardActions>
+                <CardActionButton
+                  $active={favorites.has(track.id)}
+                  onClick={(e) => toggleFavorite(e, track.id)}
+                >
+                  <Heart size={14} fill={favorites.has(track.id) ? 'currentColor' : 'none'} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleDownload(e, track)}
+                  disabled={track.status !== 'complete'}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Download size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleShare(e, track)}
+                  disabled={track.status !== 'complete'}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Share2 size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => deleteTrack(e, track.id)}
+                  $variant="danger"
+                >
+                  <Trash2 size={14} />
+                </CardActionButton>
+              </CardActions>
+              <CardMeta style={{ marginTop: '8px' }}>
+                <span style={{ fontSize: '0.75rem' }}>{track.createdAt}</span>
+                <CardStatus $status={track.status}>
+                  {track.status === 'complete' && 'Ready'}
+                  {track.status === 'processing' && 'Processing'}
+                  {track.status === 'error' && 'Failed'}
+                </CardStatus>
+              </CardMeta>
+            </MusicCard>
+          ))}
+        </MusicGrid>
+      ) : (
+        <EmptyState>
+          <EmptyIcon>
+            <Music size={36} color="#8B8B9F" />
+          </EmptyIcon>
+          <EmptyTitle>{t('library.noTracks')}</EmptyTitle>
+          <EmptyDescription>
+            {searchQuery || selectedFilter !== 'all'
+              ? t('library.noTracks')
+              : t('library.startCreating')
+            }
+          </EmptyDescription>
+          {!searchQuery && selectedFilter === 'all' && (
+            <EmptyButton onClick={() => navigate('/create')}>
+              {t('library.createMusic')}
+            </EmptyButton>
+          )}
+        </EmptyState>
+      )}
+
+      <style>{`
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </LibraryContainer>
+  );
+};
+
+export default LibraryView;

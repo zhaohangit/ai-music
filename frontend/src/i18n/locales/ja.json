@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "AI Music Pro",
+    "tagline": "インテリジェント音楽創作プラットフォーム",
+    "description": "AI技術でユニークな音楽を作成"
+  },
+  "nav": {
+    "create": "作成",
+    "library": "ライブラリ",
+    "history": "履歴",
+    "explore": "探索",
+    "settings": "設定"
+  },
+  "create": {
+    "title": "音楽を作成",
+    "promptLabel": "望む音楽を説明してください",
+    "promptPlaceholder": "例：キャッチーなメロディーのアップビートポップソング...",
+    "generateBtn": "音楽を生成",
+    "generating": "生成中...",
+    "customMode": "カスタムモード",
+    "simpleMode": "シンプルモード"
+  },
+  "mood": {
+    "title": "ムード",
+    "energetic": "エネルギッシュ",
+    "romantic": "ロマンチック",
+    "melancholic": "メランコリック",
+    "peaceful": "平和",
+    "epic": "エピック",
+    "playful": "プレイフル"
+  },
+  "genre": {
+    "title": "ジャンル",
+    "electronic": "エレクトロニック",
+    "pop": "ポップ",
+    "rock": "ロック",
+    "classical": "クラシック",
+    "jazz": "ジャズ",
+    "hiphop": "ヒップホップ",
+    "country": "カントリー",
+    "rnb": "R&B"
+  },
+  "player": {
+    "play": "再生",
+    "pause": "一時停止",
+    "stop": "停止",
+    "next": "次へ",
+    "previous": "前へ",
+    "volume": "音量",
+    "progress": "進行状況",
+    "download": "ダウンロード",
+    "share": "共有"
+  },
+  "recent": {
+    "title": "最近の作成",
+    "viewAll": "すべて表示",
+    "noRecent": "最近の作成はありません"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "theme": "テーマ",
+    "darkMode": "ダークモード",
+    "notifications": "通知",
+    "about": "について",
+    "version": "バージョン"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集"
+  }
+}
