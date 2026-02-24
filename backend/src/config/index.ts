@@ -23,8 +23,14 @@ export const config = {
 
   // JoyBuilder API (内网)
   joybuilder: {
-    baseURL: process.env.JOYBUILDER_API_URL || '',
+    baseURL: process.env.JOYBUILDER_API_URL || 'https://api.joybuilder.jd.com/v1',
     apiKey: process.env.JOYBUILDER_API_KEY || '',
+    models: {
+      lyricsGeneration: process.env.JOYBUILDER_MODEL_LYRICS || 'deepseek-v3.2',
+      styleAnalysis: process.env.JOYBUILDER_MODEL_STYLE || 'qwen3-8b',
+      creativeWriting: process.env.JOYBUILDER_MODEL_CREATIVE || 'deepseek-r1-0528',
+      quickGeneration: process.env.JOYBUILDER_MODEL_FAST || 'joyai-flash',
+    }
   },
 
   // 网络环境

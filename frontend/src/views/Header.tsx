@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { Search, Bell, Globe, ChevronDown } from 'lucide-react';
+import { Search, Bell, Globe, ChevronDown, Loader2 } from 'lucide-react';
+import { musicApi } from '../services/api';
 
 const HeaderContainer = styled.header`
   height: 64px;
@@ -176,6 +177,15 @@ const CreditsIcon = styled.div`
   justify-content: center;
   font-size: 0.625rem;
   font-weight: 700;
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 `;
 
 const languages = [
@@ -190,6 +200,31 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [languageOpen, setLanguageOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(i18n.language || 'en');
+  const [credits, setCredits] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 获取积分余额
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await musicApi.getBalance();
+        if (response.success && response.data) {
+          setCredits(response.data.balance);
+        }
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+        // 如果获取失败，显示默认值
+        setCredits(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBalance();
+    // 每5分钟刷新一次
+    const interval = setInterval(fetchBalance, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const changeLanguage = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -237,8 +272,8 @@ export const Header: React.FC = () => {
         </IconButton>
 
         <CreditsBadge>
-          <CreditsIcon>⚡</CreditsIcon>
-          <span>500 Credits</span>
+          <CreditsIcon>{loading ? <Loader2 size={12} className="spin" /> : '⚡'}</CreditsIcon>
+          <span>{loading ? '加载中...' : credits !== null ? `${credits} Credits` : '积分获取失败'}</span>
         </CreditsBadge>
       </HeaderActions>
     </HeaderContainer>

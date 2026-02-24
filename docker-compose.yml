@@ -1,42 +1,132 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: music-ai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-postgres}
+      POSTGRES_DB: ${PG_DATABASE:-music_ai}
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres} -d ${PG_DATABASE:-music_ai}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - music-ai-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: music-ai-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - music-ai-network
+
+  # Backend API Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: music-ai-backend
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
+
+      # Suno API
       - SUNO_API_URL=${SUNO_API_URL}
       - SUNO_ACCESS_KEY=${SUNO_ACCESS_KEY}
-      - GLM_API_URL=${GLM_API_URL}
-      - GLM_AUTHORIZATION=${GLM_AUTHORIZATION}
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - redis
-    volumes:
-      - ./backend/logs:/app/logs
 
+      # GLM API
+      - GLM_API_URL=${GLM_API_URL:-https://open.bigmodel.cn/api/paas/v4}
+      - GLM_AUTHORIZATION=${GLM_AUTHORIZATION}
+      - GLM_MODEL=${GLM_MODEL:-glm-5}
+      - GLM_MODEL_FAST=${GLM_MODEL_FAST:-glm-4-flash}
+
+      # JoyBuilder API
+      - JOYBUILDER_API_URL=${JOYBUILDER_API_URL:-https://api.joybuilder.jd.com/v1}
+      - JOYBUILDER_API_KEY=${JOYBUILDER_API_KEY}
+      - JOYBUILDER_MODEL_LYRICS=${JOYBUILDER_MODEL_LYRICS:-deepseek-v3.2}
+      - JOYBUILDER_MODEL_STYLE=${JOYBUILDER_MODEL_STYLE:-qwen3-8b}
+      - JOYBUILDER_MODEL_CREATIVE=${JOYBUILDER_MODEL_CREATIVE:-deepseek-r1-0528}
+      - JOYBUILDER_MODEL_FAST=${JOYBUILDER_MODEL_FAST:-joyai-flash}
+
+      # Network Environment
+      - NETWORK_ENV=${NETWORK_ENV:-external}
+
+      # Database
+      - DATABASE_URL=postgresql://${PG_USER:-postgres}:${PG_PASSWORD:-postgres}@postgres:5432/${PG_DATABASE:-music_ai}
+
+      # Redis
+      - REDIS_URL=redis://redis:6379
+
+      # JWT
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here}
+
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - music-ai-network
+
+  # Frontend Web Service
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: music-ai-frontend
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "${FRONTEND_PORT:-80}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
-      - VITE_API_URL=http://backend:3000
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+      - VITE_API_URL=/api
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - music-ai-network
 
 volumes:
+  postgres_data:
   redis_data:
+
+networks:
+  music-ai-network:
+    driver: bridge

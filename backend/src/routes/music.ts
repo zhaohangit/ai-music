@@ -54,6 +54,168 @@ router.get('/history',
 );
 
 /**
+ * @route GET /api/music/balance
+ * @desc 查询Suno API积分余额
+ * @access Public
+ */
+router.get('/balance',
+  asyncHandler(async (req: Request, res: Response) => {
+    try {
+      const balance = await sunoService.getPointsBalance();
+
+      return success(res, {
+        balance,
+        currency: 'points',
+        message: balance > 0 ? `剩余积分: ${balance}` : '积分已用尽，请充值'
+      });
+    } catch (error: any) {
+      logger.error('Balance query failed', { error: error.message });
+      return fail(res, 2002, `余额查询失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route GET /api/music/llm-status
+ * @desc 获取LLM服务状态
+ * @access Public
+ */
+router.get('/llm-status',
+  asyncHandler(async (req: Request, res: Response) => {
+    const status = musicOrchestrator.getConfigInfo();
+
+    return success(res, {
+      ...status,
+      timestamp: new Date().toISOString()
+    });
+  })
+);
+
+/**
+ * @route POST /api/music/batch-status
+ * @desc 批量查询音乐生成状态
+ * @access Public
+ */
+router.post('/batch-status',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return fail(res, 1001, '请提供有效的任务ID数组', 400);
+    }
+
+    if (ids.length > 50) {
+      return fail(res, 1001, '单次最多查询50个任务', 400);
+    }
+
+    try {
+      // 从Suno API批量查询
+      const results = await sunoService.getMusicByIds(ids);
+
+      // 更新本地存储
+      for (const result of results) {
+        const existingTrack = musicStore.getTrack(result.id);
+        if (existingTrack) {
+          musicStore.updateTrack(result.id, {
+            status: result.status as 'processing' | 'complete' | 'error',
+            audioUrl: result.audio_url,
+            videoUrl: result.video_url,
+            imageUrl: result.image_url,
+            duration: result.duration,
+            lyrics: result.lyrics
+          });
+        }
+      }
+
+      return success(res, {
+        total: results.length,
+        items: results.map(r => ({
+          id: r.id,
+          status: r.status,
+          title: r.title,
+          audioUrl: r.audio_url,
+          videoUrl: r.video_url,
+          imageUrl: r.image_url,
+          duration: r.duration
+        }))
+      });
+    } catch (error: any) {
+      logger.error('Batch status query failed', { error: error.message });
+      return fail(res, 2002, `批量查询失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/extend
+ * @desc 歌曲续写
+ * @access Public
+ */
+router.post('/extend',
+  musicGenerationLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { clipId, continueAt, prompt, lyrics, tags, title } = req.body;
+
+    if (!clipId) {
+      return fail(res, 1001, '请提供要续写的歌曲ID (clipId)', 400);
+    }
+
+    logger.info('Music extend request', {
+      clipId,
+      continueAt,
+      hasPrompt: !!prompt,
+      hasLyrics: !!lyrics,
+      tags
+    });
+
+    try {
+      const result = await sunoService.createCustom({
+        title: title || 'Extended Song',
+        lyrics: lyrics || prompt,
+        tags: tags,
+        model: 'chirp-v3-5',
+        continueClipId: clipId,
+        continueAt: continueAt ? String(continueAt) : undefined
+      });
+
+      // 存储续写任务
+      const taskId = result.id;
+      musicStore.setTrack({
+        id: taskId,
+        title: title || 'Extended Song',
+        status: 'processing',
+        tags: tags ? tags.split(',').map((t: string) => t.trim()) : [],
+        createdAt: new Date().toISOString(),
+        isFavorite: false,
+        mode: 'extend',
+        lyrics: lyrics || prompt
+      });
+
+      logger.info('Extend task created', { taskId, clipId });
+
+      return success(res, {
+        taskId,
+        id: taskId,
+        status: 'processing',
+        title: title || 'Extended Song',
+        clipId,
+        continueAt,
+        message: '歌曲续写任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('Music extend failed', { error: error.message });
+
+      const errorMessage = error.message || '';
+      if (errorMessage.includes('余额') || errorMessage.includes('balance')) {
+        return fail(res, 2002, 'Suno API 余额不足，请充值后重试', 402);
+      }
+
+      return fail(res, 2002, `歌曲续写失败: ${errorMessage}`, 500);
+    }
+  })
+);
+
+/**
  * @route DELETE /api/music/:id
  * @desc Delete a music track
  * @access Public
@@ -681,6 +843,284 @@ router.post('/cover',
       }
 
       return fail(res, 2002, `翻唱创建失败: ${errorMessage}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/whole-song/:clipId
+ * @desc 获取整首歌曲（合并多个片段）
+ * @access Public
+ */
+router.post('/whole-song/:clipId',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { clipId } = req.params;
+
+    if (!clipId) {
+      return fail(res, 1001, '请提供歌曲片段ID', 400);
+    }
+
+    try {
+      const taskId = await sunoService.getWholeSong(clipId);
+
+      // 存储任务
+      musicStore.setTrack({
+        id: taskId,
+        title: `Whole Song - ${clipId}`,
+        status: 'processing',
+        tags: [],
+        createdAt: new Date().toISOString(),
+        isFavorite: false,
+        mode: 'whole-song'
+      });
+
+      return success(res, {
+        taskId,
+        clipId,
+        status: 'processing',
+        message: '整首歌曲生成任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('Whole song request failed', { error: error.message });
+      return fail(res, 2002, `整首歌曲请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/aligned-lyrics
+ * @desc 获取歌词时间戳对齐（卡拉OK功能）
+ * @access Public
+ */
+router.post('/aligned-lyrics',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { sunoId, lyrics } = req.body;
+
+    if (!sunoId) {
+      return fail(res, 1001, '请提供Suno音乐ID (sunoId)', 400);
+    }
+
+    if (!lyrics) {
+      return fail(res, 1001, '请提供歌词内容 (lyrics)', 400);
+    }
+
+    try {
+      const taskId = await sunoService.getAlignedLyrics(sunoId, lyrics);
+
+      return success(res, {
+        taskId,
+        sunoId,
+        status: 'processing',
+        message: '歌词时间戳任务已创建，请使用taskId查询结果'
+      });
+    } catch (error: any) {
+      logger.error('Aligned lyrics request failed', { error: error.message });
+      return fail(res, 2002, `歌词时间戳请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/remaster
+ * @desc Remaster音乐 - 提升音质
+ * @access Public
+ */
+router.post('/remaster',
+  musicGenerationLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { clipId, modelName, variationCategory } = req.body;
+
+    if (!clipId) {
+      return fail(res, 1001, '请提供Suno音乐ID (clipId)', 400);
+    }
+
+    try {
+      const taskIds = await sunoService.remasterMusic(clipId, modelName, variationCategory);
+
+      // 存储任务
+      for (const taskId of taskIds) {
+        musicStore.setTrack({
+          id: taskId,
+          title: `Remaster - ${clipId}`,
+          status: 'processing',
+          tags: [],
+          createdAt: new Date().toISOString(),
+          isFavorite: false,
+          mode: 'remaster'
+        });
+      }
+
+      return success(res, {
+        taskIds,
+        clipId,
+        status: 'processing',
+        message: 'Remaster任务已创建，一次生成两首歌曲'
+      });
+    } catch (error: any) {
+      logger.error('Remaster request failed', { error: error.message });
+      return fail(res, 2002, `Remaster请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/video
+ * @desc 生成音乐视频
+ * @access Public
+ */
+router.post('/video',
+  musicGenerationLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const { taskId, sunoId } = req.body;
+
+    if (!taskId || !sunoId) {
+      return fail(res, 1001, '请提供taskId和sunoId', 400);
+    }
+
+    try {
+      const videoTaskId = await sunoService.generateMusicVideo(taskId, sunoId);
+
+      return success(res, {
+        taskId: videoTaskId,
+        originalTaskId: taskId,
+        sunoId,
+        status: 'processing',
+        message: '音乐视频生成任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('Music video request failed', { error: error.message });
+      return fail(res, 2002, `音乐视频请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/convert-wav
+ * @desc 转换为WAV格式
+ * @access Public
+ */
+router.post('/convert-wav',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { taskId, sunoId } = req.body;
+
+    if (!taskId || !sunoId) {
+      return fail(res, 1001, '请提供taskId和sunoId', 400);
+    }
+
+    try {
+      const wavTaskId = await sunoService.convertToWav(taskId, sunoId);
+
+      return success(res, {
+        taskId: wavTaskId,
+        originalTaskId: taskId,
+        sunoId,
+        status: 'processing',
+        message: 'WAV格式转换任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('WAV conversion request failed', { error: error.message });
+      return fail(res, 2002, `WAV转换请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/crop
+ * @desc 裁剪音乐
+ * @access Public
+ */
+router.post('/crop',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { clipId, cropStartS, cropEndS } = req.body;
+
+    if (!clipId) {
+      return fail(res, 1001, '请提供Suno音乐ID (clipId)', 400);
+    }
+
+    if (cropStartS === undefined || cropEndS === undefined) {
+      return fail(res, 1001, '请提供裁剪开始时间 (cropStartS) 和结束时间 (cropEndS)', 400);
+    }
+
+    if (cropStartS < 0 || cropEndS <= cropStartS) {
+      return fail(res, 1001, '裁剪时间参数无效：cropEndS必须大于cropStartS，且cropStartS不能为负数', 400);
+    }
+
+    try {
+      const cropTaskId = await sunoService.cropMusic(clipId, cropStartS, cropEndS);
+
+      // 存储任务
+      musicStore.setTrack({
+        id: cropTaskId,
+        title: `Crop - ${clipId}`,
+        status: 'processing',
+        tags: [],
+        createdAt: new Date().toISOString(),
+        isFavorite: false,
+        mode: 'crop'
+      });
+
+      return success(res, {
+        taskId: cropTaskId,
+        clipId,
+        cropStartS,
+        cropEndS,
+        status: 'processing',
+        message: '裁剪任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('Crop request failed', { error: error.message });
+      return fail(res, 2002, `裁剪请求失败: ${error.message}`, 500);
+    }
+  })
+);
+
+/**
+ * @route POST /api/music/speed
+ * @desc 调整音乐速度
+ * @access Public
+ */
+router.post('/speed',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { clipId, speedMultiplier, keepPitch, title } = req.body;
+
+    if (!clipId) {
+      return fail(res, 1001, '请提供Suno音乐ID (clipId)', 400);
+    }
+
+    if (!speedMultiplier) {
+      return fail(res, 1001, '请提供速度倍数 (speedMultiplier)', 400);
+    }
+
+    const validSpeeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+    if (!validSpeeds.includes(speedMultiplier)) {
+      return fail(res, 1001, `无效的速度倍数，支持: ${validSpeeds.join(', ')}`, 400);
+    }
+
+    try {
+      const speedTaskId = await sunoService.adjustSpeed(clipId, speedMultiplier, keepPitch, title);
+
+      // 存储任务
+      musicStore.setTrack({
+        id: speedTaskId,
+        title: title || `Speed ${speedMultiplier}x - ${clipId}`,
+        status: 'processing',
+        tags: [],
+        createdAt: new Date().toISOString(),
+        isFavorite: false,
+        mode: 'speed'
+      });
+
+      return success(res, {
+        taskId: speedTaskId,
+        clipId,
+        speedMultiplier,
+        keepPitch: keepPitch || false,
+        status: 'processing',
+        message: '速度调整任务已创建'
+      });
+    } catch (error: any) {
+      logger.error('Speed adjustment request failed', { error: error.message });
+      return fail(res, 2002, `速度调整请求失败: ${error.message}`, 500);
     }
   })
 );

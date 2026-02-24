@@ -11,7 +11,8 @@ import {
   Users,
   Settings,
   HelpCircle,
-  User
+  User,
+  BookOpen
 } from 'lucide-react';
 
 const SidebarContainer = styled.aside`
@@ -169,6 +170,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   const bottomNavItems = [
+    { path: '/api-docs', icon: BookOpen, label: 'API文档' },
     { path: '/settings', icon: Settings, label: 'nav.settings' },
     { path: '/help', icon: HelpCircle, label: 'nav.help' },
   ];

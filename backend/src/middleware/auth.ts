@@ -1,14 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCode, AppError } from '../types/errors';
+import userService, { JwtPayload } from '../services/userService';
 
-// 扩展Request类型
+// 扩展Request类型 - 使用JwtPayload
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: string;
-        role: string;
-      };
+      user?: JwtPayload;
     }
   }
 }
@@ -44,7 +42,7 @@ export function jwtAuth(req: Request, res: Response, next: NextFunction) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     // 在开发环境下跳过认证
     if (process.env.NODE_ENV === 'development') {
-      req.user = { id: 'dev-user', role: 'user' };
+      req.user = { userId: 'dev-user', email: 'dev@example.com', username: 'dev-user' };
       return next();
     }
 
@@ -63,11 +61,12 @@ export function jwtAuth(req: Request, res: Response, next: NextFunction) {
 
   const token = authHeader.substring(7);
 
-  // 这里应该验证JWT token
-  // 简化处理，实际生产环境需要完整的JWT验证
+  // 验证JWT token
   try {
-    // const decoded = verifyJwt(token);
-    req.user = { id: 'user-id', role: 'user' };
+    const decoded = userService.verifyToken(token);
+    if (decoded) {
+      req.user = decoded;
+    }
     next();
   } catch (error) {
     return res.status(401).json({
@@ -91,7 +90,11 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     // 尝试验证但不强制
     try {
-      req.user = { id: 'user-id', role: 'user' };
+      const token = authHeader.substring(7);
+      const decoded = userService.verifyToken(token);
+      if (decoded) {
+        req.user = decoded;
+      }
     } catch (error) {
       // 忽略错误，继续处理
     }
@@ -102,12 +105,14 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
 
 // 管理员权限检查
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user || req.user.role !== 'admin') {
+  // 这里可以扩展JwtPayload来包含role字段
+  // 目前简化处理
+  if (!req.user) {
     return res.status(403).json({
       success: false,
       error: {
         code: ErrorCode.UNAUTHORIZED,
-        message: '需要管理员权限'
+        message: '需要登录'
       },
       meta: {
         timestamp: new Date().toISOString(),

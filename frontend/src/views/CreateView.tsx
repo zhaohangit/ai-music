@@ -21,7 +21,10 @@ import {
   Copy,
   ChevronLeft,
   ChevronRight,
-  Music2
+  Music2,
+  Zap,
+  Star,
+  Lightbulb
 } from 'lucide-react';
 import { musicApi, lyricsApi, MusicInfo } from '../services/api';
 import { useAppStore } from '../hooks/useMusicStore';
@@ -124,6 +127,8 @@ const SectionTitle = styled.h3`
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
 `;
 
 const TextArea = styled.textarea`
@@ -208,6 +213,71 @@ const CopyButton = styled.button`
     background: rgba(255, 255, 255, 0.1);
     color: #FFFFFF;
     border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PromptEnhanceButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+  color: #8B9EF5;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
+    border-color: rgba(102, 126, 234, 0.5);
+    color: #A0B0F5;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const LyricsActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const StyleRecommendButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  color: #8B9EF5;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
+    border-color: rgba(102, 126, 234, 0.5);
+    color: #A0B0F5;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -1014,6 +1084,11 @@ export const CreateView: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  // AI Enhancement loading states
+  const [enhancingPrompt, setEnhancingPrompt] = useState(false);
+  const [polishingLyrics, setPolishingLyrics] = useState(false);
+  const [recommendingStyle, setRecommendingStyle] = useState(false);
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -1201,6 +1276,111 @@ export const CreateView: React.FC = () => {
       }
     };
   }, [musicGeneration.status, musicGeneration.taskId, pollMusicStatus]);
+
+  // Handle Enhance Prompt
+  const handleEnhancePrompt = async () => {
+    if (!description.trim()) {
+      showError(t('create.promptPlaceholder'), t('common.error'));
+      return;
+    }
+
+    try {
+      setEnhancingPrompt(true);
+      showInfo(t('create.enhancingPrompt', '正在增强提示词...'), t('create.enhancePrompt', '增强提示词'));
+
+      const response = await lyricsApi.enhance(description);
+
+      if (response.data?.enhancedPrompt) {
+        setDescription(response.data.enhancedPrompt);
+        showSuccess(t('common.success'), t('create.promptEnhanced', '提示词已增强'));
+      } else {
+        throw new Error('No enhanced prompt returned');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('common.error');
+      showError(errorMessage, t('create.enhanceFailed', '增强失败'));
+    } finally {
+      setEnhancingPrompt(false);
+    }
+  };
+
+  // Handle Polish Lyrics
+  const handlePolishLyrics = async () => {
+    if (!lyrics.trim()) {
+      showError(t('create.noLyrics', '请先生成歌词'), t('common.error'));
+      return;
+    }
+
+    try {
+      setPolishingLyrics(true);
+      showInfo(t('create.polishingLyrics', '正在润色歌词...'), t('create.polishLyrics', '润色歌词'));
+
+      const response = await lyricsApi.polish(lyrics, selectedGenre);
+
+      if (response.data?.polishedLyrics) {
+        setLyrics(response.data.polishedLyrics);
+        showSuccess(t('common.success'), t('create.lyricsPolished', '歌词已润色'));
+      } else {
+        throw new Error('No polished lyrics returned');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('common.error');
+      showError(errorMessage, t('create.polishFailed', '润色失败'));
+    } finally {
+      setPolishingLyrics(false);
+    }
+  };
+
+  // Handle Recommend Style
+  const handleRecommendStyle = async () => {
+    if (!description.trim()) {
+      showError(t('create.promptPlaceholder'), t('common.error'));
+      return;
+    }
+
+    try {
+      setRecommendingStyle(true);
+      showInfo(t('create.recommendingStyle', '正在推荐风格...'), t('create.recommendStyle', '风格推荐'));
+
+      const response = await lyricsApi.recommendStyle(description);
+
+      if (response.data) {
+        const { tags, mood, tempo } = response.data;
+        // Apply recommended settings
+        if (tags && tags.length > 0) {
+          const matchedGenre = genres.find(g =>
+            tags.some(tag => g.toLowerCase().includes(tag.toLowerCase()))
+          );
+          if (matchedGenre) setSelectedGenre(matchedGenre);
+        }
+        if (mood) {
+          const matchedMood = moods.find(m =>
+            m.toLowerCase().includes(mood.toLowerCase()) ||
+            mood.toLowerCase().includes(m.toLowerCase())
+          );
+          if (matchedMood) setSelectedMood(matchedMood);
+        }
+        if (tempo) {
+          const tempoNum = parseInt(tempo);
+          if (!isNaN(tempoNum)) {
+            if (tempoNum < 80) setBpm('60');
+            else if (tempoNum < 110) setBpm('90');
+            else if (tempoNum < 130) setBpm('120');
+            else if (tempoNum < 160) setBpm('140');
+            else setBpm('170');
+          }
+        }
+        showSuccess(t('common.success'), t('create.styleRecommended', '风格已推荐'));
+      } else {
+        throw new Error('No style recommendation returned');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('common.error');
+      showError(errorMessage, t('create.recommendFailed', '推荐失败'));
+    } finally {
+      setRecommendingStyle(false);
+    }
+  };
 
   // Handle AI Lyrics generation
   const handleGenerateLyrics = async () => {
@@ -1439,24 +1619,77 @@ export const CreateView: React.FC = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+              <PromptEnhanceButton
+                onClick={handleEnhancePrompt}
+                disabled={enhancingPrompt || !description.trim()}
+              >
+                {enhancingPrompt ? (
+                  <>
+                    <Loader2 size={14} className="spin" />
+                    {t('create.enhancing', '增强中...')}
+                  </>
+                ) : (
+                  <>
+                    <Zap size={14} />
+                    {t('create.enhancePrompt', 'AI增强提示词')}
+                  </>
+                )}
+              </PromptEnhanceButton>
 
               {/* Generated Lyrics Display */}
               {lyrics && (
                 <>
                   <LyricsHeader>
                     <SectionTitle style={{ margin: 0 }}>{t('create.aiLyrics')}</SectionTitle>
-                    <CopyButton onClick={() => {
-                      navigator.clipboard.writeText(lyrics);
-                      showSuccess(t('common.success'), t('common.copied'));
-                    }}>
-                      {t('common.copy')}
-                    </CopyButton>
+                    <LyricsActions>
+                      <CopyButton onClick={() => {
+                        navigator.clipboard.writeText(lyrics);
+                        showSuccess(t('common.success'), t('common.copied'));
+                      }}>
+                        <Copy size={14} />
+                        {t('common.copy')}
+                      </CopyButton>
+                      <CopyButton
+                        onClick={handlePolishLyrics}
+                        disabled={polishingLyrics}
+                      >
+                        {polishingLyrics ? (
+                          <>
+                            <Loader2 size={14} className="spin" />
+                            {t('create.polishing', '润色中...')}
+                          </>
+                        ) : (
+                          <>
+                            <Star size={14} />
+                            {t('create.polishLyrics', '润色歌词')}
+                          </>
+                        )}
+                      </CopyButton>
+                    </LyricsActions>
                   </LyricsHeader>
                   <LyricsDisplay>{lyrics}</LyricsDisplay>
                 </>
               )}
 
-              <SectionTitle>{t('genre.title')}</SectionTitle>
+              <SectionTitle>
+                {t('genre.title')}
+                <StyleRecommendButton
+                  onClick={handleRecommendStyle}
+                  disabled={recommendingStyle || !description.trim()}
+                >
+                  {recommendingStyle ? (
+                    <>
+                      <Loader2 size={12} className="spin" />
+                      {t('create.recommending', '推荐中...')}
+                    </>
+                  ) : (
+                    <>
+                      <Lightbulb size={12} />
+                      {t('create.recommendStyle', 'AI推荐')}
+                    </>
+                  )}
+                </StyleRecommendButton>
+              </SectionTitle>
               <SelectorGrid>
                 {genres.map((genre) => (
                   <SelectorOption

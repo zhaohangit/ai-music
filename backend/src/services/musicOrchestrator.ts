@@ -2,6 +2,8 @@ import { LLMProvider, LyricsResult, StyleRecommendation, MusicInfo } from '../ty
 import LLMSelector from './llmSelector';
 import config from '../config';
 import logger from '../utils/logger';
+import glmService from './glmService';
+import joyBuilderService from './joyBuilderService';
 
 // 服务接口
 interface ILlmService {
@@ -9,10 +11,11 @@ interface ILlmService {
   enhancePrompt(userInput: string): Promise<string>;
   recommendStyle?(description: string): Promise<StyleRecommendation>;
   polishLyrics?(rawLyrics: string, style: string): Promise<string>;
+  isServiceAvailable?(): boolean;
 }
 
 interface IMusicService {
-  createWithPrompt(prompt: string, model?: string): Promise<any>;
+  createWithPrompt(prompt: string, model?: string, instrumental?: boolean): Promise<any>;
   createCustom(params: any): Promise<any>;
   getMusicById(id: string): Promise<any>;
   waitForCompletion(id: string, maxWait?: number, interval?: number): Promise<any>;
@@ -21,23 +24,46 @@ interface IMusicService {
 /**
  * 音乐生成编排服务
  * 整合LLM和音乐生成服务
+ *
+ * 支持的LLM服务：
+ * - JoyBuilder (京东内部): DeepSeek-V3.2, Qwen3-8B, DeepSeek-R1
+ * - GLM (智谱): glm-5, glm-4-flash
  */
 export class MusicOrchestrator {
   private llmProvider: LLMProvider;
   private glmService: ILlmService | null = null;
+  private joyBuilderService: ILlmService | null = null;
   private sunoService: IMusicService | null = null;
 
   constructor() {
     // 根据环境自动选择LLM
     this.llmProvider = LLMSelector.getDefaultProvider();
-    logger.info('MusicOrchestrator initialized', { llmProvider: this.llmProvider });
+
+    // 自动注入已导入的服务
+    this.glmService = glmService;
+    this.joyBuilderService = joyBuilderService;
+
+    logger.info('MusicOrchestrator initialized', {
+      llmProvider: this.llmProvider,
+      glmAvailable: LLMSelector.isGLMAvailable(),
+      joyBuilderAvailable: LLMSelector.isJoyBuilderAvailable()
+    });
   }
 
   /**
-   * 设置LLM服务
+   * 设置LLM服务（向后兼容）
    */
   setLlmService(service: ILlmService) {
     this.glmService = service;
+    logger.info('LLM service set', { type: 'glm' });
+  }
+
+  /**
+   * 设置JoyBuilder服务
+   */
+  setJoyBuilderService(service: ILlmService) {
+    this.joyBuilderService = service;
+    logger.info('JoyBuilder service set');
   }
 
   /**
@@ -45,16 +71,49 @@ export class MusicOrchestrator {
    */
   setMusicService(service: IMusicService) {
     this.sunoService = service;
+    logger.info('Music service set');
   }
 
   /**
-   * 获取当前LLM服务
+   * 根据提供商获取对应的LLM服务
    */
-  private getLLMService(): ILlmService {
-    if (!this.glmService) {
-      throw new Error('LLM service not initialized');
+  private getLLMService(provider?: LLMProvider): ILlmService {
+    const activeProvider = provider || this.llmProvider;
+
+    if (activeProvider === LLMProvider.JOYBUILDER) {
+      if (this.joyBuilderService && this.joyBuilderService.isServiceAvailable?.()) {
+        return this.joyBuilderService;
+      }
+      logger.warn('JoyBuilder not available, falling back to GLM');
     }
-    return this.glmService;
+
+    if (this.glmService) {
+      return this.glmService;
+    }
+
+    throw new Error('No LLM service available');
+  }
+
+  /**
+   * 获取当前可用的LLM服务
+   */
+  private getActiveLLMService(): { service: ILlmService; provider: LLMProvider } {
+    // 尝试使用首选提供商
+    if (this.llmProvider === LLMProvider.JOYBUILDER && this.joyBuilderService?.isServiceAvailable?.()) {
+      return { service: this.joyBuilderService, provider: LLMProvider.JOYBUILDER };
+    }
+
+    // 回退到GLM
+    if (this.glmService) {
+      return { service: this.glmService, provider: LLMProvider.GLM };
+    }
+
+    // 最后尝试JoyBuilder（即使不可用也返回，让错误信息更明确）
+    if (this.joyBuilderService) {
+      return { service: this.joyBuilderService, provider: LLMProvider.JOYBUILDER };
+    }
+
+    throw new Error('No LLM service configured');
   }
 
   /**
@@ -71,6 +130,8 @@ export class MusicOrchestrator {
     title?: string;
     lyrics?: string;
     tags?: string;
+    instrumental?: boolean;
+    mv?: string;
   }): Promise<{
     taskId?: string;
     title: string;
@@ -80,16 +141,15 @@ export class MusicOrchestrator {
     llmUsed: LLMProvider;
     status: string;
   }> {
-    const { idea, style, mood, mode, llmProvider, title, lyrics, tags } = params;
+    const { idea, style, mood, mode, llmProvider, title, lyrics, tags, instrumental, mv } = params;
 
-    // 如果指定了LLM，临时切换
-    const activeProvider = llmProvider || this.llmProvider;
-    const llmService = this.getLLMService();
+    // 获取活跃的LLM服务
+    const { service: llmService, provider: activeProvider } = this.getActiveLLMService();
 
     let finalLyrics = lyrics || '';
     let finalTitle = title || 'AI Generated Song';
     let enhancedPrompt = idea;
-    let recommendedTags: string[] = tags ? tags.split(',') : [];
+    let recommendedTags: string[] = tags ? tags.split(',').map(t => t.trim()) : [];
     let detectedMood = mood || '温暖';
 
     logger.info('Starting music creation', {
@@ -99,7 +159,7 @@ export class MusicOrchestrator {
     });
 
     // 步骤1：分析并推荐风格（如果用户未指定）
-    if (!style && !tags) {
+    if (!style && recommendedTags.length === 0) {
       try {
         if (llmService.recommendStyle) {
           const recommendation = await llmService.recommendStyle(idea);
@@ -126,7 +186,7 @@ export class MusicOrchestrator {
           );
           finalLyrics = lyricsResult.lyrics;
           finalTitle = lyricsResult.title;
-          logger.info('Lyrics generated', { title: finalTitle });
+          logger.info('Lyrics generated', { title: finalTitle, length: finalLyrics.length });
         } catch (error) {
           logger.error('Lyrics generation failed', { error });
           throw error;
@@ -136,6 +196,7 @@ export class MusicOrchestrator {
       // 使用LLM增强prompt
       try {
         enhancedPrompt = await llmService.enhancePrompt(idea);
+        logger.info('Prompt enhanced', { originalLength: idea.length, enhancedLength: enhancedPrompt.length });
       } catch (error) {
         logger.warn('Prompt enhancement failed, using original', { error });
         enhancedPrompt = idea;
@@ -149,21 +210,23 @@ export class MusicOrchestrator {
 
         if (mode === 'inspiration') {
           // 灵感模式
-          musicResult = await this.sunoService.createWithPrompt(enhancedPrompt);
+          musicResult = await this.sunoService.createWithPrompt(enhancedPrompt, mv, instrumental);
         } else {
           // 自定义模式
           musicResult = await this.sunoService.createCustom({
             title: finalTitle,
             lyrics: finalLyrics,
             tags: style || recommendedTags.join(','),
-            mv: 'chirp-v3-5'
+            mv: mv || 'chirp-v3-5',
+            instrumental
           });
         }
 
-        logger.info('Music generation started', { taskId: musicResult?.data?.id });
+        const taskId = musicResult?.id || musicResult?.data?.id;
+        logger.info('Music generation started', { taskId });
 
         return {
-          taskId: musicResult?.data?.id,
+          taskId,
           title: finalTitle,
           lyrics: finalLyrics,
           style: recommendedTags,
@@ -196,7 +259,7 @@ export class MusicOrchestrator {
     }
 
     const result = await this.sunoService.getMusicById(taskId);
-    return result.data;
+    return result;
   }
 
   /**
@@ -211,10 +274,12 @@ export class MusicOrchestrator {
   }
 
   /**
-   * 歌词润色（使用GLM的高级能力）
+   * 歌词润色
    */
-  async polishLyrics(rawLyrics: string, style: string): Promise<string> {
-    const llmService = this.getLLMService();
+  async polishLyrics(rawLyrics: string, style: string, provider?: LLMProvider): Promise<string> {
+    const { service: llmService } = provider
+      ? { service: this.getLLMService(provider) }
+      : this.getActiveLLMService();
 
     if (llmService.polishLyrics) {
       return await llmService.polishLyrics(rawLyrics, style);
@@ -222,6 +287,36 @@ export class MusicOrchestrator {
 
     // 如果服务不支持润色，直接返回原文
     return rawLyrics;
+  }
+
+  /**
+   * 使用指定LLM生成歌词
+   */
+  async generateLyricsWithProvider(
+    idea: string,
+    style: string,
+    mood: string,
+    provider?: LLMProvider
+  ): Promise<LyricsResult> {
+    const { service: llmService, provider: activeProvider } = provider
+      ? { service: this.getLLMService(provider), provider }
+      : this.getActiveLLMService();
+
+    logger.info('Generating lyrics', { provider: activeProvider });
+
+    return await llmService.generateLyrics(idea, style, mood);
+  }
+
+  /**
+   * 获取当前配置信息
+   */
+  getConfigInfo() {
+    return {
+      defaultProvider: this.llmProvider,
+      glmAvailable: LLMSelector.isGLMAvailable(),
+      joyBuilderAvailable: LLMSelector.isJoyBuilderAvailable(),
+      statusSummary: LLMSelector.getStatusSummary()
+    };
   }
 }
 

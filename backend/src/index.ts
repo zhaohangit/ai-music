@@ -23,10 +23,12 @@ import {
 import musicRoutes from './routes/music';
 import lyricsRoutes from './routes/lyrics';
 import healthRoutes from './routes/health';
+import authRoutes from './routes/auth';
 
 // 导入服务初始化
 import sunoService from './services/sunoService';
 import glmService from './services/glmService';
+import joyBuilderService from './services/joyBuilderService';
 import musicOrchestrator from './services/musicOrchestrator';
 
 // 导入日志
@@ -71,10 +73,12 @@ export const upload = multer({
 
 // 初始化服务
 musicOrchestrator.setLlmService(glmService);
+musicOrchestrator.setJoyBuilderService(joyBuilderService);
 musicOrchestrator.setMusicService(sunoService);
 
 // API路由
 app.use('/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/music', apiLimiter, musicRoutes);
 app.use('/api/lyrics', apiLimiter, lyricsRoutes);
 
@@ -83,18 +87,38 @@ if (config.app.env === 'development') {
   app.get('/api', (req, res) => {
     res.json({
       name: 'AI Music Pro API',
-      version: '1.0.0',
+      version: '2.0.0',
       endpoints: {
+        auth: {
+          'POST /api/auth/register': '用户注册',
+          'POST /api/auth/login': '用户登录',
+          'GET /api/auth/me': '获取当前用户信息',
+          'PUT /api/auth/profile': '更新用户信息',
+          'POST /api/auth/change-password': '修改密码',
+          'POST /api/auth/verify': '验证Token',
+          'GET /api/auth/status': '认证服务状态'
+        },
         music: {
-          'POST /api/music/create': '创建歌曲',
+          'POST /api/music/create': '创建歌曲 (灵感模式/自定义模式/AI全流程)',
           'GET /api/music/status/:id': '查询歌曲状态',
-          'GET /api/music/list': '获取歌曲列表',
+          'GET /api/music/list': '获取歌曲列表 (分页)',
+          'GET /api/music/history': '获取生成历史',
+          'GET /api/music/:id': '获取单个歌曲详情',
+          'PUT /api/music/:id': '更新歌曲信息',
+          'DELETE /api/music/:id': '删除歌曲',
+          'POST /api/music/:id/favorite': '切换收藏状态',
+          'GET /api/music/download/:id': '下载音乐文件',
           'POST /api/music/wait/:id': '等待生成完成',
-          'POST /api/music/upload': '上传音频',
-          'POST /api/music/cover': '创建翻唱'
+          'POST /api/music/upload': '上传音频 (URL方式)',
+          'POST /api/music/cover': '创建翻唱',
+          'GET /api/music/balance': '查询Suno积分余额',
+          'POST /api/music/batch-status': '批量查询音乐状态',
+          'POST /api/music/whole-song/:clipId': '获取整首歌曲',
+          'POST /api/music/extend': '歌曲续写',
+          'GET /api/music/llm-status': '获取LLM服务状态'
         },
         lyrics: {
-          'POST /api/lyrics/generate': '生成歌词',
+          'POST /api/lyrics/generate': '生成歌词 (支持GLM/JoyBuilder)',
           'POST /api/lyrics/enhance': '增强提示词',
           'POST /api/lyrics/polish': '润色歌词',
           'POST /api/lyrics/recommend-style': '风格推荐'
@@ -103,6 +127,18 @@ if (config.app.env === 'development') {
           'GET /health': '健康检查',
           'GET /health/ready': '就绪检查',
           'GET /health/live': '存活检查'
+        }
+      },
+      llmProviders: {
+        glm: {
+          name: '智谱GLM',
+          available: !!config.glm.authorization,
+          models: config.glm.models
+        },
+        joybuilder: {
+          name: 'JoyBuilder (京东内部)',
+          available: !!(config.joybuilder.baseURL && config.joybuilder.apiKey),
+          models: config.joybuilder.models
         }
       }
     });

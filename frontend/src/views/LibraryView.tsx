@@ -16,12 +16,22 @@ import {
   Music,
   Clock,
   Loader2,
-  Trash2
+  Trash2,
+  Scissors,
+  Sparkles,
+  Video,
+  Gauge,
+  Disc
 } from 'lucide-react';
 import { musicApi, MusicInfo } from '../services/api';
 import { useAppStore } from '../hooks/useMusicStore';
 import { downloadFile, shareTrack } from '../utils/helpers';
 import { useToast } from '../hooks/useToast';
+import ExtendModal from '../components/ExtendModal';
+import RemasterModal from '../components/RemasterModal';
+import CropModal from '../components/CropModal';
+import SpeedModal from '../components/SpeedModal';
+import VideoModal from '../components/VideoModal';
 
 const LibraryContainer = styled.div`
   display: flex;
@@ -263,23 +273,24 @@ const CardStatus = styled.span<{ $status?: string }>`
 
 const CardActions = styled.div`
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 12px;
 `;
 
 const CardActionButton = styled.button<{ $active?: boolean; $variant?: 'default' | 'danger' }>`
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px;
+  padding: 6px;
+  min-width: 32px;
   background: ${props => {
     if (props.$variant === 'danger') return 'rgba(239, 68, 68, 0.1)';
     return props.$active ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)';
   }};
   border: 1px solid ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
-  border-radius: 8px;
+  border-radius: 6px;
   color: ${props => {
     if (props.$variant === 'danger') return '#EF4444';
     return props.$active ? '#EF4444' : '#8B8B9F';
@@ -459,6 +470,26 @@ export const LibraryView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+  // Extend modal state
+  const [extendModalOpen, setExtendModalOpen] = useState(false);
+  const [selectedTrackForExtend, setSelectedTrackForExtend] = useState<MusicTrack | null>(null);
+
+  // Remaster modal state
+  const [remasterModalOpen, setRemasterModalOpen] = useState(false);
+  const [selectedTrackForRemaster, setSelectedTrackForRemaster] = useState<MusicTrack | null>(null);
+
+  // Crop modal state
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [selectedTrackForCrop, setSelectedTrackForCrop] = useState<MusicTrack | null>(null);
+
+  // Speed modal state
+  const [speedModalOpen, setSpeedModalOpen] = useState(false);
+  const [selectedTrackForSpeed, setSelectedTrackForSpeed] = useState<MusicTrack | null>(null);
+
+  // Video modal state
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [selectedTrackForVideo, setSelectedTrackForVideo] = useState<MusicTrack | null>(null);
+
   const { recentTracks, setCurrentTrack, setIsPlaying, currentTrack, isPlaying } = useAppStore();
 
   // Fetch tracks from API
@@ -505,33 +536,33 @@ export const LibraryView: React.FC = () => {
         const newFavorites = new Set(prev);
         if (newFavorites.has(trackId)) {
           newFavorites.delete(trackId);
-          showSuccess('Removed from favorites', 'Favorite Updated');
+          showSuccess(t('common.removedFromFavorites'), t('common.success'));
         } else {
           newFavorites.add(trackId);
-          showSuccess('Added to favorites', 'Favorite Updated');
+          showSuccess(t('common.addedToFavorites'), t('common.success'));
         }
         return newFavorites;
       });
     } catch (err) {
       console.error('Failed to toggle favorite:', err);
-      showError('Failed to update favorite status', 'Error');
+      showError(t('common.favoriteFailed'), t('common.error'));
     }
   };
 
   // Delete track
   const deleteTrack = async (e: React.MouseEvent, trackId: string) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this track?')) {
+    if (!confirm(t('common.confirmDelete'))) {
       return;
     }
 
     try {
       await musicApi.delete(trackId);
       setTracks(prev => prev.filter(t => t.id !== trackId));
-      showSuccess('Track deleted successfully', 'Delete Complete');
+      showSuccess(t('common.trackDeleted'), t('common.success'));
     } catch (err) {
       console.error('Failed to delete track:', err);
-      showError('Failed to delete track', 'Delete Failed');
+      showError(t('common.deleteFailed'), t('common.error'));
     }
   };
 
@@ -561,7 +592,7 @@ export const LibraryView: React.FC = () => {
     e.stopPropagation();
 
     if (track.status !== 'complete') {
-      showError('Track is not ready for download', 'Download Failed');
+      showError(t('common.trackNotReady'), t('common.downloadFailed'));
       return;
     }
 
@@ -569,10 +600,10 @@ export const LibraryView: React.FC = () => {
       const filename = `${track.title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
       const audioUrl = `/api/music/${track.id}/download`;
       await downloadFile(audioUrl, filename);
-      showSuccess('Track downloaded successfully', 'Download Complete');
+      showSuccess(t('common.downloadStarted'), t('common.success'));
     } catch (err) {
       console.error('Download error:', err);
-      showError('Failed to download track. Please try again.', 'Download Failed');
+      showError(t('common.downloadFailed'), t('common.error'));
     }
   };
 
@@ -590,11 +621,76 @@ export const LibraryView: React.FC = () => {
 
     try {
       await shareTrack(musicInfo);
-      showSuccess('Track shared successfully', 'Share Success');
+      showSuccess(t('common.linkCopied'), t('common.success'));
     } catch (err) {
       console.error('Share error:', err);
-      showError('Failed to share track. Please try again.', 'Share Failed');
+      showError(t('common.copyFailed'), t('common.error'));
     }
+  };
+
+  // Handle extend
+  const handleExtend = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForExtend(track);
+    setExtendModalOpen(true);
+  };
+
+  // Handle extend success
+  const handleExtendSuccess = (taskId: string) => {
+    showSuccess('续写任务已创建，请稍后查看结果', '续写成功');
+    fetchTracks(); // Refresh the track list
+  };
+
+  // Handle remaster
+  const handleRemaster = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForRemaster(track);
+    setRemasterModalOpen(true);
+  };
+
+  // Handle remaster success
+  const handleRemasterSuccess = (taskIds: string[]) => {
+    showSuccess('Remaster任务已创建，请稍后查看结果', 'Remaster成功');
+    fetchTracks();
+  };
+
+  // Handle crop
+  const handleCrop = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForCrop(track);
+    setCropModalOpen(true);
+  };
+
+  // Handle crop success
+  const handleCropSuccess = (taskId: string) => {
+    showSuccess('裁剪任务已创建，请稍后查看结果', '裁剪成功');
+    fetchTracks();
+  };
+
+  // Handle speed
+  const handleSpeed = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForSpeed(track);
+    setSpeedModalOpen(true);
+  };
+
+  // Handle speed success
+  const handleSpeedSuccess = (taskId: string) => {
+    showSuccess('变速任务已创建，请稍后查看结果', '变速成功');
+    fetchTracks();
+  };
+
+  // Handle video
+  const handleVideo = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForVideo(track);
+    setVideoModalOpen(true);
+  };
+
+  // Handle video success
+  const handleVideoSuccess = (taskId: string) => {
+    showSuccess('视频生成任务已创建，请稍后查看结果', '视频生成成功');
+    fetchTracks();
   };
 
   // Filter tracks based on selected filter and search query
@@ -695,7 +791,7 @@ export const LibraryView: React.FC = () => {
       {error && (
         <ErrorMessage>
           <span>{error}</span>
-          <RetryButton onClick={fetchTracks}>Retry</RetryButton>
+          <RetryButton onClick={fetchTracks}>{t('common.retry', '重试')}</RetryButton>
         </ErrorMessage>
       )}
 
@@ -738,8 +834,49 @@ export const LibraryView: React.FC = () => {
                   <Heart size={14} fill={favorites.has(track.id) ? 'currentColor' : 'none'} />
                 </CardActionButton>
                 <CardActionButton
+                  onClick={(e) => handleExtend(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.extend', '续写歌曲')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Scissors size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleRemaster(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.remaster', 'Remaster')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Sparkles size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleCrop(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.crop', '裁剪')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Disc size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleSpeed(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.speed', '变速')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Gauge size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleVideo(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.video', '生成视频')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Video size={14} />
+                </CardActionButton>
+                <CardActionButton
                   onClick={(e) => handleDownload(e, track)}
                   disabled={track.status !== 'complete'}
+                  title={t('library.download', '下载')}
                   style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Download size={14} />
@@ -747,6 +884,7 @@ export const LibraryView: React.FC = () => {
                 <CardActionButton
                   onClick={(e) => handleShare(e, track)}
                   disabled={track.status !== 'complete'}
+                  title={t('library.share', '分享')}
                   style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Share2 size={14} />
@@ -754,6 +892,7 @@ export const LibraryView: React.FC = () => {
                 <CardActionButton
                   onClick={(e) => deleteTrack(e, track.id)}
                   $variant="danger"
+                  title={t('library.delete', '删除')}
                 >
                   <Trash2 size={14} />
                 </CardActionButton>
@@ -761,9 +900,9 @@ export const LibraryView: React.FC = () => {
               <CardMeta style={{ marginTop: '8px' }}>
                 <span style={{ fontSize: '0.75rem' }}>{track.createdAt}</span>
                 <CardStatus $status={track.status}>
-                  {track.status === 'complete' && 'Ready'}
-                  {track.status === 'processing' && 'Processing'}
-                  {track.status === 'error' && 'Failed'}
+                  {track.status === 'complete' && t('common.ready', '就绪')}
+                  {track.status === 'processing' && t('common.processing', '处理中')}
+                  {track.status === 'error' && t('common.failed', '失败')}
                 </CardStatus>
               </CardMeta>
             </MusicCard>
@@ -798,6 +937,78 @@ export const LibraryView: React.FC = () => {
           to { transform: rotate(360deg); }
         }
       `}</style>
+
+      {/* Extend Modal */}
+      {selectedTrackForExtend && (
+        <ExtendModal
+          isOpen={extendModalOpen}
+          onClose={() => {
+            setExtendModalOpen(false);
+            setSelectedTrackForExtend(null);
+          }}
+          clipId={selectedTrackForExtend.id}
+          clipTitle={selectedTrackForExtend.title}
+          currentDuration={selectedTrackForExtend.duration ? parseInt(selectedTrackForExtend.duration.split(':')[0]) * 60 + parseInt(selectedTrackForExtend.duration.split(':')[1]) : undefined}
+          onSuccess={handleExtendSuccess}
+        />
+      )}
+
+      {/* Remaster Modal */}
+      {selectedTrackForRemaster && (
+        <RemasterModal
+          isOpen={remasterModalOpen}
+          onClose={() => {
+            setRemasterModalOpen(false);
+            setSelectedTrackForRemaster(null);
+          }}
+          clipId={selectedTrackForRemaster.id}
+          clipTitle={selectedTrackForRemaster.title}
+          onSuccess={handleRemasterSuccess}
+        />
+      )}
+
+      {/* Crop Modal */}
+      {selectedTrackForCrop && (
+        <CropModal
+          isOpen={cropModalOpen}
+          onClose={() => {
+            setCropModalOpen(false);
+            setSelectedTrackForCrop(null);
+          }}
+          clipId={selectedTrackForCrop.id}
+          clipTitle={selectedTrackForCrop.title}
+          currentDuration={selectedTrackForCrop.duration ? parseInt(selectedTrackForCrop.duration.split(':')[0]) * 60 + parseInt(selectedTrackForCrop.duration.split(':')[1]) : undefined}
+          onSuccess={handleCropSuccess}
+        />
+      )}
+
+      {/* Speed Modal */}
+      {selectedTrackForSpeed && (
+        <SpeedModal
+          isOpen={speedModalOpen}
+          onClose={() => {
+            setSpeedModalOpen(false);
+            setSelectedTrackForSpeed(null);
+          }}
+          clipId={selectedTrackForSpeed.id}
+          clipTitle={selectedTrackForSpeed.title}
+          onSuccess={handleSpeedSuccess}
+        />
+      )}
+
+      {/* Video Modal */}
+      {selectedTrackForVideo && (
+        <VideoModal
+          isOpen={videoModalOpen}
+          onClose={() => {
+            setVideoModalOpen(false);
+            setSelectedTrackForVideo(null);
+          }}
+          clipId={selectedTrackForVideo.id}
+          clipTitle={selectedTrackForVideo.title}
+          onSuccess={handleVideoSuccess}
+        />
+      )}
     </LibraryContainer>
   );
 };

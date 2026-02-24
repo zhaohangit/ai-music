@@ -430,6 +430,155 @@ class SunoService {
   }
 
   /**
+   * 获取歌词时间戳对齐
+   * @param sunoId - Suno音乐ID (custom_id)
+   * @param lyrics - 歌词内容
+   * @returns 任务ID
+   */
+  async getAlignedLyrics(sunoId: string, lyrics: string): Promise<string> {
+    try {
+      logger.info('[Suno Service] Getting aligned lyrics', { sunoId, lyricsLength: lyrics.length });
+
+      const response = await this.client.post('/api/v1/music/aligned-lyrics', {
+        suno_id: sunoId,
+        lyrics
+      });
+
+      return response.data?.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Remaster音乐 - 提升音质
+   * @param clipId - Suno音乐ID (custom_id)
+   * @param modelName - 模型名称：v5传chirp-carp, v4.5传chirp-bass, v4传chirp-up
+   * @param variationCategory - 变化程度：subtle、normal或high (仅v5)
+   * @returns 任务ID数组
+   */
+  async remasterMusic(clipId: string, modelName: string = 'chirp-v5', variationCategory?: 'subtle' | 'normal' | 'high'): Promise<string[]> {
+    try {
+      logger.info('[Suno Service] Remastering music', { clipId, modelName, variationCategory });
+
+      const requestBody: any = {
+        clip_id: clipId,
+        model_name: modelName
+      };
+
+      if (variationCategory && modelName.includes('v5')) {
+        requestBody.variation_category = variationCategory;
+      }
+
+      const response = await this.client.post('/api/v1/music/upsample', requestBody);
+
+      return response.data?.data || [];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 生成音乐视频
+   * @param taskId - 任务ID
+   * @param sunoId - Suno音乐ID (custom_id)
+   * @returns 任务ID
+   */
+  async generateMusicVideo(taskId: string, sunoId: string): Promise<string> {
+    try {
+      logger.info('[Suno Service] Generating music video', { taskId, sunoId });
+
+      const response = await this.client.post('/api/v1/music/video', {
+        task_id: taskId,
+        suno_id: sunoId
+      });
+
+      return response.data?.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 转WAV格式
+   * @param taskId - 任务ID
+   * @param sunoId - Suno音乐ID (custom_id)
+   * @returns 任务ID
+   */
+  async convertToWav(taskId: string, sunoId: string): Promise<string> {
+    try {
+      logger.info('[Suno Service] Converting to WAV', { taskId, sunoId });
+
+      const response = await this.client.post('/api/v1/music/convert-wav', {
+        task_id: taskId,
+        suno_id: sunoId
+      });
+
+      return response.data?.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 裁剪音乐
+   * @param clipId - Suno音乐ID (custom_id)
+   * @param cropStartS - 裁剪开始时间（秒）
+   * @param cropEndS - 裁剪结束时间（秒）
+   * @returns 任务ID
+   */
+  async cropMusic(clipId: string, cropStartS: number, cropEndS: number): Promise<string> {
+    try {
+      logger.info('[Suno Service] Cropping music', { clipId, cropStartS, cropEndS });
+
+      const response = await this.client.post('/api/v1/music/crop', {
+        clip_id: clipId,
+        crop_start_s: cropStartS,
+        crop_end_s: cropEndS
+      });
+
+      return response.data?.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * 调整音乐速度
+   * @param clipId - Suno音乐ID (custom_id)
+   * @param speedMultiplier - 速度倍数：0.25, 0.5, 0.75, 1, 1.25, 1.5, 2
+   * @param keepPitch - 是否保持高音
+   * @param title - 歌名
+   * @returns 任务ID
+   */
+  async adjustSpeed(clipId: string, speedMultiplier: number, keepPitch: boolean = false, title?: string): Promise<string> {
+    try {
+      logger.info('[Suno Service] Adjusting music speed', { clipId, speedMultiplier, keepPitch, title });
+
+      const validSpeeds = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+      if (!validSpeeds.includes(speedMultiplier)) {
+        throw new SunoError(ErrorCode.INVALID_PARAMS, `无效的速度倍数，支持: ${validSpeeds.join(', ')}`, {});
+      }
+
+      const requestBody: any = {
+        clip_id: clipId,
+        speed_multiplier: speedMultiplier,
+        keep_pitch: keepPitch
+      };
+
+      if (title) {
+        requestBody.title = title;
+      }
+
+      const response = await this.client.post('/api/v1/music/speed', requestBody);
+
+      return response.data?.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * 轮询等待生成完成
    * @param id - 任务ID
    * @param maxWait - 最大等待时间（秒），默认300秒（5分钟）

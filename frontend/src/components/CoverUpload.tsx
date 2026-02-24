@@ -492,17 +492,17 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
 
   const handleSubmit = useCallback(async () => {
     if (!audioUrl.trim()) {
-      setError('Please enter an audio URL');
+      setError(t('cover.enterAudioUrl'));
       return;
     }
 
     if (!isValidUrl(audioUrl.trim())) {
-      setError('Please enter a valid URL');
+      setError(t('cover.enterValidUrl'));
       return;
     }
 
     if (!prompt.trim() && tags.length === 0) {
-      setError('Please provide a prompt or at least one tag');
+      setError(t('cover.providePromptOrTag'));
       return;
     }
 
@@ -512,20 +512,36 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
     setUploadProgress(30);
 
     try {
-      // 上传音频 URL 到 Suno API
+      // 步骤1: 上传音频 URL 到 Suno API
       const uploadResponse = await musicApi.uploadAudioUrl(audioUrl.trim());
-      setUploadProgress(60);
+      setUploadProgress(30);
 
       if (uploadResponse.success && uploadResponse.data) {
-        const newUploadId = uploadResponse.data.uploadId || uploadResponse.data.upload_id || uploadResponse.data.id;
-        setUploadId(newUploadId);
+        const uploadTaskId = uploadResponse.data.uploadId || uploadResponse.data.upload_id || uploadResponse.data.id;
+        setUploadId(uploadTaskId);
 
-        // 生成翻唱
+        // 步骤2: 等待上传任务完成，获取 custom_id (suno clip_id)
+        setUploadProgress(50);
+        let coverClipId = uploadTaskId;
+
+        // 查询上传任务状态以获取 custom_id
+        try {
+          const statusResponse = await musicApi.waitForCompletion(uploadTaskId, 120000);
+          if (statusResponse.success && statusResponse.data) {
+            // custom_id 是 suno 的音乐ID，用于翻唱
+            coverClipId = (statusResponse.data as any).custom_id || uploadTaskId;
+          }
+        } catch (waitError) {
+          // 如果等待失败，尝试直接使用任务ID
+          console.warn('Wait for upload completion failed, using task ID directly:', waitError);
+        }
+
+        // 步骤3: 生成翻唱
         setUploadStage('generating');
         setUploadProgress(80);
 
         const coverResponse = await musicApi.createCover({
-          upload_id: newUploadId,
+          cover_clip_id: coverClipId,
           prompt: prompt.trim() || undefined,
           tags: tags.join(', ') || undefined,
           lyrics: lyrics.trim() || undefined,
@@ -560,16 +576,16 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
       {uploadStage === 'idle' || uploadStage === 'error' ? (
         <>
           <FormSection>
-            <SectionLabel>Audio URL</SectionLabel>
+            <SectionLabel>{t('cover.audioUrlLabel')}</SectionLabel>
             <Input
               type="url"
-              placeholder="Enter the URL of the audio file (e.g., https://example.com/audio.mp3)"
+              placeholder={t('cover.audioUrlPlaceholder')}
               value={audioUrl}
               onChange={(e) => setAudioUrl(e.target.value)}
               disabled={isUploading}
             />
             <HelpText>
-              The audio file must be publicly accessible via URL. Supported formats: MP3, WAV, M4A
+              {t('cover.audioUrlHelp')}
             </HelpText>
           </FormSection>
 
@@ -581,9 +597,9 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
           )}
 
           <FormSection>
-            <SectionLabel>Prompt</SectionLabel>
+            <SectionLabel>{t('cover.promptLabel')}</SectionLabel>
             <TextArea
-              placeholder="Describe the cover style you want (e.g., 'acoustic version', 'jazz rendition', 'electronic remix')"
+              placeholder={t('cover.promptPlaceholder')}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={isUploading}
@@ -591,7 +607,7 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
           </FormSection>
 
           <FormSection>
-            <SectionLabel>Tags</SectionLabel>
+            <SectionLabel>{t('cover.tagsLabel')}</SectionLabel>
             <TagsInput onClick={() => tagInputRef.current?.focus()}>
               {tags.map((tag) => (
                 <Tag key={tag}>
@@ -604,7 +620,7 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
               <TagInput
                 ref={tagInputRef}
                 type="text"
-                placeholder={tags.length === 0 ? 'Add music style tags (press Enter)' : ''}
+                placeholder={tags.length === 0 ? t('cover.tagsPlaceholder') : ''}
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInputKeyDown}
@@ -614,9 +630,9 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
           </FormSection>
 
           <FormSection>
-            <SectionLabel>Lyrics (Optional)</SectionLabel>
+            <SectionLabel>{t('cover.lyricsLabel')}</SectionLabel>
             <TextArea
-              placeholder="Add custom lyrics for the cover (optional)"
+              placeholder={t('cover.lyricsPlaceholder')}
               value={lyrics}
               onChange={(e) => setLyrics(e.target.value)}
               disabled={isUploading}
@@ -625,7 +641,7 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
 
           <ButtonContainer>
             <SecondaryButton onClick={handleReset} disabled={isUploading}>
-              Reset
+              {t('cover.resetBtn')}
             </SecondaryButton>
             <CreateButton
               onClick={handleSubmit}
@@ -635,12 +651,12 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
               {isUploading ? (
                 <>
                   <Loader2 size={20} className="animate-spin" />
-                  Processing...
+                  {t('cover.processing')}
                 </>
               ) : (
                 <>
                   <Sparkles size={20} />
-                  Create Cover
+                  {t('cover.createBtn')}
                 </>
               )}
             </CreateButton>
@@ -650,8 +666,8 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
         <SuccessMessage>
           <CheckCircle size={24} />
           <div>
-            <ProgressTitle>Cover Created Successfully!</ProgressTitle>
-            <ProgressSubtitle>Your AI-generated cover is ready.</ProgressSubtitle>
+            <ProgressTitle>{t('cover.successTitle')}</ProgressTitle>
+            <ProgressSubtitle>{t('cover.successSubtitle')}</ProgressSubtitle>
           </div>
         </SuccessMessage>
       ) : (
@@ -661,12 +677,12 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
           </ProgressSpinner>
           <ProgressText>
             <ProgressTitle>
-              {uploadStage === 'uploading' ? 'Uploading Audio...' : 'Creating Cover...'}
+              {uploadStage === 'uploading' ? t('cover.uploadingAudio') : t('cover.creatingCover')}
             </ProgressTitle>
             <ProgressSubtitle>
               {uploadStage === 'uploading'
-                ? 'Please wait while we upload your file'
-                : 'AI is generating your cover version'}
+                ? t('cover.uploadWait')
+                : t('cover.aiGenerating')}
             </ProgressSubtitle>
           </ProgressText>
           <ProgressBar>

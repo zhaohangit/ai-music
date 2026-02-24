@@ -459,7 +459,7 @@ export const CoverView: React.FC = () => {
 
   // 格式化相对时间
   const formatRelativeTime = (dateString: string): string => {
-    if (!dateString) return 'Unknown';
+    if (!dateString) return t('time.justNow');
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -467,10 +467,10 @@ export const CoverView: React.FC = () => {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffMins < 1) return t('time.justNow');
+    if (diffMins < 60) return t('time.minsAgo', { count: diffMins });
+    if (diffHours < 24) return t('time.hoursAgo', { count: diffHours });
+    if (diffDays < 7) return `${diffDays} ${t('time.daysAgo')}`;
     return date.toLocaleDateString();
   };
 
@@ -567,7 +567,7 @@ export const CoverView: React.FC = () => {
             {t('cover.recentCovers')}
             {recentCovers.length > 0 && (
               <span style={{ marginLeft: 'auto', fontSize: '0.875rem', color: '#8B8B9F' }}>
-                {recentCovers.length} {recentCovers.length === 1 ? 'cover' : 'covers'}
+                {t('cover.coverCount', { count: recentCovers.length })}
               </span>
             )}
           </SectionTitle>
@@ -575,12 +575,12 @@ export const CoverView: React.FC = () => {
           {loading ? (
             <LoadingState>
               <Loader2 size={32} color="#667EEA" className="spin" />
-              <LoadingText>Loading covers...</LoadingText>
+              <LoadingText>{t('cover.loadingCovers')}</LoadingText>
             </LoadingState>
           ) : error ? (
             <ErrorState>
               <ErrorText>{error}</ErrorText>
-              <RetryButton onClick={() => window.location.reload()}>Retry</RetryButton>
+              <RetryButton onClick={() => window.location.reload()}>{t('cover.retry')}</RetryButton>
             </ErrorState>
           ) : recentCovers.length > 0 ? (
             <RecentCoversList>

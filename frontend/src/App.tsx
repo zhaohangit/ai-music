@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '@/views';
 import { CreateView, LibraryView, HistoryView, ExploreView, CommunityView, SettingsView, CoverView } from '@/views';
+import ApiDocsView from '@/views/ApiDocsView';
 import { ToastProvider } from './hooks/useToast';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -19,6 +20,7 @@ const App: React.FC = () => {
               <Route path="history" element={<HistoryView />} />
               <Route path="explore" element={<ExploreView />} />
               <Route path="community" element={<CommunityView />} />
+              <Route path="api-docs" element={<ApiDocsView />} />
               <Route path="settings" element={<SettingsView />} />
             </Route>
           </Routes>
