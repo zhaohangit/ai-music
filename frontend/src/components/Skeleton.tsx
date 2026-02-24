@@ -8,6 +8,7 @@ interface SkeletonProps {
   variant?: 'rect' | 'circle' | 'text';
   count?: number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const pulse = keyframes`
@@ -97,16 +98,16 @@ export const SkeletonCard = styled.div`
 export const SkeletonMusicCard: React.FC = () => {
   return (
     <SkeletonCard>
-      <Skeleton $width="100%" $height="100%" $variant="rect" style={{ aspectRatio: '1' }} />
-      <Skeleton $width="80%" $height="20px" $borderRadius="4px" />
+      <Skeleton width="100%" height="100%" variant="rect" style={{ aspectRatio: '1' }} />
+      <Skeleton width="80%" height="20px" borderRadius="4px" />
       <div style={{ display: 'flex', gap: '8px' }}>
-        <Skeleton $width="60px" $height="24px" $borderRadius="4px" />
-        <Skeleton $width="40px" $height="24px" $borderRadius="4px" />
+        <Skeleton width="60px" height="24px" borderRadius="4px" />
+        <Skeleton width="40px" height="24px" borderRadius="4px" />
       </div>
       <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-        <Skeleton $width="100%" $height="32px" $borderRadius="8px" />
-        <Skeleton $width="100%" $height="32px" $borderRadius="8px" />
-        <Skeleton $width="100%" $height="32px" $borderRadius="8px" />
+        <Skeleton width="100%" height="32px" borderRadius="8px" />
+        <Skeleton width="100%" height="32px" borderRadius="8px" />
+        <Skeleton width="100%" height="32px" borderRadius="8px" />
       </div>
     </SkeletonCard>
   );
@@ -117,12 +118,12 @@ export const SkeletonList: React.FC<{ count?: number }> = ({ count = 5 }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {Array.from({ length: count }).map((_, index) => (
         <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px' }}>
-          <Skeleton $width="48px" $height="48px" $variant="rect" $borderRadius="8px" />
+          <Skeleton width="48px" height="48px" variant="rect" borderRadius="8px" />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Skeleton $width="70%" $height="16px" $borderRadius="4px" />
-            <Skeleton $width="40%" $height="14px" $borderRadius="4px" />
+            <Skeleton width="70%" height="16px" borderRadius="4px" />
+            <Skeleton width="40%" height="14px" borderRadius="4px" />
           </div>
-          <Skeleton $width="32px" $height="32px" $variant="circle" />
+          <Skeleton width="32px" height="32px" variant="circle" />
         </div>
       ))}
     </div>
@@ -135,10 +136,10 @@ export const SkeletonText: React.FC<{ lines?: number; width?: string }> = ({ lin
       {Array.from({ length: lines }).map((_, index) => (
         <Skeleton
           key={index}
-          $width={index === lines - 1 ? '60%' : width}
-          $height="16px"
-          $borderRadius="4px"
-          $variant="text"
+          width={index === lines - 1 ? '60%' : width}
+          height="16px"
+          borderRadius="4px"
+          variant="text"
         />
       ))}
     </div>

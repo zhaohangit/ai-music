@@ -56,15 +56,43 @@ export interface ApiResponse<T> {
 }
 
 export interface MusicCreateParams {
+  // Mode selection
   mode?: 'inspiration' | 'custom' | 'full_ai' | 'lyrics_only' | 'music_only';
-  prompt?: string;
-  title?: string;
+
+  // Inspiration mode (simple description)
+  gpt_description_prompt?: string;
+
+  // Custom mode (detailed control)
+  prompt?: string; // Lyrics for custom mode
   lyrics?: string;
   tags?: string;
+
+  // Common parameters
+  title?: string;
   mood?: string;
   llmProvider?: 'glm' | 'joybuilder';
+  make_instrumental?: boolean;
+  mv?: 'chirp-v3-0' | 'chirp-v3-5' | 'chirp-v4' | 'chirp-auk-turbo' | 'chirp-auk' | 'chirp-bluejay' | 'chirp-crow';
+  negative_tags?: string;
+
+  task?: 'generate' | 'extend' | 'cover' | 'remaster' | 'crop' | 'speed' | 'video' | 'wav';
+
+  // Metadata - nested object according to API spec
+  metadata?: {
+    vocal_gender?: 'm' | 'f'; // 'm' = male, 'f' = female
+    control_sliders?: {
+      style_weight?: number; // 0-1 float
+      weirdness_constraint?: number; // 0-1 float
+    };
+  };
+
+  // Legacy support (for backward compatibility)
   instrumental?: boolean;
-  mv?: 'chirp-v3-5' | 'chirp-v4' | 'chirp-v4-5' | 'chirp-v5';
+  vocal_gender?: 'm' | 'f';
+  control_sliders?: {
+    style_weight?: number;
+    weirdness_constraint?: number;
+  };
 }
 
 export interface MusicInfo {
@@ -81,6 +109,9 @@ export interface MusicInfo {
   mood?: string;
   isFavorite?: boolean;
   mode?: string;
+  errorMessage?: string;
+  errorMessageEn?: string;
+  sunoId?: string;
 }
 
 export interface LyricsResult {
@@ -123,7 +154,7 @@ export interface AlignedLyricsParams {
 
 export interface RemasterParams {
   clipId: string;
-  modelName?: 'chirp-v5' | 'chirp-v4-5' | 'chirp-v4' | 'chirp-carp' | 'chirp-bass' | 'chirp-up';
+  modelName?: 'chirp-carp' | 'chirp-bass' | 'chirp-up';
   variationCategory?: 'subtle' | 'normal' | 'high';
 }
 

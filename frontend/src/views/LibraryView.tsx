@@ -21,7 +21,10 @@ import {
   Sparkles,
   Video,
   Gauge,
-  Disc
+  Disc,
+  FileAudio,
+  Music2,
+  Mic2
 } from 'lucide-react';
 import { musicApi, MusicInfo } from '../services/api';
 import { useAppStore } from '../hooks/useMusicStore';
@@ -32,6 +35,9 @@ import RemasterModal from '../components/RemasterModal';
 import CropModal from '../components/CropModal';
 import SpeedModal from '../components/SpeedModal';
 import VideoModal from '../components/VideoModal';
+import WavModal from '../components/WavModal';
+import WholeSongModal from '../components/WholeSongModal';
+import AlignedLyricsModal from '../components/AlignedLyricsModal';
 
 const LibraryContainer = styled.div`
   display: flex;
@@ -490,6 +496,18 @@ export const LibraryView: React.FC = () => {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [selectedTrackForVideo, setSelectedTrackForVideo] = useState<MusicTrack | null>(null);
 
+  // WAV modal state
+  const [wavModalOpen, setWavModalOpen] = useState(false);
+  const [selectedTrackForWav, setSelectedTrackForWav] = useState<MusicTrack | null>(null);
+
+  // WholeSong modal state
+  const [wholeSongModalOpen, setWholeSongModalOpen] = useState(false);
+  const [selectedTrackForWholeSong, setSelectedTrackForWholeSong] = useState<MusicTrack | null>(null);
+
+  // AlignedLyrics modal state
+  const [alignedLyricsModalOpen, setAlignedLyricsModalOpen] = useState(false);
+  const [selectedTrackForAlignedLyrics, setSelectedTrackForAlignedLyrics] = useState<MusicTrack | null>(null);
+
   const { recentTracks, setCurrentTrack, setIsPlaying, currentTrack, isPlaying } = useAppStore();
 
   // Fetch tracks from API
@@ -693,6 +711,45 @@ export const LibraryView: React.FC = () => {
     fetchTracks();
   };
 
+  // Handle WAV conversion
+  const handleWav = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForWav(track);
+    setWavModalOpen(true);
+  };
+
+  // Handle WAV conversion success
+  const handleWavSuccess = (taskId: string) => {
+    showSuccess('WAV转换任务已创建，请稍后查看结果', '转换成功');
+    fetchTracks();
+  };
+
+  // Handle whole song
+  const handleWholeSong = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForWholeSong(track);
+    setWholeSongModalOpen(true);
+  };
+
+  // Handle whole song success
+  const handleWholeSongSuccess = (taskId: string) => {
+    showSuccess('获取整首歌任务已创建，请稍后查看结果', '任务创建成功');
+    fetchTracks();
+  };
+
+  // Handle aligned lyrics
+  const handleAlignedLyrics = (e: React.MouseEvent, track: MusicTrack) => {
+    e.stopPropagation();
+    setSelectedTrackForAlignedLyrics(track);
+    setAlignedLyricsModalOpen(true);
+  };
+
+  // Handle aligned lyrics success
+  const handleAlignedLyricsSuccess = (taskId: string) => {
+    showSuccess('歌词时间戳任务已创建，请稍后查看结果', '任务创建成功');
+    fetchTracks();
+  };
+
   // Filter tracks based on selected filter and search query
   const filteredTracks = tracks.filter(track => {
     // Search filter
@@ -874,6 +931,34 @@ export const LibraryView: React.FC = () => {
                   <Video size={14} />
                 </CardActionButton>
                 <CardActionButton
+                  onClick={(e) => handleWav(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.wav', '转换为WAV')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <FileAudio size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => handleAlignedLyrics(e, track)}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.alignedLyrics', '歌词时间戳')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Mic2 size={14} />
+                </CardActionButton>
+                <CardActionButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTrackForWholeSong(track);
+                    setWholeSongModalOpen(true);
+                  }}
+                  disabled={track.status !== 'complete'}
+                  title={t('library.wholeSong', '获取完整歌曲')}
+                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
+                >
+                  <Music2 size={14} />
+                </CardActionButton>
+                <CardActionButton
                   onClick={(e) => handleDownload(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.download', '下载')}
@@ -1007,6 +1092,48 @@ export const LibraryView: React.FC = () => {
           clipId={selectedTrackForVideo.id}
           clipTitle={selectedTrackForVideo.title}
           onSuccess={handleVideoSuccess}
+        />
+      )}
+
+      {/* WAV Modal */}
+      {selectedTrackForWav && (
+        <WavModal
+          isOpen={wavModalOpen}
+          onClose={() => {
+            setWavModalOpen(false);
+            setSelectedTrackForWav(null);
+          }}
+          clipId={selectedTrackForWav.id}
+          clipTitle={selectedTrackForWav.title}
+          onSuccess={handleWavSuccess}
+        />
+      )}
+
+      {/* WholeSong Modal */}
+      {selectedTrackForWholeSong && (
+        <WholeSongModal
+          isOpen={wholeSongModalOpen}
+          onClose={() => {
+            setWholeSongModalOpen(false);
+            setSelectedTrackForWholeSong(null);
+          }}
+          clipId={selectedTrackForWholeSong.id}
+          clipTitle={selectedTrackForWholeSong.title}
+          onSuccess={handleWholeSongSuccess}
+        />
+      )}
+
+      {/* AlignedLyrics Modal */}
+      {selectedTrackForAlignedLyrics && (
+        <AlignedLyricsModal
+          isOpen={alignedLyricsModalOpen}
+          onClose={() => {
+            setAlignedLyricsModalOpen(false);
+            setSelectedTrackForAlignedLyrics(null);
+          }}
+          clipId={selectedTrackForAlignedLyrics.id}
+          clipTitle={selectedTrackForAlignedLyrics.title}
+          onSuccess={handleAlignedLyricsSuccess}
         />
       )}
     </LibraryContainer>

@@ -40,7 +40,7 @@ export const validateMusicCreationRules: ValidationChain[] = [
 
   body('mv')
     .optional()
-    .isIn(['chirp-v3-5', 'chirp-v4', 'v3.5'])
+    .isIn(['chirp-v3-0', 'chirp-v3-5', 'chirp-v4', 'chirp-auk-turbo', 'chirp-auk', 'chirp-bluejay', 'chirp-crow', 'v3', 'v3.0', 'v3.5', 'v4', 'auk-turbo', 'auk', 'bluejay', 'crow'])
     .withMessage('无效的模型版本'),
 
   body('instrumental')

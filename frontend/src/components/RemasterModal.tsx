@@ -238,12 +238,9 @@ const SpinIcon = styled(Loader2)`
 `;
 
 const modelOptions = [
-  { value: 'chirp-v5', label: 'V5 (最新)' },
-  { value: 'chirp-v4-5', label: 'V4.5 (稳定)' },
-  { value: 'chirp-v4', label: 'V4 (经典)' },
-  { value: 'chirp-carp', label: 'Carp (特色)' },
-  { value: 'chirp-bass', label: 'Bass (低音增强)' },
-  { value: 'chirp-up', label: 'Up (高音增强)' },
+  { value: 'chirp-carp', label: 'Carp (V5质量)' },
+  { value: 'chirp-bass', label: 'Bass (V4.5质量)' },
+  { value: 'chirp-up', label: 'Up (V4质量)' },
 ];
 
 const variationOptions = [
@@ -262,7 +259,7 @@ export const RemasterModal: React.FC<RemasterModalProps> = ({
   const { t } = useTranslation();
   const toast = useToast();
 
-  const [modelName, setModelName] = useState<'chirp-v5' | 'chirp-v4-5' | 'chirp-v4' | 'chirp-carp' | 'chirp-bass' | 'chirp-up'>('chirp-v5');
+  const [modelName, setModelName] = useState<'chirp-carp' | 'chirp-bass' | 'chirp-up'>('chirp-carp');
   const [variationCategory, setVariationCategory] = useState<'subtle' | 'normal' | 'high'>('normal');
   const [loading, setLoading] = useState(false);
 

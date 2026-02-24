@@ -18,6 +18,9 @@ export interface MusicTrack {
   isFavorite: boolean;
   llmUsed?: string;
   mode?: string;
+  errorMessage?: string;
+  errorMessageEn?: string;
+  sunoId?: string;
 }
 
 /**

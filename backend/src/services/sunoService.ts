@@ -3,17 +3,23 @@ import { config } from '../config';
 import logger from '../utils/logger';
 import { SunoError, ErrorCode, MusicInfo, MusicStatus, LyricsResult } from '../types/errors';
 
-// 模型版本映射
+// 模型版本映射 - 根据官方 API 文档支持的模型
 const MODEL_VERSION_MAP: Record<string, string> = {
+  'v3': 'chirp-v3-0',
+  'v3.0': 'chirp-v3-0',
   'v3.5': 'chirp-v3-5',
-  'v3': 'chirp-v3-5',
   'v4': 'chirp-v4',
-  'v4.5': 'chirp-v4-5',
-  'v5': 'chirp-v5',
+  'auk-turbo': 'chirp-auk-turbo',
+  'auk': 'chirp-auk',
+  'bluejay': 'chirp-bluejay',
+  'crow': 'chirp-crow',
+  'chirp-v3-0': 'chirp-v3-0',
   'chirp-v3-5': 'chirp-v3-5',
   'chirp-v4': 'chirp-v4',
-  'chirp-v4-5': 'chirp-v4-5',
-  'chirp-v5': 'chirp-v5',
+  'chirp-auk-turbo': 'chirp-auk-turbo',
+  'chirp-auk': 'chirp-auk',
+  'chirp-bluejay': 'chirp-bluejay',
+  'chirp-crow': 'chirp-crow',
 };
 
 /**
@@ -34,7 +40,7 @@ class SunoService {
     // 创建axios实例 - 使用 Bearer Token 认证
     this.client = axios.create({
       baseURL: this.baseURL,
-      timeout: 60000, // 60秒超时
+      timeout: 120000, // 120秒超时（Suno API 生成音乐需要较长时间）
       headers: {
         'Authorization': `Bearer ${this.accessKey}`,
         'Content-Type': 'application/json',
@@ -88,6 +94,16 @@ class SunoService {
    * 处理API错误
    */
   private handleError(error: any): never {
+    // 先检查超时错误（超时时 error.response 为 undefined）
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      logger.error('[Suno API] Timeout error', {
+        code: error.code,
+        message: error.message,
+        url: error.config?.url,
+      });
+      throw new SunoError(ErrorCode.SUNO_TIMEOUT, 'Suno API 请求超时，请稍后重试', { originalError: error.message });
+    }
+
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const data = error.response?.data;
@@ -96,6 +112,7 @@ class SunoService {
         status,
         data,
         url: error.config?.url,
+        message: error.message,
       });
 
       // 根据状态码返回相应的错误
@@ -105,13 +122,12 @@ class SunoService {
         throw new SunoError(ErrorCode.SUNO_QUOTA_EXCEEDED, 'Suno API 配额已超限，请稍后再试', data);
       } else if (status && status >= 500) {
         throw new SunoError(ErrorCode.SUNO_GENERATION_FAILED, 'Suno API 服务异常', data);
-      } else {
+      } else if (status) {
         throw new SunoError(ErrorCode.SUNO_GENERATION_FAILED, data?.message || 'Suno API 请求失败', data);
+      } else {
+        // 没有 status，可能是网络错误
+        throw new SunoError(ErrorCode.SUNO_GENERATION_FAILED, 'Suno API 网络错误，请检查网络连接', { originalError: error.message });
       }
-    }
-
-    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-      throw new SunoError(ErrorCode.SUNO_TIMEOUT, 'Suno API 请求超时', { originalError: error.message });
     }
 
     logger.error('[Suno API] Unknown error', { error: error.message });
@@ -281,7 +297,20 @@ class SunoService {
       logger.info('[Suno Service] Getting music by id', { id });
 
       const response = await this.client.get('/api/v1/music/task', {
+        // 根据 open.suno.cn 文档，这里使用查询参数 id
         params: { id }
+      });
+
+      // Log essential status info (avoid logging huge `extend`)
+      const taskData = response.data?.data || {};
+      logger.info('[Suno Service] Task query result', {
+        id,
+        code: response.data?.code,
+        status: taskData?.status,
+        hasFileInfo: !!taskData?.fileInfo,
+        hasMp3Url: !!taskData?.fileInfo?.mp3Url,
+        errormsg: taskData?.errormsg,
+        errormsgEn: taskData?.errormsgEn,
       });
 
       return this.parseTaskResponse(response.data);
@@ -680,7 +709,7 @@ class SunoService {
   private parseTaskResponse(data: any): MusicInfo {
     const taskData = data.data || data;
 
-    if (data.code !== 200) {
+    if (data.code !== 200 || data.success === false) {
       return {
         id: String(taskData.id || ''),
         status: 'error',
@@ -691,6 +720,9 @@ class SunoService {
         duration: 0,
         lyrics: '',
         created_at: new Date().toISOString(),
+        errormsg: taskData?.errormsg || taskData?.message || data?.message,
+        errormsgEn: taskData?.errormsgEn,
+        custom_id: taskData?.custom_id,
       };
     }
 
@@ -716,6 +748,9 @@ class SunoService {
       duration: taskData.duration || 0,
       lyrics: taskData.lyrics || '',
       created_at: taskData.created_at || taskData.createTime || new Date().toISOString(),
+      errormsg: taskData.errormsg,
+      errormsgEn: taskData.errormsgEn,
+      custom_id: taskData.custom_id,
     };
   }
 

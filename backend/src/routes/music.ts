@@ -432,6 +432,12 @@ router.post('/create',
       lyricsPreview: lyrics?.substring(0, 200) || 'N/A',
     });
 
+    // Guard: this open.suno.cn account frequently rejects V5 with "Failed model quick validation".
+    // Prevent consuming points on a task that will immediately fail.
+    if (mv === 'chirp-v5' || mv === 'v5') {
+      return fail(res, 1001, '当前 Suno 账号暂不支持 V5（会触发 Failed model quick validation）。请切换到 V4 或 V4-5 后重试。', 400);
+    }
+
     // Helper function to create and store a track
     const createAndStoreTrack = (taskId: string, trackData: Partial<MusicTrack>): MusicTrack => {
       const track: MusicTrack = {
@@ -668,7 +674,12 @@ router.get('/status/:id',
           videoUrl: result.video_url,
           imageUrl: result.image_url,
           duration: result.duration,
-          lyrics: result.lyrics
+          lyrics: result.lyrics,
+          title: result.title || existingTrack.title,
+          // 保存错误信息
+          errorMessage: result.errormsg,
+          errorMessageEn: result.errormsgEn,
+          sunoId: result.custom_id,
         });
       }
 
@@ -681,7 +692,11 @@ router.get('/status/:id',
         imageUrl: result.image_url,
         duration: result.duration,
         lyrics: result.lyrics,
-        createdAt: result.created_at
+        createdAt: result.created_at,
+        // Pass through Suno task failure details (if any)
+        errorMessage: result.errormsg,
+        errorMessageEn: result.errormsgEn,
+        sunoId: result.custom_id,
       });
     } catch (error: any) {
       logger.error('Get music status failed', { id, error: error.message });

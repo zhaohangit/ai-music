@@ -26,6 +26,7 @@ import {
   Star,
   Lightbulb
 } from 'lucide-react';
+import { fadeIn, fadeInUp, fadeInScale } from '../styles/animations';
 import { musicApi, lyricsApi, MusicInfo } from '../services/api';
 import { useAppStore } from '../hooks/useMusicStore';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -87,6 +88,7 @@ const GlassCard = styled.div`
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: ${fadeInUp} 0.5s ease-out;
 `;
 
 const CreateHeader = styled.div`
@@ -118,6 +120,77 @@ const AIBadge = styled.div`
   font-weight: 600;
   color: #8B9EF5;
   box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+`;
+
+// Mode Toggle Styles
+const ModeToggleContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+`;
+
+const ModeToggleBtn = styled.button<{ $active: boolean }>`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: ${props => props.$active
+    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2))'
+    : 'transparent'};
+  border: ${props => props.$active
+    ? '1px solid rgba(102, 126, 234, 0.4)'
+    : '1px solid transparent'};
+  border-radius: 10px;
+  color: ${props => props.$active ? '#FFFFFF' : '#8B8B9F'};
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover:not(:disabled) {
+    background: ${props => props.$active
+      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.25))'
+      : 'rgba(255, 255, 255, 0.05)'};
+    color: ${props => props.$active ? '#FFFFFF' : '#B0B0C0'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const ModeIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+`;
+
+const ModeText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+`;
+
+const ModeTitle = styled.span`
+  font-size: 0.95rem;
+  font-weight: 600;
+`;
+
+const ModeDesc = styled.span`
+  font-size: 0.7rem;
+  opacity: 0.7;
 `;
 
 const SectionTitle = styled.h3`
@@ -320,7 +393,7 @@ const SelectorOption = styled.button<{ $selected?: boolean }>`
 `;
 
 const AdvancedSettings = styled.div<{ $open: boolean }>`
-  max-height: ${props => props.$open ? '300px' : '0'};
+  max-height: ${props => props.$open ? '600px' : '0'};
   overflow: hidden;
   transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 `;
@@ -344,6 +417,128 @@ const SettingLabel = styled.span`
   color: #9B9BB0;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+`;
+
+// Advanced Settings Styles
+const AdvancedSection = styled.div`
+  padding: 18px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 10px;
+`;
+
+const AdvancedSectionTitle = styled.h4`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9B9BB0;
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SliderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const SliderHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SliderValue = styled.span`
+  font-size: 0.8rem;
+  color: #667EEA;
+  font-weight: 600;
+`;
+
+const StyledSlider = styled.input`
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    transition: transform 0.15s ease;
+  }
+
+  &::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  &::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  }
+`;
+
+const TagInput = styled.input`
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #6B6B80;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+`;
+
+const ModelVersionGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const ModelVersionOption = styled.button<{ $selected?: boolean }>`
+  padding: 10px 12px;
+  background: ${props => props.$selected
+    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2))'
+    : 'rgba(255, 255, 255, 0.04)'};
+  border: ${props => props.$selected
+    ? '1px solid rgba(102, 126, 234, 0.4)'
+    : '1px solid rgba(255, 255, 255, 0.08)'};
+  border-radius: 10px;
+  color: ${props => props.$selected ? '#8B9EF5' : '#9B9BB0'};
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.$selected
+      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.35), rgba(118, 75, 162, 0.3))'
+      : 'rgba(255, 255, 255, 0.08)'};
+  }
 `;
 
 const SelectInput = styled.select`
@@ -588,17 +783,7 @@ const PlayerTime = styled.div`
   margin-top: 6px;
 `;
 
-// Animations
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const pulse = keyframes`
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-`;
-
+// Local animations (shimmer, wave for visual effects)
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -616,6 +801,8 @@ const RecentSection = styled(GlassCard)`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 24px 28px;
+  animation: ${fadeInUp} 0.6s ease-out;
+  animation-delay: 0.1s;
 `;
 
 const RecentHeader = styled.div`
@@ -666,7 +853,7 @@ const RecentGrid = styled.div`
   margin-bottom: 20px;
 `;
 
-const RecentCard = styled.div<{ $isActive?: boolean; $menuOpen?: boolean }>`
+const RecentCard = styled.div.attrs({ className: 'recent-card' })<{ $isActive?: boolean; $menuOpen?: boolean }>`
   display: flex;
   align-items: center;
   gap: 16px;
@@ -695,7 +882,7 @@ const RecentCard = styled.div<{ $isActive?: boolean; $menuOpen?: boolean }>`
   }
 
   ${props => props.$menuOpen && `
-    & ${RecentActions} {
+    & .recent-actions {
       opacity: 1;
     }
   `}
@@ -775,15 +962,39 @@ const RecentMeta = styled.div`
   flex-wrap: wrap;
 `;
 
-const RecentTag = styled.span`
+const RecentTag = styled.span<{ $processing?: boolean; $error?: boolean }>`
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  background: rgba(102, 126, 234, 0.15);
+  background: ${props => props.$processing
+    ? 'rgba(245, 158, 11, 0.15)'
+    : props.$error
+    ? 'rgba(245, 87, 108, 0.15)'
+    : 'rgba(102, 126, 234, 0.15)'};
   border-radius: 12px;
   font-size: 0.75rem;
-  color: #8B9EF5;
+  color: ${props => props.$processing
+    ? '#F59E0B'
+    : props.$error
+    ? '#F5576C'
+    : '#8B9EF5'};
   font-weight: 600;
+`;
+
+// 状态徽章
+const StatusBadge = styled.div<{ $status: 'processing' | 'error' }>`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: ${props => props.$status === 'processing'
+    ? 'rgba(245, 158, 11, 0.8)'
+    : 'rgba(245, 87, 108, 0.8)'};
+  color: white;
+  backdrop-filter: blur(4px);
 `;
 
 const RecentTime = styled.span`
@@ -842,14 +1053,14 @@ const LoadingMore = styled.div`
   font-size: 0.95rem;
 `;
 
-const RecentActions = styled.div`
+const RecentActions = styled.div.attrs({ className: 'recent-actions' })`
   display: flex;
   gap: 8px;
   margin-left: auto;
   opacity: 0;
   transition: opacity 0.2s ease;
 
-  ${RecentCard}:hover & {
+  .recent-card:hover & {
     opacity: 1;
   }
 `;
@@ -1072,17 +1283,23 @@ export const CreateView: React.FC = () => {
   } = useAppStore();
 
   // Local state
+  const [mode, setMode] = useState<'inspiration' | 'custom'>('inspiration');
   const [description, setDescription] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('Pop');
   const [selectedMood, setSelectedMood] = useState('Energetic');
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [duration, setDuration] = useState('3:00');
-  const [bpm, setBpm] = useState('120');
-  const [vocals, setVocals] = useState('Female');
+  // Note: duration and bpm are NOT supported by Suno API - removed
+  const [vocals, setVocals] = useState<'None' | 'Female' | 'Male'>('Female');
   const [lyrics, setLyrics] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  // Advanced settings - according to API spec
+  const [negativeTags, setNegativeTags] = useState('');
+  const [vocalGender, setVocalGender] = useState<'m' | 'f' | ''>(''); // API: m=male, f=female
+  const [modelVersion, setModelVersion] = useState<'chirp-v3-0' | 'chirp-v3-5' | 'chirp-v4' | 'chirp-auk-turbo' | 'chirp-auk' | 'chirp-bluejay' | 'chirp-crow'>('chirp-v3-5');
+  const [styleWeight, setStyleWeight] = useState(0.5); // API: 0-1 float
+  const [weirdnessConstraint, setWeirdnessConstraint] = useState(0.5); // API: 0-1 float
 
   // AI Enhancement loading states
   const [enhancingPrompt, setEnhancingPrompt] = useState(false);
@@ -1118,17 +1335,13 @@ export const CreateView: React.FC = () => {
           total = response.data.total || items.length;
         }
 
-        // Filter playable tracks
-        const playableTracks = items.filter(
-          (track: MusicInfo) => track.audioUrl && track.status === 'complete'
-        );
-
-        setApiTracks(playableTracks);
+        // 显示所有状态的歌曲（包括处理中、完成、失败的）
+        setApiTracks(items);
         setTotalCount(total);
         setTotalPages(Math.ceil(total / pageSize));
 
         // Also add to store for backward compatibility
-        playableTracks.forEach((track: MusicInfo) => {
+        items.forEach((track: MusicInfo) => {
           if (!recentTracks.find(t => t.id === track.id)) {
             addToRecentTracks(track);
           }
@@ -1234,8 +1447,12 @@ export const CreateView: React.FC = () => {
         showSuccess(t('common.musicGenerated'), t('common.success'));
         return true;
       } else if (response.data?.status === 'error') {
-        failMusicGeneration(t('common.musicFailed'));
-        showError(t('common.musicFailed'), t('common.error'));
+        const err =
+          response.data.errorMessage ||
+          response.data.errorMessageEn ||
+          t('common.musicFailed');
+        failMusicGeneration(err);
+        showError(err, t('common.error'));
         return true;
       } else if (response.data) {
         // Update progress if available
@@ -1360,16 +1577,7 @@ export const CreateView: React.FC = () => {
           );
           if (matchedMood) setSelectedMood(matchedMood);
         }
-        if (tempo) {
-          const tempoNum = parseInt(tempo);
-          if (!isNaN(tempoNum)) {
-            if (tempoNum < 80) setBpm('60');
-            else if (tempoNum < 110) setBpm('90');
-            else if (tempoNum < 130) setBpm('120');
-            else if (tempoNum < 160) setBpm('140');
-            else setBpm('170');
-          }
-        }
+        // Note: tempo/BPM is not supported by API, so we don't set it
         showSuccess(t('common.success'), t('create.styleRecommended', '风格已推荐'));
       } else {
         throw new Error('No style recommendation returned');
@@ -1430,16 +1638,29 @@ export const CreateView: React.FC = () => {
       setErrorVisible(false);
       showInfo(t('create.generating'), t('create.generateBtn'));
 
-      // Call the API to create music
-      const response = await musicApi.create({
-        mode: 'custom',
-        prompt: description,
+      // Build API params based on backend expectations
+      // Backend expects: mode, prompt, title, lyrics, tags, mood, llmProvider, mv, instrumental
+      const apiParams: any = {
+        mode: mode, // 'inspiration' or 'custom'
+        prompt: description, // Backend uses 'prompt' for both modes
         title: `${selectedMood} ${selectedGenre}`,
-        lyrics: lyrics || undefined,
         tags: selectedGenre,
         mood: selectedMood,
-        instrumental: vocals === 'None',
-      });
+        instrumental: vocals === 'None', // Backend uses 'instrumental', not 'make_instrumental'
+      };
+
+      // Add model version if specified (backend validates: 'chirp-v3-5', 'chirp-v4', 'v3.5')
+      if (modelVersion) {
+        apiParams.mv = modelVersion;
+      }
+
+      // Custom mode specific parameters
+      if (mode === 'custom' && lyrics) {
+        apiParams.lyrics = lyrics;
+      }
+
+      // Call the API to create music
+      const response = await musicApi.create(apiParams);
 
       if (response.data?.taskId || response.data?.task_id || response.data?.id) {
         const taskId = response.data.taskId || response.data.task_id || response.data.id;
@@ -1467,8 +1688,49 @@ export const CreateView: React.FC = () => {
   const currentError = musicGeneration.error || lyricsGeneration.error;
 
   // Play track from recent tracks
-  const handlePlayTrack = useCallback((track: typeof recentTracks[0]) => {
+  const handlePlayTrack = useCallback(async (track: typeof recentTracks[0]) => {
+    // 根据状态显示不同提示
+    if (track.status === 'processing') {
+      showInfo(t('common.trackProcessing', '歌曲正在生成中，请稍后再试...'), t('common.processing'));
+      // 尝试从服务器获取最新状态
+      try {
+        const response = await musicApi.getStatus(track.id);
+        if (response.data?.status === 'complete' && response.data.audioUrl) {
+          // 更新本地数据
+          setApiTracks(prev => prev.map(t =>
+            t.id === track.id ? { ...t, ...response.data } : t
+          ));
+          showSuccess(t('common.trackReady', '歌曲已生成完成！'), t('common.success'));
+        }
+      } catch (err) {
+        console.warn('Failed to check track status:', err);
+      }
+      return;
+    }
+
+    if (track.status === 'error') {
+      const errorMsg = track.errorMessage || track.errorMessageEn || t('common.trackFailed', '歌曲生成失败');
+      showError(errorMsg, t('common.error'));
+      return;
+    }
+
     if (!track.audioUrl) {
+      // 没有 audioUrl 但状态不是 processing/error，尝试查询最新状态
+      try {
+        const response = await musicApi.getStatus(track.id);
+        if (response.data?.audioUrl) {
+          // 更新本地数据并播放
+          const updatedTrack = { ...track, ...response.data };
+          setApiTracks(prev => prev.map(t =>
+            t.id === track.id ? updatedTrack : t
+          ));
+          setCurrentTrack(updatedTrack);
+          setIsPlaying(true);
+          return;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch track:', err);
+      }
       showError(t('common.trackNotReady'), t('common.trackNotAvailable'));
       return;
     }
@@ -1479,7 +1741,7 @@ export const CreateView: React.FC = () => {
       setCurrentTrack(track);
       setIsPlaying(true);
     }
-  }, [currentTrack, isPlaying, setCurrentTrack, setIsPlaying, showError, t]);
+  }, [currentTrack, isPlaying, setCurrentTrack, setIsPlaying, showError, showInfo, showSuccess, t, setApiTracks]);
 
   // Download track
   const handleDownloadTrack = useCallback(async (track: typeof recentTracks[0]) => {
@@ -1613,9 +1875,39 @@ export const CreateView: React.FC = () => {
                 </AIBadge>
               </CreateHeader>
 
-              <SectionTitle>{t('create.promptLabel')}</SectionTitle>
+              {/* Mode Toggle */}
+              <ModeToggleContainer>
+                <ModeToggleBtn
+                  $active={mode === 'inspiration'}
+                  onClick={() => setMode('inspiration')}
+                >
+                  <ModeIcon>
+                    <Lightbulb size={18} />
+                  </ModeIcon>
+                  <ModeText>
+                    <ModeTitle>{t('create.inspirationMode', '灵感模式')}</ModeTitle>
+                    <ModeDesc>{t('create.inspirationModeDesc', '简单描述，AI帮你完成')}</ModeDesc>
+                  </ModeText>
+                </ModeToggleBtn>
+                <ModeToggleBtn
+                  $active={mode === 'custom'}
+                  onClick={() => setMode('custom')}
+                >
+                  <ModeIcon>
+                    <Sliders size={18} />
+                  </ModeIcon>
+                  <ModeText>
+                    <ModeTitle>{t('create.customMode', '自定义模式')}</ModeTitle>
+                    <ModeDesc>{t('create.customModeDesc', '详细控制歌词和风格')}</ModeDesc>
+                  </ModeText>
+                </ModeToggleBtn>
+              </ModeToggleContainer>
+
+              <SectionTitle>{mode === 'inspiration' ? t('create.ideaLabel', '音乐创意') : t('create.promptLabel')}</SectionTitle>
               <TextArea
-                placeholder={t('create.promptPlaceholder')}
+                placeholder={mode === 'inspiration'
+                  ? t('create.inspirationPlaceholder', '描述你想要的音乐，例如：一首关于夏天海边的轻快流行歌曲...')
+                  : t('create.promptPlaceholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -1635,6 +1927,20 @@ export const CreateView: React.FC = () => {
                   </>
                 )}
               </PromptEnhanceButton>
+
+              {/* Custom Mode: Lyrics Section */}
+              {mode === 'custom' && (
+                <>
+                  {/* Lyrics Textarea for custom mode */}
+                  <SectionTitle style={{ marginTop: '16px' }}>{t('create.lyricsLabel', '歌词 (可选)')}</SectionTitle>
+                  <TextArea
+                    placeholder={t('create.lyricsPlaceholder', '输入歌词或点击AI生成歌词...')}
+                    value={lyrics}
+                    onChange={(e) => setLyrics(e.target.value)}
+                    style={{ minHeight: '100px' }}
+                  />
+                </>
+              )}
 
               {/* Generated Lyrics Display */}
               {lyrics && (
@@ -1671,49 +1977,54 @@ export const CreateView: React.FC = () => {
                 </>
               )}
 
-              <SectionTitle>
-                {t('genre.title')}
-                <StyleRecommendButton
-                  onClick={handleRecommendStyle}
-                  disabled={recommendingStyle || !description.trim()}
-                >
-                  {recommendingStyle ? (
-                    <>
-                      <Loader2 size={12} className="spin" />
-                      {t('create.recommending', '推荐中...')}
-                    </>
-                  ) : (
-                    <>
-                      <Lightbulb size={12} />
-                      {t('create.recommendStyle', 'AI推荐')}
-                    </>
-                  )}
-                </StyleRecommendButton>
-              </SectionTitle>
-              <SelectorGrid>
-                {genres.map((genre) => (
-                  <SelectorOption
-                    key={genre}
-                    $selected={selectedGenre === genre}
-                    onClick={() => setSelectedGenre(genre)}
-                  >
-                    {t(`genre.${genre.toLowerCase()}` as any)}
-                  </SelectorOption>
-                ))}
-              </SelectorGrid>
+              {/* Custom Mode: Genre and Mood Selectors */}
+              {mode === 'custom' && (
+                <>
+                  <SectionTitle>
+                    {t('genre.title')}
+                    <StyleRecommendButton
+                      onClick={handleRecommendStyle}
+                      disabled={recommendingStyle || !description.trim()}
+                    >
+                      {recommendingStyle ? (
+                        <>
+                          <Loader2 size={12} className="spin" />
+                          {t('create.recommending', '推荐中...')}
+                        </>
+                      ) : (
+                        <>
+                          <Lightbulb size={12} />
+                          {t('create.recommendStyle', 'AI推荐')}
+                        </>
+                      )}
+                    </StyleRecommendButton>
+                  </SectionTitle>
+                  <SelectorGrid>
+                    {genres.map((genre) => (
+                      <SelectorOption
+                        key={genre}
+                        $selected={selectedGenre === genre}
+                        onClick={() => setSelectedGenre(genre)}
+                      >
+                        {t(`genre.${genre.toLowerCase()}` as any)}
+                      </SelectorOption>
+                    ))}
+                  </SelectorGrid>
 
-              <SectionTitle>{t('mood.title')}</SectionTitle>
-              <SelectorGrid>
-                {moods.map((mood) => (
-                  <SelectorOption
-                    key={mood}
-                    $selected={selectedMood === mood}
-                    onClick={() => setSelectedMood(mood)}
-                  >
-                    {t(`mood.${mood.toLowerCase()}` as any)}
-                  </SelectorOption>
-                ))}
-              </SelectorGrid>
+                  <SectionTitle>{t('mood.title')}</SectionTitle>
+                  <SelectorGrid>
+                    {moods.map((mood) => (
+                      <SelectorOption
+                        key={mood}
+                        $selected={selectedMood === mood}
+                        onClick={() => setSelectedMood(mood)}
+                      >
+                        {t(`mood.${mood.toLowerCase()}` as any)}
+                      </SelectorOption>
+                    ))}
+                  </SelectorGrid>
+                </>
+              )}
 
               <Button $variant="ghost" onClick={() => setAdvancedOpen(!advancedOpen)}>
                 <Sliders size={18} />
@@ -1723,35 +2034,100 @@ export const CreateView: React.FC = () => {
               <AdvancedSettings $open={advancedOpen}>
                 <SettingsGrid>
                   <SettingItem>
-                    <SettingLabel>{t('create.duration')}</SettingLabel>
-                    <SelectInput value={duration} onChange={(e) => setDuration(e.target.value)}>
-                      <option value="1:00">1:00</option>
-                      <option value="2:00">2:00</option>
-                      <option value="3:00">3:00</option>
-                      <option value="4:00">4:00</option>
-                      <option value="5:00">5:00</option>
-                    </SelectInput>
-                  </SettingItem>
-                  <SettingItem>
-                    <SettingLabel>{t('create.bpm')}</SettingLabel>
-                    <SelectInput value={bpm} onChange={(e) => setBpm(e.target.value)}>
-                      <option value="60">60</option>
-                      <option value="90">90</option>
-                      <option value="120">120</option>
-                      <option value="140">140</option>
-                      <option value="170">170</option>
-                    </SelectInput>
-                  </SettingItem>
-                  <SettingItem>
                     <SettingLabel>{t('create.vocals')}</SettingLabel>
-                    <SelectInput value={vocals} onChange={(e) => setVocals(e.target.value)}>
+                    <SelectInput value={vocals} onChange={(e) => setVocals(e.target.value as 'None' | 'Female' | 'Male')}>
                       <option value="None">{t('create.none')}</option>
                       <option value="Female">{t('create.female')}</option>
                       <option value="Male">{t('create.male')}</option>
-                      <option value="Duet">{t('create.duet')}</option>
                     </SelectInput>
                   </SettingItem>
                 </SettingsGrid>
+
+                {/* Extended Advanced Settings */}
+                <AdvancedSection>
+                  <AdvancedSectionTitle>
+                    <Sliders size={16} />
+                    {t('create.advancedControls', '高级控制')}
+                  </AdvancedSectionTitle>
+
+                  {/* Model Version Selector */}
+                  <SettingItem style={{ marginBottom: '16px' }}>
+                    <SettingLabel>{t('create.modelVersion', 'AI模型版本')}</SettingLabel>
+                    <ModelVersionGrid>
+                      {(['chirp-v3-5', 'chirp-v4', 'chirp-auk-turbo'] as const).map((version) => (
+                        <ModelVersionOption
+                          key={version}
+                          $selected={modelVersion === version}
+                          onClick={() => setModelVersion(version)}
+                        >
+                          {version.replace('chirp-', '').replace('-turbo', ' Turbo').toUpperCase()}
+                        </ModelVersionOption>
+                      ))}
+                    </ModelVersionGrid>
+                  </SettingItem>
+
+                  {/* Vocal Gender - API uses 'm' for male, 'f' for female */}
+                  <SettingItem style={{ marginBottom: '16px' }}>
+                    <SettingLabel>{t('create.vocalGender', '声音性别')}</SettingLabel>
+                    <SelectorGrid style={{ marginBottom: 0 }}>
+                      {[
+                        { value: 'm' as const, label: t('create.male', '男声') },
+                        { value: 'f' as const, label: t('create.female', '女声') },
+                        { value: '' as const, label: t('create.neutral', '不指定') }
+                      ].map((option) => (
+                        <SelectorOption
+                          key={option.value}
+                          $selected={vocalGender === option.value}
+                          onClick={() => setVocalGender(option.value)}
+                        >
+                          {option.label}
+                        </SelectorOption>
+                      ))}
+                    </SelectorGrid>
+                  </SettingItem>
+
+                  {/* Negative Tags */}
+                  <SettingItem style={{ marginBottom: '16px' }}>
+                    <SettingLabel>{t('create.negativeTags', '排除风格')}</SettingLabel>
+                    <TagInput
+                      type="text"
+                      placeholder={t('create.negativeTagsPlaceholder', '例如: 重金属, 嘈杂, 电子...')}
+                      value={negativeTags}
+                      onChange={(e) => setNegativeTags(e.target.value)}
+                    />
+                  </SettingItem>
+
+                  {/* Control Sliders - API expects 0-1 float values */}
+                  <SliderContainer style={{ marginBottom: '16px' }}>
+                    <SliderHeader>
+                      <SettingLabel>{t('create.styleWeight', '风格匹配度')}</SettingLabel>
+                      <SliderValue>{Math.round(styleWeight * 100)}%</SliderValue>
+                    </SliderHeader>
+                    <StyledSlider
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={styleWeight}
+                      onChange={(e) => setStyleWeight(parseFloat(e.target.value))}
+                    />
+                  </SliderContainer>
+
+                  <SliderContainer>
+                    <SliderHeader>
+                      <SettingLabel>{t('create.weirdnessConstraint', '创意程度')}</SettingLabel>
+                      <SliderValue>{Math.round(weirdnessConstraint * 100)}%</SliderValue>
+                    </SliderHeader>
+                    <StyledSlider
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={weirdnessConstraint}
+                      onChange={(e) => setWeirdnessConstraint(parseFloat(e.target.value))}
+                    />
+                  </SliderContainer>
+                </AdvancedSection>
               </AdvancedSettings>
 
               <ErrorBanner $visible={errorVisible && !!currentError}>
@@ -1763,27 +2139,30 @@ export const CreateView: React.FC = () => {
               </ErrorBanner>
 
               <ActionButtons>
-                <Button
-                  $variant="secondary"
-                  onClick={handleGenerateLyrics}
-                  disabled={isGenerating}
-                >
-                  {lyricsGeneration.status === 'generating' ? (
-                    <>
-                      <Loader2 size={18} className="spin" />
-                      {t('create.generating')}
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 size={18} />
-                      {t('create.aiLyrics')}
-                    </>
-                  )}
-                </Button>
+                {mode === 'custom' && (
+                  <Button
+                    $variant="secondary"
+                    onClick={handleGenerateLyrics}
+                    disabled={isGenerating}
+                  >
+                    {lyricsGeneration.status === 'generating' ? (
+                      <>
+                        <Loader2 size={18} className="spin" />
+                        {t('create.generating')}
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 size={18} />
+                        {t('create.aiLyrics')}
+                      </>
+                    )}
+                  </Button>
+                )}
                 <Button
                   $variant="primary"
                   onClick={handleGenerateMusic}
                   disabled={isGenerating}
+                  style={{ flex: mode === 'custom' ? 1 : 'auto', width: mode === 'inspiration' ? '100%' : undefined }}
                 >
                   {musicGeneration.status === 'generating' ? (
                     <>
@@ -1793,7 +2172,7 @@ export const CreateView: React.FC = () => {
                   ) : (
                     <>
                       <Sparkles size={18} />
-                      {t('create.generateBtn')}
+                      {mode === 'inspiration' ? t('create.generateInspiration', 'AI创作') : t('create.generateBtn')}
                     </>
                   )}
                 </Button>
@@ -1908,6 +2287,8 @@ export const CreateView: React.FC = () => {
                 {displayTracks.map((track) => {
                   const isActive = currentTrack?.id === track.id;
                   const isTrackPlaying = isActive && isPlaying;
+                  const isProcessing = track.status === 'processing';
+                  const isError = track.status === 'error';
 
                   return (
                     <RecentCard
@@ -1922,6 +2303,10 @@ export const CreateView: React.FC = () => {
                             src={track.imageUrl}
                             alt={track.title || 'Track'}
                           />
+                        ) : isProcessing ? (
+                          <Loader2 size={26} className="spin" color="#667EEA" />
+                        ) : isError ? (
+                          <AlertCircle size={26} color="#F5576C" />
                         ) : isTrackPlaying ? (
                           <PlayingIndicator>
                             <SoundBar />
@@ -1931,11 +2316,28 @@ export const CreateView: React.FC = () => {
                         ) : (
                           <Play size={26} color="#667EEA" fill="rgba(102, 126, 234, 0.3)" style={{ marginLeft: 3 }} />
                         )}
+                        {/* 状态标签 */}
+                        {isProcessing && (
+                          <StatusBadge $status="processing">
+                            {t('common.processing', '生成中')}
+                          </StatusBadge>
+                        )}
+                        {isError && (
+                          <StatusBadge $status="error">
+                            {t('common.failed', '失败')}
+                          </StatusBadge>
+                        )}
                       </RecentCover>
                       <RecentInfo>
                         <RecentItemTitle>{track.title || t('recent.untitledTrack')}</RecentItemTitle>
                         <RecentMeta>
-                          <RecentTag>{track.duration ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '0:00'}</RecentTag>
+                          {isProcessing ? (
+                            <RecentTag $processing>{t('common.generating', '生成中...')}</RecentTag>
+                          ) : isError ? (
+                            <RecentTag $error>{track.errorMessage || t('common.failed', '生成失败')}</RecentTag>
+                          ) : (
+                            <RecentTag>{track.duration ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '0:00'}</RecentTag>
+                          )}
                           {track.createdAt && <RecentTime>{formatDateTime(track.createdAt)}</RecentTime>}
                         </RecentMeta>
                       </RecentInfo>

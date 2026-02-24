@@ -89,6 +89,10 @@ export interface MusicInfo {
   duration?: number;
   lyrics?: string;
   created_at?: string;
+  // open.suno.cn task query error info / metadata
+  errormsg?: string;
+  errormsgEn?: string;
+  custom_id?: string;
 }
 
 // 歌词生成结果

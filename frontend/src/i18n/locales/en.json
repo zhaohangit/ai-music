@@ -23,9 +23,18 @@
     "generatingMusic": "Generating Music...",
     "customMode": "Custom Mode",
     "simpleMode": "Simple Mode",
+    "inspirationMode": "Inspiration Mode",
+    "inspirationModeDesc": "Simple description, AI does the rest",
+    "customModeDesc": "Full control over lyrics and style",
+    "ideaLabel": "Music Idea",
+    "inspirationPlaceholder": "Describe the music you want, e.g., An upbeat pop song about summer at the beach...",
+    "lyricsLabel": "Lyrics (optional)",
+    "lyricsPlaceholder": "Enter lyrics or click AI to generate...",
     "aiPowered": "AI Powered",
     "aiLyrics": "AI Lyrics",
+    "generateInspiration": "AI Create",
     "advancedSettings": "Advanced Settings",
+    "advancedControls": "Advanced Controls",
     "duration": "Duration",
     "bpm": "BPM",
     "vocals": "Vocals",
@@ -33,6 +42,7 @@
     "female": "Female",
     "male": "Male",
     "duet": "Duet",
+    "neutral": "Neutral",
     "enhancePrompt": "AI Enhance Prompt",
     "enhancingPrompt": "Enhancing prompt...",
     "promptEnhanced": "Prompt enhanced",
@@ -48,7 +58,13 @@
     "recommendingStyle": "Recommending style...",
     "styleRecommended": "Style recommended",
     "recommendFailed": "Recommendation failed",
-    "recommending": "Recommending..."
+    "recommending": "Recommending...",
+    "modelVersion": "AI Model Version",
+    "vocalGender": "Vocal Gender",
+    "negativeTags": "Exclude Styles",
+    "negativeTagsPlaceholder": "e.g., heavy metal, noisy, electronic...",
+    "styleWeight": "Style Match",
+    "weirdnessConstraint": "Creativity Level"
   },
   "mood": {
     "title": "Mood",
@@ -149,7 +165,11 @@
     "deleteFailed": "Delete failed",
     "addedToFavorites": "Added to favorites",
     "removedFromFavorites": "Removed from favorites",
-    "favoriteFailed": "Failed to update favorite"
+    "favoriteFailed": "Failed to update favorite",
+    "ready": "Ready",
+    "processing": "Processing",
+    "failed": "Failed",
+    "retry": "Retry"
   },
   "time": {
     "justNow": "Just now",
@@ -229,9 +249,33 @@
     "crop": "Crop",
     "speed": "Speed",
     "video": "Video",
+    "wav": "Convert to WAV",
+    "wholeSong": "Get Complete Song",
+    "alignedLyrics": "Lyrics Timestamp",
     "download": "Download",
     "share": "Share",
     "delete": "Delete"
+  },
+  "wav": {
+    "title": "Convert to WAV Format",
+    "currentFormat": "Current format: MP3",
+    "description": "WAV is a lossless audio format, suitable for professional audio editing and post-processing. The converted file will maintain original audio quality, but file size will increase significantly.",
+    "convert": "Convert to WAV",
+    "converting": "Converting...",
+    "convertSuccess": "Conversion task created, please check results later",
+    "convertFailed": "Conversion failed"
+  },
+  "wholeSong": {
+    "title": "Get Complete Song",
+    "trackInfo": "Clip → Complete Song",
+    "description": "If your song was generated in parts, this feature can merge all clips into a complete song.",
+    "feature1": "Automatically merge all related clips",
+    "feature2": "Maintain original audio quality",
+    "feature3": "Seamless transitions",
+    "create": "Get Complete Song",
+    "processing": "Processing...",
+    "success": "Task created, please check results later",
+    "failed": "Failed to get complete song"
   },
   "extend": {
     "title": "Extend Song",
@@ -324,5 +368,19 @@
     "noHistory": "No history yet",
     "historyWillAppear": "Your music generation history will appear here",
     "loading": "Loading..."
+  },
+  "alignedLyrics": {
+    "title": "Get Lyrics Timestamp",
+    "trackInfo": "Karaoke Timeline",
+    "description": "Get lyrics timestamp alignment for karaoke-style synchronized display.",
+    "feature1": "Word-by-word timestamp alignment",
+    "feature2": "Millisecond precision",
+    "feature3": "Perfect for karaoke apps",
+    "lyricsPlaceholder": "Enter or paste lyrics here...",
+    "create": "Get Timestamps",
+    "processing": "Processing...",
+    "success": "Task created, please check results later",
+    "failed": "Failed to get lyrics timestamp",
+    "noLyrics": "Please enter lyrics"
   }
 }

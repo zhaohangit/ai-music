@@ -23,9 +23,18 @@
     "generatingMusic": "正在生成音乐...",
     "customMode": "自定义模式",
     "simpleMode": "简单模式",
+    "inspirationMode": "灵感模式",
+    "inspirationModeDesc": "简单描述，AI帮你完成",
+    "customModeDesc": "详细控制歌词和风格",
+    "ideaLabel": "音乐创意",
+    "inspirationPlaceholder": "描述你想要的音乐，例如：一首关于夏天海边的轻快流行歌曲...",
+    "lyricsLabel": "歌词 (可选)",
+    "lyricsPlaceholder": "输入歌词或点击AI生成歌词...",
     "aiPowered": "AI 驱动",
     "aiLyrics": "AI 歌词",
+    "generateInspiration": "AI创作",
     "advancedSettings": "高级设置",
+    "advancedControls": "高级控制",
     "duration": "时长",
     "bpm": "节奏",
     "vocals": "人声",
@@ -33,6 +42,7 @@
     "female": "女声",
     "male": "男声",
     "duet": "对唱",
+    "neutral": "中性",
     "enhancePrompt": "AI增强提示词",
     "enhancingPrompt": "正在增强提示词...",
     "promptEnhanced": "提示词已增强",
@@ -48,7 +58,13 @@
     "recommendingStyle": "正在推荐风格...",
     "styleRecommended": "风格已推荐",
     "recommendFailed": "推荐失败",
-    "recommending": "推荐中..."
+    "recommending": "推荐中...",
+    "modelVersion": "AI模型版本",
+    "vocalGender": "声音性别",
+    "negativeTags": "排除风格",
+    "negativeTagsPlaceholder": "例如: 重金属, 嘈杂, 电子...",
+    "styleWeight": "风格匹配度",
+    "weirdnessConstraint": "创意程度"
   },
   "mood": {
     "title": "情绪",
@@ -232,9 +248,33 @@
     "crop": "裁剪",
     "speed": "变速",
     "video": "生成视频",
+    "wav": "转换为WAV",
+    "wholeSong": "获取完整歌曲",
+    "alignedLyrics": "歌词时间戳",
     "download": "下载",
     "share": "分享",
     "delete": "删除"
+  },
+  "wav": {
+    "title": "转换为WAV格式",
+    "currentFormat": "当前格式: MP3",
+    "description": "WAV是无损音频格式，适合专业音频编辑和后期处理。转换后的文件将保持原始音质，但文件大小会显著增加。",
+    "convert": "转换为WAV",
+    "converting": "转换中...",
+    "convertSuccess": "转换任务已创建，请稍后查看结果",
+    "convertFailed": "转换失败"
+  },
+  "wholeSong": {
+    "title": "获取完整歌曲",
+    "trackInfo": "片段 → 完整歌曲",
+    "description": "如果您的歌曲是分段生成的，此功能可以将所有片段合并成一首完整的歌曲。",
+    "feature1": "自动合并所有相关片段",
+    "feature2": "保持原始音质",
+    "feature3": "无缝衔接",
+    "create": "获取完整歌曲",
+    "processing": "处理中...",
+    "success": "任务已创建，请稍后查看结果",
+    "failed": "获取完整歌曲失败"
   },
   "extend": {
     "title": "歌曲续写",
@@ -327,5 +367,19 @@
     "noHistory": "暂无历史记录",
     "historyWillAppear": "你的音乐生成历史将显示在这里",
     "loading": "加载中..."
+  },
+  "alignedLyrics": {
+    "title": "获取歌词时间戳",
+    "trackInfo": "卡拉OK时间轴",
+    "description": "获取歌词的时间戳对齐信息，可用于卡拉OK字幕同步显示。",
+    "feature1": "逐字时间戳对齐",
+    "feature2": "精确到毫秒级",
+    "feature3": "适合卡拉OK应用",
+    "lyricsPlaceholder": "请输入或粘贴歌词内容...",
+    "create": "获取时间戳",
+    "processing": "处理中...",
+    "success": "任务已创建，请稍后查看结果",
+    "failed": "获取歌词时间戳失败",
+    "noLyrics": "请输入歌词内容"
   }
 }

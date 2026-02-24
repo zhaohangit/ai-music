@@ -54,7 +54,8 @@ gpt_description_prompt 【灵感模式】音乐描述 (如: "一首欢快的流�
 prompt 【自定义模式】歌词内容。V4限3000字，V5限5000字。
 tags 【自定义模式】音乐风格 (如: "pop, rock")。V4限200字，V5限1000字。
 negative_tags 排除的风格提示词
-mv *模型版本
+mv *模型版本（取value元素值）
+<select class="input"><option value="chirp-v3-0">chirp-v3-0</option><option value="chirp-v3-5">chirp-v3-5</option><option value="chirp-v4">chirp-v4</option><option value="chirp-auk-turbo">chirp-auk-turbo</option><option value="chirp-auk">chirp-auk</option><option value="chirp-bluejay">chirp-bluejay</option><option value="chirp-crow">chirp-crow</option></select>
 
 title *歌名。V4限80字，V5限100字。
 make_instrumental *是否纯音乐 (无歌词)
