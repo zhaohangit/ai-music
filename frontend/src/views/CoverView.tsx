@@ -40,12 +40,11 @@ const RightPanel = styled.div`
 `;
 
 const GlassCard = styled.div`
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 24px;
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
   padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 `;
 
 const HeaderSection = styled.div`
@@ -64,7 +63,7 @@ const TitleSection = styled.div`
 const TitleIcon = styled.div`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #F093FB, #F5576C);
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -81,7 +80,7 @@ const TitleContent = styled.div`
 const MainTitle = styled.h1`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
@@ -96,12 +95,12 @@ const AIBadge = styled.div`
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: linear-gradient(135deg, rgba(240, 147, 251, 0.15), rgba(245, 87, 108, 0.15));
-  border: 1px solid rgba(240, 147, 251, 0.3);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #F093FB;
+  color: #FA2D48;
 `;
 
 const InstructionsSection = styled.div`
@@ -115,15 +114,15 @@ const InstructionItem = styled.div`
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #F5F5F7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
 `;
 
 const InstructionNumber = styled.div`
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -141,7 +140,7 @@ const InstructionContent = styled.div`
 const InstructionTitle = styled.h4`
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 4px 0;
 `;
 
@@ -155,7 +154,7 @@ const InstructionText = styled.p`
 const SectionTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 16px 0;
   display: flex;
   align-items: center;
@@ -174,16 +173,16 @@ const RecentCoversList = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: #F5F5F7;
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.25);
     }
   }
 `;
@@ -193,28 +192,29 @@ const RecentCoverItem = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    background: #F5F5F7;
+    border-color: rgba(0, 0, 0, 0.15);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const CoverThumbnail = styled.div`
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2));
+  background: linear-gradient(135deg, rgba(250, 45, 72, 0.2), rgba(252, 60, 68, 0.2));
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #F093FB;
+  color: #FA2D48;
   position: relative;
   overflow: hidden;
 
@@ -222,7 +222,7 @@ const CoverThumbnail = styled.div`
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #F093FB, #F5576C);
+    background: linear-gradient(135deg, #FA2D48, #FC3C44);
     opacity: 0;
     transition: opacity 0.2s ease;
   }
@@ -258,7 +258,7 @@ const CoverTitle = styled.span`
   display: block;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -281,10 +281,10 @@ const CoverTags = styled.div`
 const CoverTag = styled.span`
   font-size: 0.6875rem;
   padding: 2px 8px;
-  background: rgba(240, 147, 251, 0.1);
-  border: 1px solid rgba(240, 147, 251, 0.2);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 10px;
-  color: #F093FB;
+  color: #FA2D48;
   font-weight: 500;
 `;
 
@@ -296,19 +296,20 @@ const CoverActions = styled.div`
 const ActionButton = styled.button`
   width: 32px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8B8B9F;
+  color: #1D1D1F;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
+    background: #F5F5F7;
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #FA2D48;
   }
 `;
 
@@ -324,20 +325,20 @@ const EmptyState = styled.div`
 const EmptyStateIcon = styled.div`
   width: 64px;
   height: 64px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8B8B9F;
+  color: #FA2D48;
   margin-bottom: 16px;
 `;
 
 const EmptyStateTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 8px 0;
 `;
 
@@ -381,22 +382,22 @@ const ErrorState = styled.div`
 
 const ErrorText = styled.span`
   font-size: 0.875rem;
-  color: #F5576C;
+  color: #EF4444;
   text-align: center;
 `;
 
 const RetryButton = styled.button`
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 8px;
-  color: #667EEA;
+  color: #FA2D48;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(102, 126, 234, 0.3);
+    background: rgba(250, 45, 72, 0.15);
   }
 `;
 
@@ -574,7 +575,7 @@ export const CoverView: React.FC = () => {
 
           {loading ? (
             <LoadingState>
-              <Loader2 size={32} color="#667EEA" className="spin" />
+              <Loader2 size={32} color="#FA2D48" className="spin" />
               <LoadingText>{t('cover.loadingCovers')}</LoadingText>
             </LoadingState>
           ) : error ? (

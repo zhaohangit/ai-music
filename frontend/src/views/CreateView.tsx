@@ -46,14 +46,14 @@ const SpinAnimationStyle = createGlobalStyle`
 const CreateContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   padding-bottom: 20px;
 `;
 
 const TopSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 24px;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
 
   @media (max-width: 1100px) {
     grid-template-columns: 1fr;
@@ -63,7 +63,7 @@ const TopSection = styled.div`
 const LeftPanel = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   position: relative;
   z-index: 2;
 `;
@@ -71,66 +71,56 @@ const LeftPanel = styled.div`
 const RightPanel = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   position: relative;
   z-index: 1;
 `;
 
 const GlassCard = styled.div`
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  padding: 28px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 24px;
   position: relative;
   z-index: 1;
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  animation: ${fadeInUp} 0.5s ease-out;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
 const CreateHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 `;
 
 const CreateTitle = styled.h1`
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #FFFFFF, #E0E0FF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1D1D1F;
   margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 const AIBadge = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-  border: 1px solid rgba(102, 126, 234, 0.25);
-  border-radius: 24px;
-  font-size: 0.8rem;
+  padding: 6px 12px;
+  background: rgba(250, 45, 72, 0.1);
+  border-radius: 16px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #8B9EF5;
-  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+  color: #FA2D48;
 `;
 
 // Mode Toggle Styles
 const ModeToggleContainer = styled.div`
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 14px;
-  padding: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 6px;
+  margin-bottom: 20px;
+  background: #F5F5F7;
+  border-radius: 10px;
+  padding: 4px;
 `;
 
 const ModeToggleBtn = styled.button<{ $active: boolean }>`
@@ -138,26 +128,20 @@ const ModeToggleBtn = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 14px 20px;
-  background: ${props => props.$active
-    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2))'
-    : 'transparent'};
-  border: ${props => props.$active
-    ? '1px solid rgba(102, 126, 234, 0.4)'
-    : '1px solid transparent'};
-  border-radius: 10px;
-  color: ${props => props.$active ? '#FFFFFF' : '#8B8B9F'};
-  font-size: 0.9rem;
+  gap: 8px;
+  padding: 12px 16px;
+  background: ${props => props.$active ? '#FFFFFF' : 'transparent'};
+  border: none;
+  border-radius: 8px;
+  color: ${props => props.$active ? '#1D1D1F' : '#6E6E73'};
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
+  box-shadow: ${props => props.$active ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none'};
 
   &:hover:not(:disabled) {
-    background: ${props => props.$active
-      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.25))'
-      : 'rgba(255, 255, 255, 0.05)'};
-    color: ${props => props.$active ? '#FFFFFF' : '#B0B0C0'};
+    color: ${props => props.$active ? '#1D1D1F' : '#1D1D1F'};
   }
 
   &:disabled {
@@ -167,36 +151,37 @@ const ModeToggleBtn = styled.button<{ $active: boolean }>`
 `;
 
 const ModeIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: #FA2D48;
+  color: #FFFFFF;
 `;
 
 const ModeText = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 1px;
 `;
 
 const ModeTitle = styled.span`
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 600;
 `;
 
 const ModeDesc = styled.span`
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   opacity: 0.7;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #9B9BB0;
+  color: #86868B;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 14px 0;
@@ -207,25 +192,25 @@ const SectionTitle = styled.h3`
 const TextArea = styled.textarea`
   width: 100%;
   min-height: 130px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #F5F5F7;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 14px;
   padding: 16px 18px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.95rem;
   line-height: 1.6;
   resize: vertical;
-  transition: all 0.25s ease;
+  transition: all 0.15s ease;
 
   &::placeholder {
-    color: #6B6B80;
+    color: #86868B;
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.4);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: rgba(250, 45, 72, 0.3);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -233,32 +218,26 @@ const LyricsDisplay = styled.div`
   width: 100%;
   max-height: 280px;
   overflow-y: auto;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 14px;
-  padding: 18px;
-  color: #FFFFFF;
-  font-size: 0.9rem;
-  line-height: 1.9;
+  background: #F5F5F7;
+  border-radius: 10px;
+  padding: 16px;
+  color: #1D1D1F;
+  font-size: 0.875rem;
+  line-height: 1.8;
   white-space: pre-wrap;
   font-family: inherit;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 4px;
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 3px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.3);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba(102, 126, 234, 0.5);
-    }
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
   }
 `;
 
@@ -266,26 +245,25 @@ const LyricsHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 `;
 
 const CopyButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #9B9BB0;
-  font-size: 0.8rem;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #F5F5F7;
+  border: none;
+  border-radius: 6px;
+  color: #6E6E73;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #E8E8ED;
+    color: #1D1D1F;
   }
 
   &:disabled {
@@ -298,21 +276,19 @@ const PromptEnhanceButton = styled.button`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
-  color: #8B9EF5;
-  font-size: 0.8rem;
+  padding: 7px 12px;
+  background: rgba(250, 45, 72, 0.1);
+  border: none;
+  border-radius: 8px;
+  color: #FA2D48;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 10px;
+  transition: all 0.15s ease;
+  margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
-    border-color: rgba(102, 126, 234, 0.5);
-    color: #A0B0F5;
+    background: rgba(250, 45, 72, 0.15);
   }
 
   &:disabled {
@@ -332,20 +308,18 @@ const StyleRecommendButton = styled.button`
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 8px;
-  color: #8B9EF5;
-  font-size: 0.7rem;
+  background: rgba(250, 45, 72, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: #FA2D48;
+  font-size: 0.6875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   margin-left: auto;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
-    border-color: rgba(102, 126, 234, 0.5);
-    color: #A0B0F5;
+    background: rgba(250, 45, 72, 0.15);
   }
 
   &:disabled {
@@ -356,90 +330,86 @@ const StyleRecommendButton = styled.button`
 
 const SelectorGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
 `;
 
 const SelectorOption = styled.button<{ $selected?: boolean }>`
-  padding: 12px 16px;
+  padding: 10px 12px;
   background: ${props => props.$selected
-    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2))'
-    : 'rgba(255, 255, 255, 0.04)'};
+    ? 'rgba(250, 45, 72, 0.1)'
+    : '#F5F5F7'};
   border: ${props => props.$selected
-    ? '1px solid rgba(102, 126, 234, 0.4)'
-    : '1px solid rgba(255, 255, 255, 0.08)'};
-  border-radius: 12px;
-  color: ${props => props.$selected ? '#8B9EF5' : '#9B9BB0'};
-  font-size: 0.85rem;
+    ? '1px solid rgba(250, 45, 72, 0.3)'
+    : '1px solid transparent'};
+  border-radius: 8px;
+  color: ${props => props.$selected ? '#FA2D48' : '#6E6E73'};
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
 
   &:hover {
     background: ${props => props.$selected
-      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.35), rgba(118, 75, 162, 0.3))'
-      : 'rgba(255, 255, 255, 0.08)'};
-    border-color: ${props => props.$selected
-      ? 'rgba(102, 126, 234, 0.5)'
-      : 'rgba(255, 255, 255, 0.15)'};
-    color: ${props => props.$selected ? '#A0B0F5' : '#FFFFFF'};
-    transform: translateY(-1px);
+      ? 'rgba(250, 45, 72, 0.15)'
+      : '#E8E8ED'};
+    color: ${props => props.$selected ? '#FA2D48' : '#1D1D1F'};
   }
 
   &:active {
-    transform: translateY(0) scale(0.98);
+    transform: scale(0.98);
   }
 `;
 
 const AdvancedSettings = styled.div<{ $open: boolean }>`
   max-height: ${props => props.$open ? '600px' : '0'};
   overflow: hidden;
-  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: max-height 0.3s ease;
 `;
 
 const SettingsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  padding: 18px 0;
+  gap: 12px;
+  padding: 14px 0;
 `;
 
 const SettingItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 `;
 
 const SettingLabel = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: #9B9BB0;
+  color: #86868B;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
 `;
 
 // Advanced Settings Styles
 const AdvancedSection = styled.div`
-  padding: 18px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: 10px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 8px;
 `;
 
 const AdvancedSectionTitle = styled.h4`
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #9B9BB0;
-  margin: 0 0 14px 0;
+  color: #86868B;
+  margin: 0 0 12px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const SliderContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const SliderHeader = styled.div`
@@ -449,86 +419,87 @@ const SliderHeader = styled.div`
 `;
 
 const SliderValue = styled.span`
-  font-size: 0.8rem;
-  color: #667EEA;
+  font-size: 0.75rem;
+  color: #FA2D48;
   font-weight: 600;
 `;
 
 const StyledSlider = styled.input`
   width: 100%;
-  height: 6px;
+  height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: #E8E8ED;
+  border-radius: 2px;
   outline: none;
   cursor: pointer;
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667EEA, #764BA2);
+    background: #FA2D48;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 1px 4px rgba(250, 45, 72, 0.3);
     transition: transform 0.15s ease;
   }
 
   &::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
+    transform: scale(1.1);
   }
 
   &::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667EEA, #764BA2);
+    background: #FA2D48;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 1px 4px rgba(250, 45, 72, 0.3);
   }
 `;
 
 const TagInput = styled.input`
   width: 100%;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: #FFFFFF;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  padding: 10px 12px;
+  background: #F5F5F7;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #1D1D1F;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
 
   &::placeholder {
-    color: #6B6B80;
+    color: #86868B;
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.4);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: rgba(250, 45, 72, 0.3);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
 const ModelVersionGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 6px;
 `;
 
 const ModelVersionOption = styled.button<{ $selected?: boolean }>`
   padding: 10px 12px;
   background: ${props => props.$selected
-    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2))'
-    : 'rgba(255, 255, 255, 0.04)'};
+    ? 'rgba(250, 45, 72, 0.1)'
+    : '#F5F5F7'};
   border: ${props => props.$selected
-    ? '1px solid rgba(102, 126, 234, 0.4)'
-    : '1px solid rgba(255, 255, 255, 0.08)'};
+    ? '1px solid rgba(250, 45, 72, 0.3)'
+    : '1px solid transparent'};
   border-radius: 10px;
-  color: ${props => props.$selected ? '#8B9EF5' : '#9B9BB0'};
+  color: ${props => props.$selected ? '#FA2D48' : '#6E6E73'};
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -536,38 +507,38 @@ const ModelVersionOption = styled.button<{ $selected?: boolean }>`
 
   &:hover {
     background: ${props => props.$selected
-      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.35), rgba(118, 75, 162, 0.3))'
-      : 'rgba(255, 255, 255, 0.08)'};
+      ? 'rgba(250, 45, 72, 0.15)'
+      : '#E8E8ED'};
   }
 `;
 
 const SelectInput = styled.select`
   width: 100%;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 10px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.4);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: rgba(250, 45, 72, 0.3);
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 
   option {
-    background: #1A1A2E;
-    color: #FFFFFF;
+    background: #FFFFFF;
+    color: #1D1D1F;
   }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 14px;
-  margin-top: 28px;
+  margin-top: 20px;
   position: relative;
   z-index: 10;
 `;
@@ -576,64 +547,59 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost' }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 16px 28px;
-  border-radius: 14px;
-  font-size: 0.95rem;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 20px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
   flex: 1;
   position: relative;
   z-index: 1;
   pointer-events: auto;
 
   ${props => props.$variant === 'primary' && `
-    background: linear-gradient(135deg, #667EEA, #764BA2);
+    background: #FA2D48;
     color: #FFFFFF;
     border: none;
-    box-shadow:
-      0 4px 20px rgba(102, 126, 234, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 8px 30px rgba(102, 126, 234, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      background: #D91E36;
     }
 
     &:active {
-      transform: translateY(0);
+      transform: scale(0.98);
     }
   `}
 
   ${props => props.$variant === 'secondary' && `
-    background: rgba(255, 255, 255, 0.05);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #FFFFFF;
+    color: #1D1D1F;
+    border: 1px solid rgba(0, 0, 0, 0.12);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: #F5F5F7;
+      border-color: rgba(0, 0, 0, 0.2);
     }
   `}
 
   ${props => props.$variant === 'ghost' && `
     background: transparent;
-    color: #9B9BB0;
-    border: none;
+    color: #1D1D1F;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     flex: 0 0 auto;
-    padding: 12px 16px;
+    padding: 10px 14px;
 
     &:hover {
-      color: #FFFFFF;
-      background: rgba(255, 255, 255, 0.05);
+      color: #FA2D48;
+      border-color: rgba(250, 45, 72, 0.3);
+      background: rgba(250, 45, 72, 0.05);
     }
   `}
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
   }
@@ -642,51 +608,38 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost' }>`
 const PlayerCard = styled(GlassCard)`
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  gap: 16px;
 `;
 
 const PlayerCover = styled.div`
   width: 100%;
   aspect-ratio: 1;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-  border-radius: 18px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), transparent 50%);
-  }
 `;
 
 const PlayButtonOverlay = styled.button`
-  width: 72px;
-  height: 72px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  width: 64px;
+  height: 64px;
+  background: #FFFFFF;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 6px 24px rgba(102, 126, 234, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   position: relative;
   z-index: 2;
 
   &:hover {
     transform: scale(1.08);
-    box-shadow:
-      0 8px 32px rgba(102, 126, 234, 0.5),
-      inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
 
   &:active {
@@ -701,13 +654,13 @@ const PlayerInfo = styled.div`
 const PlayerTitle = styled.h4`
   font-size: 1.05rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 6px 0;
 `;
 
 const PlayerMeta = styled.p`
   font-size: 0.875rem;
-  color: #9B9BB0;
+  color: #6E6E73;
   margin: 0;
 `;
 
@@ -719,14 +672,14 @@ const progressShimmer = keyframes`
 const PlayerProgress = styled.div`
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 3px;
   overflow: hidden;
   cursor: pointer;
   position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.12);
   }
 `;
 
@@ -734,30 +687,11 @@ const PlayerProgressBar = styled.div<{ $progress: number; $hasTrack?: boolean }>
   width: ${props => props.$progress}%;
   height: 100%;
   background: ${props => props.$hasTrack === false
-    ? 'rgba(255, 255, 255, 0.1)'
-    : 'linear-gradient(90deg, #667EEA, #764BA2)'};
-  border-radius: 3px;
+    ? 'rgba(0, 0, 0, 0.08)'
+    : '#FA2D48'};
+  border-radius: 2px;
   transition: width 0.1s ease;
   position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
-    background: #FFFFFF;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  ${PlayerProgress}:hover &::after {
-    opacity: 1;
-  }
 `;
 
 const PlayerProgressPlaceholder = styled.div`
@@ -767,19 +701,19 @@ const PlayerProgressPlaceholder = styled.div`
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg,
-    rgba(102, 126, 234, 0.1) 0%,
-    rgba(102, 126, 234, 0.3) 50%,
-    rgba(102, 126, 234, 0.1) 100%
+    rgba(250, 45, 72, 0.1) 0%,
+    rgba(250, 45, 72, 0.2) 50%,
+    rgba(250, 45, 72, 0.1) 100%
   );
   animation: ${progressShimmer} 2s ease-in-out infinite;
-  border-radius: 3px;
+  border-radius: 2px;
 `;
 
 const PlayerTime = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
-  color: #9B9BB0;
+  font-size: 0.75rem;
+  color: #86868B;
   margin-top: 6px;
 `;
 
@@ -798,8 +732,8 @@ const RecentSection = styled(GlassCard)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 24px 28px;
   animation: ${fadeInUp} 0.6s ease-out;
   animation-delay: 0.1s;
@@ -815,10 +749,7 @@ const RecentHeader = styled.div`
 const RecentTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #FFFFFF, #E0E0FF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1D1D1F;
   margin: 0;
   display: flex;
   align-items: center;
@@ -826,55 +757,76 @@ const RecentTitle = styled.h3`
 `;
 
 const ViewAllButton = styled.button`
-  color: #667EEA;
-  font-size: 0.9rem;
+  color: #FA2D48;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 10px;
-  padding: 8px 16px;
-  transition: all 0.2s ease;
+  background: rgba(250, 45, 72, 0.1);
+  border: none;
+  border-radius: 16px;
+  padding: 6px 14px;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 
   &:hover {
-    color: #8B9EF5;
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(250, 45, 72, 0.15);
+  }
+`;
+
+const FilterButton = styled.button<{ $active?: boolean }>`
+  color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: ${props => props.$active ? 'rgba(250, 45, 72, 0.1)' : '#FFFFFF'};
+  border: 1px solid ${props => props.$active ? 'rgba(250, 45, 72, 0.3)' : 'rgba(0, 0, 0, 0.1)'};
+  border-radius: 16px;
+  padding: 6px 14px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  &:hover {
+    color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
+    background: ${props => props.$active ? 'rgba(250, 45, 72, 0.15)' : '#F5F5F7'};
+    border-color: ${props => props.$active ? 'rgba(250, 45, 72, 0.4)' : 'rgba(0, 0, 0, 0.15)'};
   }
 `;
 
 const RecentGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
 `;
 
 const RecentCard = styled.div.attrs({ className: 'recent-card' })<{ $isActive?: boolean; $menuOpen?: boolean }>`
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 14px;
+  padding: 12px;
   background: ${props => props.$isActive
-    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1))'
-    : 'rgba(255, 255, 255, 0.03)'};
+    ? 'rgba(250, 45, 72, 0.08)'
+    : '#FFFFFF'};
   border: 1px solid ${props => props.$isActive
-    ? 'rgba(102, 126, 234, 0.3)'
-    : 'rgba(255, 255, 255, 0.06)'};
+    ? 'rgba(250, 45, 72, 0.3)'
+    : 'rgba(0, 0, 0, 0.1)'};
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     background: ${props => props.$isActive
-      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.15))'
-      : 'rgba(255, 255, 255, 0.06)'};
-    border-color: rgba(102, 126, 234, 0.25);
+      ? 'rgba(250, 45, 72, 0.12)'
+      : '#F5F5F7'};
+    border-color: ${props => props.$isActive
+      ? 'rgba(250, 45, 72, 0.4)'
+      : 'rgba(0, 0, 0, 0.15)'};
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
 
   &:active {
@@ -891,7 +843,7 @@ const RecentCard = styled.div.attrs({ className: 'recent-card' })<{ $isActive?: 
 const RecentCover = styled.div<{ $isPlaying?: boolean }>`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -928,9 +880,9 @@ const PlayingIndicator = styled.div`
 `;
 
 const SoundBar = styled.div`
-  width: 4px;
+  width: 3px;
   height: 100%;
-  background: linear-gradient(180deg, #667EEA, #764BA2);
+  background: #FA2D48;
   border-radius: 2px;
   animation: ${wave} 0.8s ease-in-out infinite;
 
@@ -948,7 +900,7 @@ const RecentItemTitle = styled.span`
   display: block;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -970,14 +922,14 @@ const RecentTag = styled.span<{ $processing?: boolean; $error?: boolean }>`
     ? 'rgba(245, 158, 11, 0.15)'
     : props.$error
     ? 'rgba(245, 87, 108, 0.15)'
-    : 'rgba(102, 126, 234, 0.15)'};
+    : 'rgba(250, 45, 72, 0.1)'};
   border-radius: 12px;
   font-size: 0.75rem;
   color: ${props => props.$processing
     ? '#F59E0B'
     : props.$error
-    ? '#F5576C'
-    : '#8B9EF5'};
+    ? '#EF4444'
+    : '#FA2D48'};
   font-weight: 600;
 `;
 
@@ -1009,7 +961,7 @@ const PaginationContainer = styled.div`
   justify-content: center;
   gap: 12px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
 const PaginationButton = styled.button<{ $disabled?: boolean }>`
@@ -1018,27 +970,27 @@ const PaginationButton = styled.button<{ $disabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.$disabled ? 'transparent' : 'linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1))'};
-  border: 1px solid ${props => props.$disabled ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.25)'};
+  background: ${props => props.$disabled ? 'transparent' : 'rgba(250, 45, 72, 0.1)'};
+  border: 1px solid ${props => props.$disabled ? 'rgba(0, 0, 0, 0.1)' : 'rgba(250, 45, 72, 0.2)'};
   border-radius: 12px;
-  color: ${props => props.$disabled ? 'rgba(255, 255, 255, 0.3)' : '#8B9EF5'};
+  color: ${props => props.$disabled ? '#C7C7CC' : '#FA2D48'};
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.2));
-    border-color: rgba(102, 126, 234, 0.4);
-    color: #A0B0F5;
+    background: rgba(250, 45, 72, 0.15);
+    border-color: rgba(250, 45, 72, 0.3);
+    color: #D91E36;
     transform: translateY(-1px);
   }
 `;
 
 const PageIndicator = styled.span`
   font-size: 0.9rem;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-weight: 600;
   padding: 0 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #F5F5F7;
   padding: 8px 16px;
   border-radius: 10px;
 `;
@@ -1057,7 +1009,7 @@ const RecentActions = styled.div.attrs({ className: 'recent-actions' })`
   display: flex;
   gap: 8px;
   margin-left: auto;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
 
   .recent-card:hover & {
@@ -1068,19 +1020,20 @@ const RecentActions = styled.div.attrs({ className: 'recent-actions' })`
 const IconButton = styled.button`
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9B9BB0;
+  color: #1D1D1F;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #FFFFFF;
+    background: #F5F5F7;
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #FA2D48;
     transform: scale(1.05);
   }
 
@@ -1099,9 +1052,8 @@ const MoreMenu = styled.div<{ $isOpen: boolean }>`
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: rgba(25, 25, 45, 0.98);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
   padding: 8px;
   min-width: 180px;
@@ -1110,7 +1062,7 @@ const MoreMenu = styled.div<{ $isOpen: boolean }>`
   visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
   transform: ${props => props.$isOpen ? 'translateY(0)' : 'translateY(-8px)'};
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
 `;
 
 const MoreMenuItem = styled.button<{ $danger?: boolean }>`
@@ -1122,14 +1074,14 @@ const MoreMenuItem = styled.button<{ $danger?: boolean }>`
   background: transparent;
   border: none;
   border-radius: 10px;
-  color: ${props => props.$danger ? '#F87171' : '#FFFFFF'};
+  color: ${props => props.$danger ? '#EF4444' : '#1D1D1F'};
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
 
   &:hover {
-    background: ${props => props.$danger ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.08)'};
+    background: ${props => props.$danger ? 'rgba(239, 68, 68, 0.1)' : '#F5F5F7'};
   }
 
   &:disabled {
@@ -1140,7 +1092,7 @@ const MoreMenuItem = styled.button<{ $danger?: boolean }>`
 
 const MenuDivider = styled.div`
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   margin: 6px 0;
 `;
 
@@ -1157,7 +1109,7 @@ const EmptyState = styled.div`
 const EmptyIcon = styled.div`
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -1197,31 +1149,29 @@ const LoadingOverlay = styled.div<{ $visible: boolean }>`
 `;
 
 const ProgressBar = styled.div`
-  width: 180px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  width: 160px;
+  height: 4px;
+  background: #E8E8ED;
+  border-radius: 2px;
   overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
   width: ${props => props.$progress}%;
   height: 100%;
-  background: linear-gradient(90deg, #667EEA, #764BA2);
-  border-radius: 3px;
+  background: #FA2D48;
+  border-radius: 2px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
 `;
 
 const ErrorBanner = styled.div<{ $visible: boolean }>`
   display: ${props => props.$visible ? 'flex' : 'none'};
   align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 14px;
-  margin-bottom: 18px;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 59, 48, 0.08);
+  border-radius: 10px;
+  margin-bottom: 16px;
 `;
 
 const ErrorIcon = styled(AlertCircle)`
@@ -1237,9 +1187,9 @@ const ErrorText = styled.p`
 `;
 
 const DismissButton = styled.button`
-  background: rgba(255, 255, 255, 0.05);
+  background: #F5F5F7;
   border: none;
-  color: #9B9BB0;
+  color: #6E6E73;
   cursor: pointer;
   padding: 6px;
   display: flex;
@@ -1249,8 +1199,8 @@ const DismissButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    color: #FFFFFF;
-    background: rgba(255, 255, 255, 0.1);
+    color: #1D1D1F;
+    background: #E8E8ED;
   }
 `;
 
@@ -1280,6 +1230,7 @@ export const CreateView: React.FC = () => {
     currentTime,
     duration: playbackDuration,
     seek,
+    refreshData,
   } = useAppStore();
 
   // Local state
@@ -1312,13 +1263,14 @@ export const CreateView: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [apiTracks, setApiTracks] = useState<MusicInfo[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const pageSize = 6;
 
   // Fetch recent tracks from API with pagination
-  const fetchRecentTracks = useCallback(async (page: number) => {
+  const fetchRecentTracks = useCallback(async (page: number, favoritesOnly: boolean = false) => {
     try {
       setIsLoadingMore(true);
-      const response = await musicApi.getList(page, pageSize);
+      const response = await musicApi.getList(page, pageSize, undefined, favoritesOnly);
       if (response.success && response.data) {
         let items: MusicInfo[] = [];
         let total = 0;
@@ -1340,11 +1292,15 @@ export const CreateView: React.FC = () => {
         setTotalCount(total);
         setTotalPages(Math.ceil(total / pageSize));
 
-        // Also add to store for backward compatibility
-        items.forEach((track: MusicInfo) => {
-          if (!recentTracks.find(t => t.id === track.id)) {
-            addToRecentTracks(track);
-          }
+        // 同步后端的 isFavorite 状态到本地 favorites Set
+        setFavorites(prev => {
+          const newFavorites = new Set(prev);
+          items.forEach((track: MusicInfo) => {
+            if (track.isFavorite) {
+              newFavorites.add(track.id);
+            }
+          });
+          return newFavorites;
         });
       }
     } catch (error) {
@@ -1352,12 +1308,13 @@ export const CreateView: React.FC = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [addToRecentTracks, recentTracks]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Fetch on mount and page change
+  // Fetch on mount and page/filter change
   useEffect(() => {
-    fetchRecentTracks(currentPage);
-  }, [currentPage]);
+    fetchRecentTracks(currentPage, showFavoritesOnly);
+  }, [currentPage, showFavoritesOnly, fetchRecentTracks]);
 
   // Pagination handlers
   const handlePrevPage = () => {
@@ -1444,6 +1401,7 @@ export const CreateView: React.FC = () => {
 
       if (response.data?.status === 'complete' && response.data) {
         completeMusicGeneration(response.data);
+        refreshData(); // Trigger data refresh in other views
         showSuccess(t('common.musicGenerated'), t('common.success'));
         return true;
       } else if (response.data?.status === 'error') {
@@ -1472,7 +1430,7 @@ export const CreateView: React.FC = () => {
       }
       return true;
     }
-  }, [completeMusicGeneration, failMusicGeneration, updateMusicGenerationProgress, musicGeneration.progress, showSuccess, showError, t]);
+  }, [completeMusicGeneration, failMusicGeneration, updateMusicGenerationProgress, musicGeneration.progress, showSuccess, showError, t, refreshData]);
 
   // Start polling for music generation
   useEffect(() => {
@@ -1640,6 +1598,7 @@ export const CreateView: React.FC = () => {
 
       // Build API params based on backend expectations
       // Backend expects: mode, prompt, title, lyrics, tags, mood, llmProvider, mv, instrumental
+      // Plus advanced: negativeTags, metadata (vocal_gender, control_sliders)
       const apiParams: any = {
         mode: mode, // 'inspiration' or 'custom'
         prompt: description, // Backend uses 'prompt' for both modes
@@ -1657,6 +1616,30 @@ export const CreateView: React.FC = () => {
       // Custom mode specific parameters
       if (mode === 'custom' && lyrics) {
         apiParams.lyrics = lyrics;
+      }
+
+      // Advanced settings - negative_tags
+      if (negativeTags.trim()) {
+        apiParams.negativeTags = negativeTags.trim();
+      }
+
+      // Advanced settings - metadata (vocal_gender, control_sliders)
+      const hasMetadata = vocalGender || styleWeight !== 0.5 || weirdnessConstraint !== 0.5;
+      if (hasMetadata) {
+        apiParams.metadata = {};
+        if (vocalGender) {
+          apiParams.metadata.vocal_gender = vocalGender;
+        }
+        // Only send control_sliders if values differ from defaults
+        if (styleWeight !== 0.5 || weirdnessConstraint !== 0.5) {
+          apiParams.metadata.control_sliders = {};
+          if (styleWeight !== 0.5) {
+            apiParams.metadata.control_sliders.style_weight = styleWeight;
+          }
+          if (weirdnessConstraint !== 0.5) {
+            apiParams.metadata.control_sliders.weirdness_constraint = weirdnessConstraint;
+          }
+        }
       }
 
       // Call the API to create music
@@ -1812,11 +1795,15 @@ export const CreateView: React.FC = () => {
     // Try to sync with backend (silently fail if not available)
     try {
       await musicApi.toggleFavorite(track.id);
+      // 如果在收藏筛选模式下，刷新列表
+      if (showFavoritesOnly) {
+        fetchRecentTracks(currentPage, true);
+      }
     } catch (err) {
       console.warn('Favorite sync failed (local state preserved):', err);
       // Don't revert or show error - local state is what matters for UI
     }
-  }, [favorites, showSuccess, t]);
+  }, [favorites, showSuccess, t, showFavoritesOnly, currentPage, fetchRecentTracks]);
 
   // Delete track
   const handleDeleteTrack = useCallback(async (track: typeof recentTracks[0]) => {
@@ -2054,7 +2041,7 @@ export const CreateView: React.FC = () => {
                   <SettingItem style={{ marginBottom: '16px' }}>
                     <SettingLabel>{t('create.modelVersion', 'AI模型版本')}</SettingLabel>
                     <ModelVersionGrid>
-                      {(['chirp-v3-5', 'chirp-v4', 'chirp-auk-turbo'] as const).map((version) => (
+                      {(['chirp-v3-0', 'chirp-v3-5', 'chirp-v4', 'chirp-auk-turbo', 'chirp-auk', 'chirp-bluejay', 'chirp-crow'] as const).map((version) => (
                         <ModelVersionOption
                           key={version}
                           $selected={modelVersion === version}
@@ -2262,10 +2249,25 @@ export const CreateView: React.FC = () => {
               <Music2 size={22} />
               {t('recent.title')}
             </RecentTitle>
-            <ViewAllButton onClick={() => setCurrentPage(1)}>
-              {t('recent.viewAll')}
-              <ChevronRight size={18} />
-            </ViewAllButton>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <FilterButton
+                $active={showFavoritesOnly}
+                onClick={() => {
+                  setShowFavoritesOnly(!showFavoritesOnly);
+                  setCurrentPage(1);
+                }}
+              >
+                <Heart size={16} fill={showFavoritesOnly ? '#FA2D48' : 'none'} />
+                {t('common.favorites', '收藏')}
+              </FilterButton>
+              <ViewAllButton onClick={() => {
+                setShowFavoritesOnly(false);
+                setCurrentPage(1);
+              }}>
+                {t('recent.viewAll')}
+                <ChevronRight size={18} />
+              </ViewAllButton>
+            </div>
           </RecentHeader>
 
           {isLoadingMore ? (
@@ -2304,9 +2306,9 @@ export const CreateView: React.FC = () => {
                             alt={track.title || 'Track'}
                           />
                         ) : isProcessing ? (
-                          <Loader2 size={26} className="spin" color="#667EEA" />
+                          <Loader2 size={26} className="spin" color="#FA2D48" />
                         ) : isError ? (
-                          <AlertCircle size={26} color="#F5576C" />
+                          <AlertCircle size={26} color="#EF4444" />
                         ) : isTrackPlaying ? (
                           <PlayingIndicator>
                             <SoundBar />
@@ -2314,7 +2316,7 @@ export const CreateView: React.FC = () => {
                             <SoundBar />
                           </PlayingIndicator>
                         ) : (
-                          <Play size={26} color="#667EEA" fill="rgba(102, 126, 234, 0.3)" style={{ marginLeft: 3 }} />
+                          <Play size={26} color="#FFFFFF" fill="rgba(255, 255, 255, 0.9)" style={{ marginLeft: 3 }} />
                         )}
                         {/* 状态标签 */}
                         {isProcessing && (
@@ -2345,10 +2347,10 @@ export const CreateView: React.FC = () => {
                         <IconButton
                           onClick={(e) => handleToggleFavorite(e, track)}
                           style={{
-                            color: favorites.has(track.id) ? '#F5576C' : undefined
+                            color: favorites.has(track.id) ? '#FA2D48' : undefined
                           }}
                         >
-                          <Heart size={18} fill={favorites.has(track.id) ? '#F5576C' : 'none'} />
+                          <Heart size={18} fill={favorites.has(track.id) ? '#FA2D48' : 'none'} />
                         </IconButton>
                         <MoreMenuWrapper ref={openMenuId === track.id ? menuRef : null}>
                           <IconButton

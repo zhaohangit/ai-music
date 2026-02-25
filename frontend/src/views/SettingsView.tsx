@@ -34,20 +34,19 @@ const SettingsHeader = styled.div`
 const SettingsTitle = styled.h1`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const SettingsSubtitle = styled.p`
   font-size: 1rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
 const SettingsSection = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   overflow: hidden;
 `;
@@ -57,13 +56,13 @@ const SectionHeader = styled.div`
   align-items: center;
   gap: 12px;
   padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
 const SectionIcon = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -73,7 +72,7 @@ const SectionIcon = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
@@ -89,7 +88,7 @@ const SettingItem = styled.div`
   transition: background 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.02);
   }
 `;
 
@@ -102,12 +101,12 @@ const SettingInfo = styled.div`
 const SettingLabel = styled.span`
   font-size: 0.9375rem;
   font-weight: 500;
-  color: #FFFFFF;
+  color: #1D1D1F;
 `;
 
 const SettingDescription = styled.span`
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const SettingControl = styled.div`
@@ -119,7 +118,7 @@ const SettingControl = styled.div`
 const Toggle = styled.button<{ $active: boolean }>`
   width: 48px;
   height: 28px;
-  background: ${props => props.$active ? 'linear-gradient(135deg, #667EEA, #764BA2)' : 'rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.$active ? '#FA2D48' : '#E8E8ED'};
   border-radius: 14px;
   position: relative;
   cursor: pointer;
@@ -136,6 +135,7 @@ const Toggle = styled.button<{ $active: boolean }>`
     top: 3px;
     left: ${props => props.$active ? '25px' : '3px'};
     transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -144,16 +144,16 @@ const SelectButton = styled.button`
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 10px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #E8E8ED;
   }
 `;
 
@@ -169,17 +169,17 @@ const LanguageOption = styled.button<{ $selected?: boolean }>`
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: ${props => props.$selected ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.03)'};
-  border: ${props => props.$selected ? '1px solid rgba(102, 126, 234, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)'};
+  background: ${props => props.$selected ? 'rgba(250, 45, 72, 0.1)' : '#F5F5F7'};
+  border: ${props => props.$selected ? '1px solid rgba(250, 45, 72, 0.2)' : '1px solid transparent'};
   border-radius: 12px;
-  color: ${props => props.$selected ? '#667EEA' : '#FFFFFF'};
+  color: ${props => props.$selected ? '#FA2D48' : '#1D1D1F'};
   font-size: 0.9375rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
 
   &:hover {
-    background: ${props => props.$selected ? 'rgba(102, 126, 234, 0.25)' : 'rgba(255, 255, 255, 0.05)'};
+    background: ${props => props.$selected ? 'rgba(250, 45, 72, 0.15)' : '#E8E8ED'};
   }
 `;
 
@@ -199,13 +199,13 @@ const LanguageName = styled.span`
 
 const LanguageNative = styled.span<{ $selected?: boolean }>`
   font-size: 0.8125rem;
-  color: ${props => props.$selected ? 'rgba(102, 126, 234, 0.8)' : '#8B8B9F'};
+  color: ${props => props.$selected ? 'rgba(250, 45, 72, 0.8)' : '#86868B'};
 `;
 
 const CheckIcon = styled.div<{ $visible?: boolean }>`
   width: 20px;
   height: 20px;
-  background: ${props => props.$visible ? 'linear-gradient(135deg, #667EEA, #764BA2)' : 'transparent'};
+  background: ${props => props.$visible ? '#FA2D48' : 'transparent'};
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -224,7 +224,7 @@ const ProfileCard = styled.div`
 const ProfileAvatar = styled.div`
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -244,13 +244,13 @@ const ProfileInfo = styled.div`
 const ProfileName = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const ProfileEmail = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -259,7 +259,7 @@ const ProfilePlan = styled.span`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.15);
   border-radius: 20px;
   color: #10B981;
   font-size: 0.8125rem;
@@ -269,17 +269,17 @@ const ProfilePlan = styled.span`
 
 const EditButton = styled.button`
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 10px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #E8E8ED;
   }
 `;
 
@@ -287,14 +287,14 @@ const DangerZone = styled(SettingsSection)`
   border-color: rgba(239, 68, 68, 0.2);
 
   ${SectionIcon} {
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.1);
   }
 `;
 
 const DangerButton = styled.button`
   padding: 10px 20px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 10px;
   color: #EF4444;
   font-size: 0.9375rem;
@@ -303,7 +303,7 @@ const DangerButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.12);
   }
 `;
 
@@ -361,7 +361,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Palette size={20} color="#667EEA" />
+            <Palette size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Appearance</SectionTitle>
         </SectionHeader>
@@ -382,7 +382,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Globe size={20} color="#667EEA" />
+            <Globe size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Language</SectionTitle>
         </SectionHeader>
@@ -410,7 +410,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Bell size={20} color="#667EEA" />
+            <Bell size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Notifications</SectionTitle>
         </SectionHeader>
@@ -440,7 +440,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Volume2 size={20} color="#667EEA" />
+            <Volume2 size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Playback</SectionTitle>
         </SectionHeader>
@@ -470,7 +470,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <CreditCard size={20} color="#667EEA" />
+            <CreditCard size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Billing & Credits</SectionTitle>
         </SectionHeader>
@@ -494,7 +494,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Shield size={20} color="#667EEA" />
+            <Shield size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>Privacy & Security</SectionTitle>
         </SectionHeader>
@@ -530,7 +530,7 @@ export const SettingsView: React.FC = () => {
       <SettingsSection>
         <SectionHeader>
           <SectionIcon>
-            <Info size={20} color="#667EEA" />
+            <Info size={20} color="#FA2D48" />
           </SectionIcon>
           <SectionTitle>About</SectionTitle>
         </SectionHeader>

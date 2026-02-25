@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { musicApi, MusicInfo } from '../services/api';
 import { useToast } from '../hooks/useToast';
+import { useAppStore } from '../hooks/useMusicStore';
 
 const HistoryContainer = styled.div`
   display: flex;
@@ -39,13 +40,13 @@ const TitleSection = styled.div`
 const HistoryTitle = styled.h1`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const HistorySubtitle = styled.p`
   font-size: 1rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -59,14 +60,16 @@ const SearchBar = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 10px 16px;
   width: 280px;
 
   &:focus-within {
-    border-color: rgba(102, 126, 234, 0.5);
+    border-color: rgba(250, 45, 72, 0.3);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -74,12 +77,12 @@ const SearchInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.875rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
@@ -88,14 +91,20 @@ const FilterButton = styled.button<{ $active?: boolean }>`
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
-  border: ${props => props.$active ? '1px solid rgba(102, 126, 234, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'};
+  background: ${props => props.$active ? 'rgba(250, 45, 72, 0.1)' : '#FFFFFF'};
+  border: ${props => props.$active ? '1px solid rgba(250, 45, 72, 0.3)' : '1px solid rgba(0, 0, 0, 0.1)'};
   border-radius: 10px;
-  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
+  color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.$active ? 'rgba(250, 45, 72, 0.15)' : '#F5F5F7'};
+    border-color: ${props => props.$active ? 'rgba(250, 45, 72, 0.4)' : 'rgba(0, 0, 0, 0.15)'};
+    color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
+  }
 `;
 
 const Timeline = styled.div`
@@ -115,21 +124,21 @@ const TimelineHeader = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #F5F5F7;
   border-radius: 12px;
 `;
 
 const TimelineDate = styled.h3`
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const TimelineCount = styled.span`
   font-size: 0.8125rem;
-  color: #8B8B9F;
-  background: rgba(255, 255, 255, 0.05);
+  color: #86868B;
+  background: rgba(0, 0, 0, 0.05);
   padding: 2px 8px;
   border-radius: 12px;
 `;
@@ -139,21 +148,22 @@ const HistoryItem = styled.div`
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const ItemCover = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -178,7 +188,7 @@ const ItemInfo = styled.div`
 const ItemTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -190,14 +200,14 @@ const ItemMeta = styled.div`
   align-items: center;
   gap: 12px;
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const ItemMetaBadge = styled.span`
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(250, 45, 72, 0.1);
   padding: 2px 8px;
   border-radius: 4px;
-  color: #667EEA;
+  color: #FA2D48;
   font-size: 0.75rem;
   font-weight: 500;
 `;
@@ -207,7 +217,7 @@ const ItemTime = styled.span`
   align-items: center;
   gap: 6px;
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const ItemActions = styled.div`
@@ -219,19 +229,20 @@ const ItemActions = styled.div`
 const ActionButton = styled.button<{ $variant?: 'primary' | 'danger' | 'ghost' }>`
   width: 40px;
   height: 40px;
-  background: ${props => props.$variant === 'primary' ? 'linear-gradient(135deg, #667EEA, #764BA2)' : 'rgba(255, 255, 255, 0.05)'};
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: ${props => props.$variant === 'primary' ? '#FA2D48' : '#FFFFFF'};
+  border: 1px solid ${props => props.$variant === 'primary' ? '#FA2D48' : props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(0, 0, 0, 0.1)'};
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.$variant === 'danger' ? '#EF4444' : props.$variant === 'primary' ? '#FFFFFF' : '#8B8B9F'};
+  color: ${props => props.$variant === 'danger' ? '#EF4444' : props.$variant === 'primary' ? '#FFFFFF' : '#1D1D1F'};
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
-    color: ${props => props.$variant === 'danger' ? '#EF4444' : '#FFFFFF'};
+    background: ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.1)' : '#F5F5F7'};
+    border-color: ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.5)' : 'rgba(0, 0, 0, 0.2)'};
+    color: ${props => props.$variant === 'danger' ? '#EF4444' : '#FA2D48'};
   }
 `;
 
@@ -271,7 +282,7 @@ const EmptyState = styled.div`
 const EmptyIcon = styled.div`
   width: 80px;
   height: 80px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -282,13 +293,13 @@ const EmptyIcon = styled.div`
 const EmptyTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 8px 0;
 `;
 
 const EmptyDescription = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -303,13 +314,13 @@ const LoadingState = styled.div`
 
 const LoadingText = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   padding: 16px;
   color: #EF4444;
@@ -322,8 +333,8 @@ const ErrorMessage = styled.div`
 
 const RetryButton = styled.button`
   padding: 8px 16px;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 8px;
   color: #EF4444;
   font-size: 0.8125rem;
@@ -332,7 +343,7 @@ const RetryButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.15);
   }
 `;
 
@@ -400,6 +411,7 @@ const toHistoryItem = (music: MusicInfo): HistoryItemData => {
 export const HistoryView: React.FC = () => {
   const { t } = useTranslation();
   const { showSuccess, showError } = useToast();
+  const dataVersion = useAppStore((state) => state.dataVersion);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterActive, setFilterActive] = useState(false);
   const [historyData, setHistoryData] = useState<HistoryGroup[]>([]);
@@ -465,7 +477,7 @@ export const HistoryView: React.FC = () => {
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [dataVersion]);
 
   // Delete track
   const deleteTrack = async (trackId: string) => {
@@ -539,7 +551,7 @@ export const HistoryView: React.FC = () => {
 
       {loading ? (
         <LoadingState>
-          <Loader2 size={40} color="#667EEA" className="spin" />
+          <Loader2 size={40} color="#FA2D48" className="spin" />
           <LoadingText>Loading your music history...</LoadingText>
         </LoadingState>
       ) : filteredHistoryData.length > 0 ? (
@@ -554,9 +566,9 @@ export const HistoryView: React.FC = () => {
                 <HistoryItem key={item.id}>
                   <ItemCover>
                     {item.status === 'generating' ? (
-                      <Clock size={28} color="#F59E0B" />
+                      <Clock size={28} color="#FFFFFF" />
                     ) : (
-                      <Play size={24} color="#667EEA" fill="rgba(102, 126, 234, 0.3)" />
+                      <Play size={24} color="#FFFFFF" fill="rgba(255, 255, 255, 0.9)" />
                     )}
                   </ItemCover>
                   <ItemInfo>

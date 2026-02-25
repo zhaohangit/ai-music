@@ -62,6 +62,10 @@ interface AppState {
   credits: number;
   setCredits: (credits: number) => void;
   deductCredits: (amount: number) => void;
+
+  // 数据刷新触发器
+  dataVersion: number;
+  refreshData: () => void;
 }
 
 // ============ Store ============
@@ -185,6 +189,10 @@ export const useAppStore = create<AppState>()(
       setCredits: (credits) => set({ credits }),
       deductCredits: (amount) =>
         set((state) => ({ credits: Math.max(0, state.credits - amount) })),
+
+      // 数据刷新触发器
+      dataVersion: 0,
+      refreshData: () => set((state) => ({ dataVersion: state.dataVersion + 1 })),
     }),
     {
       name: 'music-ai-storage',
@@ -192,6 +200,7 @@ export const useAppStore = create<AppState>()(
         language: state.language,
         recentTracks: state.recentTracks,
         credits: state.credits,
+        dataVersion: state.dataVersion,
       }),
     }
   )

@@ -139,24 +139,64 @@ class SunoService {
    * @param prompt - 创作提示词
    * @param model - 模型类型 (默认 'chirp-v3-5')
    * @param instrumental - 是否为纯音乐
+   * @param negativeTags - 排除的风格提示词
+   * @param metadata - 高级参数 (vocal_gender, control_sliders)
    * @returns 歌曲信息
    */
-  async createWithPrompt(prompt: string, model: string = 'chirp-v3-5', instrumental: boolean = false): Promise<MusicInfo> {
+  async createWithPrompt(
+    prompt: string,
+    model: string = 'chirp-v3-5',
+    instrumental: boolean = false,
+    negativeTags?: string,
+    metadata?: {
+      vocal_gender?: 'm' | 'f';
+      control_sliders?: {
+        style_weight?: number;
+        weirdness_constraint?: number;
+      };
+    }
+  ): Promise<MusicInfo> {
     try {
       logger.info('[Suno Service] Creating music with prompt (inspiration mode)', {
         prompt: prompt.substring(0, 100),
         model,
-        instrumental
+        instrumental,
+        negativeTags,
+        metadata
       });
 
       // 转换模型版本格式
       const mv = MODEL_VERSION_MAP[model] || model;
 
-      const response = await this.client.post('/api/v1/music/generate', {
+      const requestBody: any = {
         gpt_description_prompt: prompt,  // 灵感模式使用此参数
         mv,
         make_instrumental: instrumental,
-      });
+      };
+
+      // 添加负面标签
+      if (negativeTags) {
+        requestBody.negative_tags = negativeTags;
+      }
+
+      // 添加元数据
+      if (metadata) {
+        requestBody.metadata = {};
+        if (metadata.vocal_gender) {
+          requestBody.metadata.vocal_gender = metadata.vocal_gender;
+        }
+        if (metadata.control_sliders) {
+          requestBody.metadata.control_sliders = {};
+          if (metadata.control_sliders.style_weight !== undefined) {
+            requestBody.metadata.control_sliders.style_weight = metadata.control_sliders.style_weight;
+          }
+          if (metadata.control_sliders.weirdness_constraint !== undefined) {
+            requestBody.metadata.control_sliders.weirdness_constraint = metadata.control_sliders.weirdness_constraint;
+          }
+        }
+      }
+
+      const response = await this.client.post('/api/v1/music/generate', requestBody);
 
       return this.parseGenerateResponse(response.data);
     } catch (error) {
@@ -215,6 +255,15 @@ class SunoService {
     instrumental?: boolean;
     continueAt?: string; // 续写位置（秒数）
     continueClipId?: string; // 续写clip ID
+    negativeTags?: string; // 排除的风格提示词
+    metadata?: {
+      vocal_gender?: 'm' | 'f'; // 'm' = male, 'f' = female
+      control_sliders?: {
+        style_weight?: number; // 0-1 float
+        weirdness_constraint?: number; // 0-1 float
+      };
+      audio_weight?: number; // 音频参考度 0-1（仅上传音频可用）
+    };
   }): Promise<MusicInfo> {
     try {
       logger.info('[Suno Service] Creating custom music', {
@@ -225,6 +274,8 @@ class SunoService {
         hasLyrics: !!params.lyrics,
         lyricsLength: params.lyrics?.length || 0,
         lyricsPreview: params.lyrics?.substring(0, 200) || 'N/A',
+        negativeTags: params.negativeTags,
+        metadata: params.metadata,
       });
 
       // 转换模型版本格式
@@ -262,6 +313,36 @@ class SunoService {
         requestBody.task = 'extend';
         requestBody.continue_clip_id = params.continueClipId;
         if (params.continueAt) requestBody.continue_at = params.continueAt;
+      }
+
+      // 排除的风格提示词 (API参数: negative_tags)
+      if (params.negativeTags) {
+        requestBody.negative_tags = params.negativeTags;
+      }
+
+      // 高级参数 metadata (vocal_gender, control_sliders, audio_weight)
+      if (params.metadata) {
+        requestBody.metadata = {};
+        if (params.metadata.vocal_gender) {
+          requestBody.metadata.vocal_gender = params.metadata.vocal_gender;
+        }
+        if (params.metadata.control_sliders) {
+          requestBody.metadata.control_sliders = {};
+          if (params.metadata.control_sliders.style_weight !== undefined) {
+            requestBody.metadata.control_sliders.style_weight = params.metadata.control_sliders.style_weight;
+          }
+          if (params.metadata.control_sliders.weirdness_constraint !== undefined) {
+            requestBody.metadata.control_sliders.weirdness_constraint = params.metadata.control_sliders.weirdness_constraint;
+          }
+        }
+        // 音频参考度（仅上传音频可用）
+        if (params.metadata.audio_weight !== undefined) {
+          requestBody.metadata.audio_weight = params.metadata.audio_weight;
+        }
+        // 如果 metadata 为空对象，删除它
+        if (Object.keys(requestBody.metadata).length === 0) {
+          delete requestBody.metadata;
+        }
       }
 
       // Log the complete request body being sent to Suno API
@@ -415,23 +496,62 @@ class SunoService {
     prompt?: string; // 歌词（可选）
     tags?: string; // 风格标签
     model?: string; // 模型类型
+    negativeTags?: string; // 负面标签（排除的风格）
+    metadata?: {
+      vocal_gender?: 'm' | 'f'; // 声音性别
+      control_sliders?: {
+        style_weight?: number; // 风格权重 0-1
+        weirdness_constraint?: number; // 怪异度约束 0-1
+      };
+      audio_weight?: number; // 音频参考度 0-1（仅上传音频可用）
+    };
   }): Promise<MusicInfo> {
     try {
       logger.info('[Suno Service] Creating cover', {
         coverClipId: params.coverClipId,
         tags: params.tags,
         model: params.model,
+        negativeTags: params.negativeTags,
+        metadata: params.metadata,
       });
 
       const mv = MODEL_VERSION_MAP[params.model || 'chirp-v3-5'] || params.model || 'chirp-v3-5';
 
-      const response = await this.client.post('/api/v1/music/generate', {
+      const requestBody: any = {
         task: 'cover',
         cover_clip_id: params.coverClipId,
         prompt: params.prompt,
         tags: params.tags,
         mv,
-      });
+      };
+
+      // 添加负面标签
+      if (params.negativeTags) {
+        requestBody.negative_tags = params.negativeTags;
+      }
+
+      // 添加元数据
+      if (params.metadata) {
+        requestBody.metadata = {};
+        if (params.metadata.vocal_gender) {
+          requestBody.metadata.vocal_gender = params.metadata.vocal_gender;
+        }
+        if (params.metadata.control_sliders) {
+          requestBody.metadata.control_sliders = {};
+          if (params.metadata.control_sliders.style_weight !== undefined) {
+            requestBody.metadata.control_sliders.style_weight = params.metadata.control_sliders.style_weight;
+          }
+          if (params.metadata.control_sliders.weirdness_constraint !== undefined) {
+            requestBody.metadata.control_sliders.weirdness_constraint = params.metadata.control_sliders.weirdness_constraint;
+          }
+        }
+        // 音频参考度（仅上传音频可用）
+        if (params.metadata.audio_weight !== undefined) {
+          requestBody.metadata.audio_weight = params.metadata.audio_weight;
+        }
+      }
+
+      const response = await this.client.post('/api/v1/music/generate', requestBody);
 
       return this.parseGenerateResponse(response.data);
     } catch (error) {

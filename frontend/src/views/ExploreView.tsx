@@ -36,13 +36,13 @@ const HeaderSection = styled.div`
 const ExploreTitle = styled.h1`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const ExploreSubtitle = styled.p`
   font-size: 1rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -50,14 +50,16 @@ const SearchBar = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 12px 20px;
   width: 360px;
 
   &:focus-within {
-    border-color: rgba(102, 126, 234, 0.5);
+    border-color: rgba(250, 45, 72, 0.3);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -65,12 +67,12 @@ const SearchInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 1rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
@@ -84,7 +86,7 @@ const SectionHeader = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
   display: flex;
   align-items: center;
@@ -94,7 +96,7 @@ const SectionTitle = styled.h2`
 const SectionIcon = styled.div`
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -102,7 +104,7 @@ const SectionIcon = styled.div`
 `;
 
 const ViewAllButton = styled.button`
-  color: #667EEA;
+  color: #FA2D48;
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
@@ -111,7 +113,7 @@ const ViewAllButton = styled.button`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #764BA2;
+    color: #D91E36;
   }
 `;
 
@@ -140,18 +142,18 @@ const GenreCard = styled.div`
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   }
 `;
 
 const GenreGradient1 = styled(GenreCard)`
-  --gradient-color-1: #667EEA;
-  --gradient-color-2: #764BA2;
+  --gradient-color-1: #FA2D48;
+  --gradient-color-2: #FC3C44;
 `;
 
 const GenreGradient2 = styled(GenreCard)`
-  --gradient-color-1: #F093FB;
-  --gradient-color-2: #F5576C;
+  --gradient-color-1: #FF6B6B;
+  --gradient-color-2: #FF8E53;
 `;
 
 const GenreGradient3 = styled(GenreCard)`
@@ -202,24 +204,24 @@ const PlaylistsGrid = styled.div`
 `;
 
 const PlaylistCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   padding: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const PlaylistCover = styled.div`
   width: 100%;
   aspect-ratio: 1;
-  background: linear-gradient(135deg, var(--gradient-color-1, #667EEA), var(--gradient-color-2, #764BA2));
+  background: linear-gradient(135deg, var(--gradient-color-1, #FA2D48), var(--gradient-color-2, #FC3C44));
   border-radius: 12px;
   margin-bottom: 12px;
   display: flex;
@@ -247,18 +249,18 @@ const PlayOverlay = styled.div`
 const PlayButton = styled.button`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: #FFFFFF;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 `;
 
 const PlaylistTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 8px 0;
 `;
 
@@ -267,7 +269,7 @@ const PlaylistMeta = styled.div`
   align-items: center;
   gap: 12px;
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const PlaylistStat = styled.span`
@@ -283,9 +285,8 @@ const CreatorsGrid = styled.div`
 `;
 
 const CreatorCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -296,15 +297,16 @@ const CreatorCard = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const CreatorAvatar = styled.div`
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -317,7 +319,7 @@ const CreatorAvatar = styled.div`
 const CreatorName = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
@@ -325,7 +327,7 @@ const CreatorStats = styled.div`
   display: flex;
   gap: 16px;
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const CreatorStat = styled.span`
@@ -336,17 +338,17 @@ const CreatorStat = styled.span`
 
 const FollowButton = styled.button`
   padding: 8px 20px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 20px;
-  color: #667EEA;
+  color: #FA2D48;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(102, 126, 234, 0.3);
+    background: rgba(250, 45, 72, 0.15);
   }
 `;
 
@@ -361,13 +363,13 @@ const LoadingState = styled.div`
 
 const LoadingText = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   padding: 16px;
   color: #EF4444;
@@ -380,8 +382,8 @@ const ErrorMessage = styled.div`
 
 const RetryButton = styled.button`
   padding: 8px 16px;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 8px;
   color: #EF4444;
   font-size: 0.8125rem;
@@ -390,7 +392,7 @@ const RetryButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.15);
   }
 `;
 
@@ -501,7 +503,7 @@ export const ExploreView: React.FC = () => {
 
       {loading ? (
         <LoadingState>
-          <Loader2 size={40} color="#667EEA" className="spin" />
+          <Loader2 size={40} color="#FA2D48" className="spin" />
           <LoadingText>Loading explore content...</LoadingText>
         </LoadingState>
       ) : (
@@ -511,7 +513,7 @@ export const ExploreView: React.FC = () => {
         <SectionHeader>
           <SectionTitle>
             <SectionIcon>
-              <Flame size={18} color="#667EEA" />
+              <Flame size={18} color="#FA2D48" />
             </SectionIcon>
             {t('explore.trendingGenres')}
           </SectionTitle>
@@ -537,7 +539,7 @@ export const ExploreView: React.FC = () => {
         <SectionHeader>
           <SectionTitle>
             <SectionIcon>
-              <TrendingUp size={18} color="#667EEA" />
+              <TrendingUp size={18} color="#FA2D48" />
             </SectionIcon>
             {t('explore.popularPlaylists')}
           </SectionTitle>
@@ -575,7 +577,7 @@ export const ExploreView: React.FC = () => {
         <SectionHeader>
           <SectionTitle>
             <SectionIcon>
-              <Users size={18} color="#667EEA" />
+              <Users size={18} color="#FA2D48" />
             </SectionIcon>
             {t('explore.topCreators')}
           </SectionTitle>

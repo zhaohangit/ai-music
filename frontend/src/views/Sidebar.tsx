@@ -16,92 +16,88 @@ import {
 } from 'lucide-react';
 
 const SidebarContainer = styled.aside`
-  width: 280px;
+  width: 260px;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FAFAFA;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
+  padding: 20px 12px;
   z-index: 100;
 `;
 
 const LogoSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin-bottom: 32px;
+  gap: 10px;
+  padding: 8px 12px;
+  margin-bottom: 24px;
 `;
 
 const LogoIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(250, 45, 72, 0.25);
 `;
 
 const LogoText = styled.span`
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1D1D1F;
+  letter-spacing: -0.02em;
 `;
 
 const NavSection = styled.nav`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 `;
 
 const NavSectionTitle = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: #8B8B9F;
+  color: #86868B;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   padding: 8px 12px;
   margin-top: 16px;
 `;
 
-const NavLinkStyled = styled(NavLink)<{ $active?: boolean }>`
+const NavLinkStyled = styled(NavLink)`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: #8B8B9F;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #6E6E73;
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
   background: transparent;
-  border: 1px solid transparent;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.04);
+    color: #1D1D1F;
   }
 
   &.active {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-    color: #667EEA;
-    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(250, 45, 72, 0.1);
+    color: #FA2D48;
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     stroke-width: 2;
   }
 `;
@@ -109,25 +105,27 @@ const NavLinkStyled = styled(NavLink)<{ $active?: boolean }>`
 const BottomSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 2px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
 const UserSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #FFFFFF;
+  border-radius: 10px;
   margin-top: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 `;
 
 const UserAvatar = styled.div`
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -142,9 +140,9 @@ const UserInfo = styled.div`
 
 const UserName = styled.span`
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -152,8 +150,8 @@ const UserName = styled.span`
 
 const UserPlan = styled.span`
   display: block;
-  font-size: 0.75rem;
-  color: #8B8B9F;
+  font-size: 0.6875rem;
+  color: #86868B;
 `;
 
 export const Sidebar: React.FC = () => {
@@ -179,9 +177,9 @@ export const Sidebar: React.FC = () => {
     <SidebarContainer>
       <LogoSection>
         <LogoIcon>
-          <Music size={24} color="white" strokeWidth={2.5} />
+          <Music size={20} color="white" strokeWidth={2.5} />
         </LogoIcon>
-        <LogoText>AI Music Pro</LogoText>
+        <LogoText>Music</LogoText>
       </LogoSection>
 
       <NavSection>
@@ -217,10 +215,10 @@ export const Sidebar: React.FC = () => {
 
         <UserSection>
           <UserAvatar>
-            <User size={20} />
+            <User size={16} />
           </UserAvatar>
           <UserInfo>
-            <UserName>Music Creator</UserName>
+            <UserName>Creator</UserName>
             <UserPlan>Free Plan</UserPlan>
           </UserInfo>
         </UserSection>

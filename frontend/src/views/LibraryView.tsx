@@ -42,7 +42,7 @@ import AlignedLyricsModal from '../components/AlignedLyricsModal';
 const LibraryContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 `;
 
 const LibraryHeader = styled.div`
@@ -52,36 +52,37 @@ const LibraryHeader = styled.div`
 `;
 
 const LibraryTitle = styled.h1`
-  font-size: 1.875rem;
+  font-size: 1.625rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 const LibrarySubtitle = styled.p`
-  font-size: 1rem;
-  color: #8B8B9F;
-  margin: 8px 0 0 0;
+  font-size: 0.875rem;
+  color: #86868B;
+  margin: 4px 0 0 0;
 `;
 
 const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
 const SearchBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 10px 16px;
-  width: 280px;
+  gap: 8px;
+  background: #F5F5F7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 240px;
 
   &:focus-within {
-    border-color: rgba(102, 126, 234, 0.5);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.1);
   }
 `;
 
@@ -89,120 +90,122 @@ const SearchInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
-  color: #FFFFFF;
-  font-size: 0.875rem;
+  color: #1D1D1F;
+  font-size: 0.8125rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
 const ViewToggle = styled.div`
   display: flex;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 4px;
+  background: #F5F5F7;
+  border-radius: 8px;
+  padding: 2px;
 `;
 
 const ViewButton = styled.button<{ $active?: boolean }>`
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'transparent'};
-  border-radius: 8px;
-  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
+  background: ${props => props.$active ? '#FFFFFF' : 'transparent'};
+  border-radius: 6px;
+  color: ${props => props.$active ? '#1D1D1F' : '#86868B'};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: ${props => props.$active ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none'};
 
   &:hover {
-    color: #FFFFFF;
+    color: #1D1D1F;
   }
 `;
 
 const FilterBar = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 `;
 
 const FilterButton = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
-  border: ${props => props.$active ? '1px solid rgba(102, 126, 234, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)'};
-  border-radius: 10px;
-  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
-  font-size: 0.875rem;
+  gap: 6px;
+  padding: 6px 12px;
+  background: ${props => props.$active ? 'rgba(250, 45, 72, 0.1)' : '#FFFFFF'};
+  border: 1px solid ${props => props.$active ? 'rgba(250, 45, 72, 0.3)' : 'rgba(0, 0, 0, 0.1)'};
+  border-radius: 16px;
+  color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
+    background: ${props => props.$active ? 'rgba(250, 45, 72, 0.15)' : '#F5F5F7'};
+    border-color: ${props => props.$active ? 'rgba(250, 45, 72, 0.4)' : 'rgba(0, 0, 0, 0.15)'};
+    color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
   }
 `;
 
 const MusicGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
 `;
 
 const CardOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
-`;
-
-const MusicCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 16px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-
-    ${CardOverlay} {
-      opacity: 1;
-    }
-  }
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
 `;
 
 const PlayOverlayButton = styled.button`
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  width: 44px;
+  height: 44px;
+  background: #FA2D48;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(250, 45, 72, 0.4);
+  transition: transform 0.15s ease;
+  pointer-events: auto;
+  cursor: pointer;
 
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.08);
+  }
+`;
+
+const MusicCard = styled.div`
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.15);
+
+    ${CardOverlay} {
+      opacity: 1;
+    }
   }
 `;
 
@@ -211,9 +214,9 @@ const CardCover = styled.div<{ $imageUrl?: string }>`
   aspect-ratio: 1;
   background: ${props => props.$imageUrl
     ? `url(${props.$imageUrl}) center/cover`
-    : 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))'};
-  border-radius: 12px;
-  margin-bottom: 12px;
+    : 'linear-gradient(135deg, #FA2D48, #FC3C44)'};
+  border-radius: 6px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,13 +227,13 @@ const CardCover = styled.div<{ $imageUrl?: string }>`
 const CardInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 `;
 
 const CardTitle = styled.h3`
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -241,38 +244,38 @@ const CardMeta = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.8125rem;
-  color: #8B8B9F;
+  font-size: 0.75rem;
+  color: #86868B;
 `;
 
 const CardGenre = styled.span`
-  background: rgba(102, 126, 234, 0.2);
-  padding: 2px 8px;
+  background: rgba(250, 45, 72, 0.1);
+  padding: 2px 6px;
   border-radius: 4px;
-  color: #667EEA;
-  font-size: 0.75rem;
+  color: #FA2D48;
+  font-size: 0.6875rem;
   font-weight: 500;
 `;
 
 const CardStatus = styled.span<{ $status?: string }>`
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   background: ${props => {
     switch (props.$status) {
-      case 'complete': return 'rgba(16, 185, 129, 0.2)';
-      case 'processing': return 'rgba(245, 158, 11, 0.2)';
-      case 'error': return 'rgba(239, 68, 68, 0.2)';
-      default: return 'rgba(107, 114, 128, 0.2)';
+      case 'complete': return 'rgba(52, 199, 89, 0.12)';
+      case 'processing': return 'rgba(255, 149, 0, 0.12)';
+      case 'error': return 'rgba(255, 59, 48, 0.12)';
+      default: return 'rgba(142, 142, 147, 0.12)';
     }
   }};
   color: ${props => {
     switch (props.$status) {
-      case 'complete': return '#10B981';
-      case 'processing': return '#F59E0B';
-      case 'error': return '#EF4444';
-      default: return '#6B7280';
+      case 'complete': return '#34C759';
+      case 'processing': return '#FF9500';
+      case 'error': return '#FF3B30';
+      default: return '#8E8E93';
     }
   }};
 `;
@@ -280,34 +283,44 @@ const CardStatus = styled.span<{ $status?: string }>`
 const CardActions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 4px;
+  margin-top: 8px;
 `;
 
 const CardActionButton = styled.button<{ $active?: boolean; $variant?: 'default' | 'danger' }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px;
-  min-width: 32px;
+  gap: 4px;
+  padding: 5px;
+  min-width: 28px;
   background: ${props => {
-    if (props.$variant === 'danger') return 'rgba(239, 68, 68, 0.1)';
-    return props.$active ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)';
+    if (props.$variant === 'danger') return 'rgba(255, 59, 48, 0.08)';
+    return props.$active ? 'rgba(250, 45, 72, 0.1)' : '#FFFFFF';
   }};
-  border: 1px solid ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.1)'};
+  border: 1px solid ${props => {
+    if (props.$variant === 'danger') return 'rgba(255, 59, 48, 0.2)';
+    return props.$active ? 'rgba(250, 45, 72, 0.3)' : 'rgba(0, 0, 0, 0.1)';
+  }};
   border-radius: 6px;
   color: ${props => {
-    if (props.$variant === 'danger') return '#EF4444';
-    return props.$active ? '#EF4444' : '#8B8B9F';
+    if (props.$variant === 'danger') return '#FF3B30';
+    return props.$active ? '#FA2D48' : '#1D1D1F';
   }};
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
-  &:hover {
-    background: ${props => props.$variant === 'danger' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
-    color: ${props => props.$variant === 'danger' ? '#EF4444' : '#FFFFFF'};
+  &:hover:not(:disabled) {
+    background: ${props => props.$variant === 'danger' ? 'rgba(255, 59, 48, 0.15)' : '#F5F5F7'};
+    border-color: ${props => props.$variant === 'danger' ? 'rgba(255, 59, 48, 0.3)' : 'rgba(0, 0, 0, 0.2)'};
+    color: ${props => props.$variant === 'danger' ? '#FF3B30' : '#FA2D48'};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 `;
 
@@ -321,45 +334,46 @@ const EmptyState = styled.div`
 `;
 
 const EmptyIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.03);
+  width: 72px;
+  height: 72px;
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 `;
 
 const EmptyTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: #FFFFFF;
-  margin: 0 0 8px 0;
+  color: #1D1D1F;
+  margin: 0 0 6px 0;
 `;
 
 const EmptyDescription = styled.p`
-  font-size: 0.9375rem;
-  color: #8B8B9F;
+  font-size: 0.875rem;
+  color: #86868B;
   margin: 0;
-  max-width: 360px;
+  max-width: 300px;
+  line-height: 1.4;
 `;
 
 const EmptyButton = styled.button`
-  margin-top: 24px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #FA2D48;
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   color: #FFFFFF;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+    background: #D91E36;
   }
 `;
 
@@ -369,22 +383,21 @@ const LoadingState = styled.div`
   align-items: center;
   justify-content: center;
   padding: 64px 24px;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const LoadingText = styled.p`
-  font-size: 0.9375rem;
-  color: #8B8B9F;
+  font-size: 0.875rem;
+  color: #86868B;
   margin: 0;
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 12px;
-  padding: 16px;
-  color: #EF4444;
-  font-size: 0.875rem;
+  background: rgba(255, 59, 48, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  color: #FF3B30;
+  font-size: 0.8125rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -392,18 +405,18 @@ const ErrorMessage = styled.div`
 `;
 
 const RetryButton = styled.button`
-  padding: 8px 16px;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-  color: #EF4444;
-  font-size: 0.8125rem;
+  padding: 6px 12px;
+  background: rgba(255, 59, 48, 0.12);
+  border: none;
+  border-radius: 6px;
+  color: #FF3B30;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(255, 59, 48, 0.2);
   }
 `;
 
@@ -415,6 +428,7 @@ interface MusicTrack {
   createdAt: string;
   status: 'processing' | 'complete' | 'error';
   imageUrl?: string;
+  audioUrl?: string;
 }
 
 // Helper function to convert MusicInfo to MusicTrack
@@ -430,14 +444,24 @@ const toMusicTrack = (music: MusicInfo): MusicTrack => {
       })
     : 'Unknown';
 
+  // 使用 tags 数组的第一个元素作为 genre，如果没有则使用 'AI Generated'
+  const genre = music.tags && music.tags.length > 0 ? music.tags[0] : 'AI Generated';
+
+  // 如果没有 status 或者 status 无效，默认为 'complete'（已有音频的默认可操作）
+  const validStatuses = ['processing', 'complete', 'error'] as const;
+  const status = music.status && validStatuses.includes(music.status as typeof validStatuses[number])
+    ? music.status as 'processing' | 'complete' | 'error'
+    : 'complete';
+
   return {
     id: music.id,
     title: music.title || 'Untitled Track',
-    genre: 'AI Generated',
+    genre,
     duration,
     createdAt,
-    status: music.status,
+    status,
     imageUrl: music.imageUrl,
+    audioUrl: music.audioUrl,
   };
 };
 
@@ -474,7 +498,15 @@ export const LibraryView: React.FC = () => {
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    // Initialize from localStorage for faster loading
+    try {
+      const saved = localStorage.getItem('music-favorites');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
 
   // Extend modal state
   const [extendModalOpen, setExtendModalOpen] = useState(false);
@@ -508,19 +540,24 @@ export const LibraryView: React.FC = () => {
   const [alignedLyricsModalOpen, setAlignedLyricsModalOpen] = useState(false);
   const [selectedTrackForAlignedLyrics, setSelectedTrackForAlignedLyrics] = useState<MusicTrack | null>(null);
 
-  const { recentTracks, setCurrentTrack, setIsPlaying, currentTrack, isPlaying } = useAppStore();
+  const { recentTracks, setCurrentTrack, setIsPlaying, currentTrack, isPlaying, dataVersion } = useAppStore();
 
   // Fetch tracks from API
   const fetchTracks = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await musicApi.getList(1, 50);
 
-      if (response.success && response.data) {
-        const apiTracks = Array.isArray(response.data)
-          ? response.data
-          : response.data.tracks || [];
+      // Fetch both regular list and favorites list in parallel
+      const [listResponse, favoritesResponse] = await Promise.all([
+        musicApi.getList(1, 50),
+        musicApi.getList(1, 100, undefined, true) // Get favorites list
+      ]);
+
+      if (listResponse.success && listResponse.data) {
+        const apiTracks = Array.isArray(listResponse.data)
+          ? listResponse.data
+          : listResponse.data.items || listResponse.data.tracks || [];
 
         const convertedTracks = apiTracks.map(toMusicTrack);
         setTracks(convertedTracks);
@@ -528,6 +565,23 @@ export const LibraryView: React.FC = () => {
         // If API returns empty or fails, use store's recent tracks as fallback
         const storeTracks = recentTracks.map(toMusicTrack);
         setTracks(storeTracks);
+      }
+
+      // Sync favorites from favorites API response
+      if (favoritesResponse.success && favoritesResponse.data) {
+        const favoriteTracks = Array.isArray(favoritesResponse.data)
+          ? favoritesResponse.data
+          : (favoritesResponse.data as any).items || (favoritesResponse.data as any).tracks || [];
+
+        const favoriteIds = new Set<string>(favoriteTracks.map((track: any) => track.id as string));
+        setFavorites(favoriteIds);
+
+        // Persist to localStorage
+        try {
+          localStorage.setItem('music-favorites', JSON.stringify([...favoriteIds]));
+        } catch (e) {
+          console.warn('Failed to save favorites to localStorage:', e);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch tracks:', err);
@@ -543,7 +597,7 @@ export const LibraryView: React.FC = () => {
 
   useEffect(() => {
     fetchTracks();
-  }, []);
+  }, [dataVersion]);
 
   // Toggle favorite status
   const toggleFavorite = async (e: React.MouseEvent, trackId: string) => {
@@ -558,6 +612,12 @@ export const LibraryView: React.FC = () => {
         } else {
           newFavorites.add(trackId);
           showSuccess(t('common.addedToFavorites'), t('common.success'));
+        }
+        // Persist to localStorage
+        try {
+          localStorage.setItem('music-favorites', JSON.stringify([...newFavorites]));
+        } catch (e) {
+          console.warn('Failed to save favorites to localStorage:', e);
         }
         return newFavorites;
       });
@@ -585,16 +645,18 @@ export const LibraryView: React.FC = () => {
   };
 
   // Handle play/pause
-  const handlePlayPause = (e: React.MouseEvent, track: MusicTrack) => {
-    e.stopPropagation();
+  const handlePlayPause = (e: React.MouseEvent | undefined, track: MusicTrack) => {
+    e?.stopPropagation();
 
-    // Find the corresponding MusicInfo from tracks or store
+    // 使用 track 的 audioUrl，如果没有则尝试使用下载接口
+    const audioUrl = track.audioUrl || (track.status === 'complete' ? `/api/music/${track.id}/download` : undefined);
+
     const musicInfo: MusicInfo = {
       id: track.id,
       status: track.status,
       title: track.title,
       imageUrl: track.imageUrl,
-      audioUrl: track.status === 'complete' ? `/api/music/${track.id}/download` : undefined,
+      audioUrl,
     };
 
     if (currentTrack?.id === track.id && isPlaying) {
@@ -854,7 +916,7 @@ export const LibraryView: React.FC = () => {
 
       {loading ? (
         <LoadingState>
-          <Loader2 size={40} color="#667EEA" className="spin" />
+          <Loader2 size={40} color="#FA2D48" className="spin" />
           <LoadingText>{t('common.loading')}</LoadingText>
         </LoadingState>
       ) : filteredTracks.length > 0 ? (
@@ -874,7 +936,7 @@ export const LibraryView: React.FC = () => {
                 </PlayOverlayButton>
               </CardOverlay>
               <CardCover $imageUrl={track.imageUrl}>
-                {!track.imageUrl && <Music size={40} color="#667EEA" strokeWidth={1.5} />}
+                {!track.imageUrl && <Music size={40} color="#FFFFFF" strokeWidth={1.5} />}
               </CardCover>
               <CardInfo>
                 <CardTitle>{track.title}</CardTitle>
@@ -894,7 +956,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleExtend(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.extend', '续写歌曲')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Scissors size={14} />
                 </CardActionButton>
@@ -902,7 +963,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleRemaster(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.remaster', 'Remaster')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Sparkles size={14} />
                 </CardActionButton>
@@ -910,7 +970,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleCrop(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.crop', '裁剪')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Disc size={14} />
                 </CardActionButton>
@@ -918,7 +977,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleSpeed(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.speed', '变速')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Gauge size={14} />
                 </CardActionButton>
@@ -926,7 +984,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleVideo(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.video', '生成视频')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Video size={14} />
                 </CardActionButton>
@@ -934,7 +991,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleWav(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.wav', '转换为WAV')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <FileAudio size={14} />
                 </CardActionButton>
@@ -942,7 +998,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleAlignedLyrics(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.alignedLyrics', '歌词时间戳')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Mic2 size={14} />
                 </CardActionButton>
@@ -954,7 +1009,6 @@ export const LibraryView: React.FC = () => {
                   }}
                   disabled={track.status !== 'complete'}
                   title={t('library.wholeSong', '获取完整歌曲')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Music2 size={14} />
                 </CardActionButton>
@@ -962,7 +1016,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleDownload(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.download', '下载')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Download size={14} />
                 </CardActionButton>
@@ -970,7 +1023,6 @@ export const LibraryView: React.FC = () => {
                   onClick={(e) => handleShare(e, track)}
                   disabled={track.status !== 'complete'}
                   title={t('library.share', '分享')}
-                  style={{ opacity: track.status === 'complete' ? 1 : 0.5, cursor: track.status === 'complete' ? 'pointer' : 'not-allowed' }}
                 >
                   <Share2 size={14} />
                 </CardActionButton>

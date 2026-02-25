@@ -52,15 +52,14 @@ const DocsSubtitle = styled.p`
 `;
 
 const ApiCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(102, 126, 234, 0.3);
+    border-color: rgba(250, 45, 72, 0.2);
   }
 `;
 
@@ -73,7 +72,7 @@ const ApiCardHeader = styled.div`
   transition: background 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: #F5F5F7;
   }
 `;
 
@@ -103,13 +102,13 @@ const ApiInfo = styled.div`
 const ApiName = styled.h3`
   font-size: 1.0625rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const ApiDescription = styled.p`
   font-size: 0.875rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -121,9 +120,9 @@ const ApiHeaderRight = styled.div`
 
 const PriceTag = styled.span<{ $free?: boolean }>`
   padding: 4px 12px;
-  background: ${props => props.$free ? 'rgba(16, 185, 129, 0.2)' : 'rgba(102, 126, 234, 0.2)'};
+  background: ${props => props.$free ? 'rgba(16, 185, 129, 0.15)' : 'rgba(250, 45, 72, 0.1)'};
   border-radius: 20px;
-  color: ${props => props.$free ? '#10B981' : '#667EEA'};
+  color: ${props => props.$free ? '#10B981' : '#FA2D48'};
   font-size: 0.8125rem;
   font-weight: 600;
 `;
@@ -158,7 +157,7 @@ const ApiCardBody = styled.div<{ $expanded: boolean }>`
 
 const ApiContent = styled.div`
   padding: 0 24px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
 const SectionTitle = styled.h4`
@@ -181,13 +180,13 @@ const ParamRow = styled.div`
   align-items: flex-start;
   gap: 16px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.02);
+  background: #F5F5F7;
   border-radius: 10px;
 `;
 
 const ParamName = styled.code`
   font-size: 0.875rem;
-  color: #667EEA;
+  color: #FA2D48;
   font-family: 'Monaco', 'Consolas', monospace;
   min-width: 140px;
 `;
@@ -241,10 +240,10 @@ const CopyButton = styled.button`
   top: 8px;
   right: 8px;
   padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 6px;
-  color: #8B8B9F;
+  color: #6E6E73;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -253,19 +252,19 @@ const CopyButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #FFFFFF;
+    background: rgba(0, 0, 0, 0.1);
+    color: #1D1D1F;
   }
 `;
 
 const EndpointUrl = styled.code`
   display: inline-block;
   padding: 8px 14px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   font-family: 'Monaco', 'Consolas', monospace;
   font-size: 0.875rem;
-  color: #667EEA;
+  color: #FA2D48;
   margin-bottom: 16px;
 `;
 
@@ -309,7 +308,7 @@ const apiItems: ApiItem[] = [
     name: '生成音乐',
     description: '核心接口。支持灵感模式、自定义模式、延长、翻唱功能。一次生成两首歌。',
     icon: <Music size={22} />,
-    iconColor: 'linear-gradient(135deg, #667EEA, #764BA2)',
+    iconColor: 'linear-gradient(135deg, #FA2D48, #FC3C44)',
     method: 'POST',
     endpoint: '/api/music/create',
     price: '0.36¥/次',
@@ -567,7 +566,7 @@ export const ApiDocsView: React.FC = () => {
     <DocsContainer>
       <DocsHeader>
         <DocsTitle>
-          <Book size={28} color="#667EEA" />
+          <Book size={28} color="#FA2D48" />
           Suno API 文档
         </DocsTitle>
         <DocsSubtitle>

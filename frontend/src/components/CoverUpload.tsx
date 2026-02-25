@@ -9,7 +9,8 @@ import {
   Sparkles,
   AlertCircle,
   FileAudio,
-  CheckCircle
+  CheckCircle,
+  Sliders
 } from 'lucide-react';
 import { musicApi } from '../services/api';
 
@@ -29,11 +30,11 @@ const DropZone = styled.div<{ $isDragging: boolean; $hasFile: boolean }>`
   width: 100%;
   min-height: ${props => props.$hasFile ? 'auto' : '200px'};
   background: ${props => props.$isDragging
-    ? 'rgba(102, 126, 234, 0.15)'
-    : 'rgba(255, 255, 255, 0.08)'};
+    ? 'rgba(250, 45, 72, 0.1)'
+    : '#FFFFFF'};
   border: 2px dashed ${props => props.$isDragging
-    ? 'rgba(102, 126, 234, 0.5)'
-    : 'rgba(255, 255, 255, 0.15)'};
+    ? 'rgba(250, 45, 72, 0.5)'
+    : 'rgba(0, 0, 0, 0.15)'};
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -44,8 +45,8 @@ const DropZone = styled.div<{ $isDragging: boolean; $hasFile: boolean }>`
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(102, 126, 234, 0.3);
+    background: #F5F5F7;
+    border-color: rgba(250, 45, 72, 0.3);
   }
 `;
 
@@ -60,12 +61,12 @@ const DropZoneContent = styled.div`
 const UploadIcon = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #667EEA;
+  color: #FA2D48;
 `;
 
 const DropZoneText = styled.div`
@@ -77,20 +78,20 @@ const DropZoneText = styled.div`
 const DropZoneTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const DropZoneSubtitle = styled.p`
   font-size: 0.875rem;
-  color: #8B8B9F;
+  color: #6E6E73;
   margin: 0;
 `;
 
 const AcceptedFormats = styled.span`
   font-size: 0.75rem;
-  color: #667EEA;
-  background: rgba(102, 126, 234, 0.1);
+  color: #FA2D48;
+  background: rgba(250, 45, 72, 0.1);
   padding: 4px 12px;
   border-radius: 12px;
   margin-top: 8px;
@@ -103,20 +104,20 @@ const FilePreview = styled.div`
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
 `;
 
 const FileIcon = styled.div`
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #667EEA;
+  color: #FA2D48;
 `;
 
 const FileInfo = styled.div`
@@ -128,7 +129,7 @@ const FileName = styled.span`
   display: block;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -137,27 +138,27 @@ const FileName = styled.span`
 const FileMeta = styled.span`
   display: block;
   font-size: 0.75rem;
-  color: #8B8B9F;
+  color: #6E6E73;
   margin-top: 4px;
 `;
 
 const RemoveButton = styled.button`
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8B8B9F;
+  color: #6E6E73;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(245, 87, 108, 0.1);
-    border-color: rgba(245, 87, 108, 0.3);
-    color: #F5576C;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #EF4444;
   }
 `;
 
@@ -170,7 +171,7 @@ const FormSection = styled.div`
 const SectionLabel = styled.label`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #8B8B9F;
+  color: #1D1D1F;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -178,27 +179,28 @@ const SectionLabel = styled.label`
 const Input = styled.input`
   width: 100%;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.9375rem;
   transition: all 0.2s ease;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.5);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(250, 45, 72, 0.5);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
 const HelpText = styled.span`
   font-size: 0.75rem;
-  color: #8B8B9F;
+  color: #6E6E73;
   line-height: 1.4;
 `;
 
@@ -206,23 +208,24 @@ const TextArea = styled.textarea`
   width: 100%;
   min-height: 120px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.9375rem;
   line-height: 1.6;
   resize: vertical;
   transition: all 0.2s ease;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 
   &:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.5);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(250, 45, 72, 0.5);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -231,14 +234,14 @@ const TagsInput = styled.div`
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   min-height: 48px;
 
   &:focus-within {
-    border-color: rgba(102, 126, 234, 0.5);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(250, 45, 72, 0.5);
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -247,11 +250,11 @@ const Tag = styled.span`
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(250, 45, 72, 0.1);
+  border: 1px solid rgba(250, 45, 72, 0.2);
   border-radius: 20px;
   font-size: 0.875rem;
-  color: #667EEA;
+  color: #FA2D48;
   font-weight: 500;
 `;
 
@@ -260,12 +263,12 @@ const TagRemove = styled.button`
   align-items: center;
   background: none;
   border: none;
-  color: #667EEA;
+  color: #FA2D48;
   cursor: pointer;
   padding: 0;
 
   &:hover {
-    color: #F5576C;
+    color: #D91E36;
   }
 `;
 
@@ -274,12 +277,12 @@ const TagInput = styled.input`
   min-width: 120px;
   background: none;
   border: none;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.9375rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
@@ -296,7 +299,7 @@ const CreateButton = styled.button<{ $disabled?: boolean }>`
   justify-content: center;
   gap: 10px;
   padding: 16px 32px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: #FA2D48;
   border: none;
   border-radius: 16px;
   font-size: 1rem;
@@ -305,11 +308,11 @@ const CreateButton = styled.button<{ $disabled?: boolean }>`
   cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
   opacity: ${props => props.$disabled ? 0.5 : 1};
   transition: all 0.3s ease;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 24px rgba(250, 45, 72, 0.3);
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 12px 32px rgba(250, 45, 72, 0.4);
   }
 
   &:active:not(:disabled) {
@@ -323,17 +326,18 @@ const CreateButton = styled.button<{ $disabled?: boolean }>`
 
 const SecondaryButton = styled.button`
   padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
+    border-color: rgba(0, 0, 0, 0.15);
   }
 `;
 
@@ -426,6 +430,172 @@ const HiddenInput = styled.input`
   display: none;
 `;
 
+// Advanced Settings Styles
+const AdvancedSettings = styled.div<{ $open: boolean }>`
+  max-height: ${props => props.$open ? '600px' : '0'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+`;
+
+const AdvancedSection = styled.div`
+  padding: 14px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 8px;
+`;
+
+const AdvancedSectionTitle = styled.h4`
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #86868B;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const SettingItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const SettingLabel = styled.span`
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #86868B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+`;
+
+const SelectorGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  margin-bottom: 0;
+`;
+
+const SelectorOption = styled.button<{ $selected?: boolean }>`
+  padding: 10px 12px;
+  background: ${props => props.$selected
+    ? 'rgba(250, 45, 72, 0.1)'
+    : '#F5F5F7'};
+  border: ${props => props.$selected
+    ? '1px solid rgba(250, 45, 72, 0.3)'
+    : '1px solid transparent'};
+  border-radius: 8px;
+  color: ${props => props.$selected ? '#FA2D48' : '#6E6E73'};
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${props => props.$selected
+      ? 'rgba(250, 45, 72, 0.15)'
+      : '#E8E8ED'};
+    color: ${props => props.$selected ? '#FA2D48' : '#1D1D1F'};
+  }
+`;
+
+const AdvancedTagInput = styled.input`
+  width: 100%;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  color: #1D1D1F;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #86868B;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(250, 45, 72, 0.5);
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
+  }
+`;
+
+const SliderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+`;
+
+const SliderHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const SliderValue = styled.span`
+  font-size: 0.75rem;
+  color: #FA2D48;
+  font-weight: 600;
+`;
+
+const StyledSlider = styled.input`
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #E8E8ED;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #FA2D48;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(250, 45, 72, 0.3);
+    transition: transform 0.15s ease;
+  }
+
+  &::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #FA2D48;
+    cursor: pointer;
+    border: none;
+  }
+`;
+
+const AdvancedButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #F5F5F7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  color: #6E6E73;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+
+  &:hover {
+    background: #E8E8ED;
+    color: #1D1D1F;
+  }
+`;
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -453,6 +623,14 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [lyrics, setLyrics] = useState('');
+
+  // Advanced settings state
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [negativeTags, setNegativeTags] = useState('');
+  const [vocalGender, setVocalGender] = useState<'m' | 'f' | ''>('');
+  const [styleWeight, setStyleWeight] = useState(0.5);
+  const [weirdnessConstraint, setWeirdnessConstraint] = useState(0.5);
+  const [audioWeight, setAudioWeight] = useState(0.5); // 音频参考度（仅上传音频可用）
 
   // 验证 URL 格式
   const isValidUrl = (url: string): boolean => {
@@ -488,6 +666,13 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
     setUploadId(null);
     setUploadStage('idle');
     setUploadProgress(0);
+    // Reset advanced settings
+    setAdvancedOpen(false);
+    setNegativeTags('');
+    setVocalGender('');
+    setStyleWeight(0.5);
+    setWeirdnessConstraint(0.5);
+    setAudioWeight(0.5);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -540,12 +725,42 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
         setUploadStage('generating');
         setUploadProgress(80);
 
-        const coverResponse = await musicApi.createCover({
+        // Build cover params with advanced settings
+        const coverParams: any = {
           cover_clip_id: coverClipId,
           prompt: prompt.trim() || undefined,
           tags: tags.join(', ') || undefined,
           lyrics: lyrics.trim() || undefined,
-        });
+        };
+
+        // Add negative tags if specified
+        if (negativeTags.trim()) {
+          coverParams.negativeTags = negativeTags.trim();
+        }
+
+        // Add metadata if any advanced settings are non-default
+        const hasMetadata = vocalGender || styleWeight !== 0.5 || weirdnessConstraint !== 0.5 || audioWeight !== 0.5;
+        if (hasMetadata) {
+          coverParams.metadata = {};
+          if (vocalGender) {
+            coverParams.metadata.vocal_gender = vocalGender;
+          }
+          if (styleWeight !== 0.5 || weirdnessConstraint !== 0.5) {
+            coverParams.metadata.control_sliders = {};
+            if (styleWeight !== 0.5) {
+              coverParams.metadata.control_sliders.style_weight = styleWeight;
+            }
+            if (weirdnessConstraint !== 0.5) {
+              coverParams.metadata.control_sliders.weirdness_constraint = weirdnessConstraint;
+            }
+          }
+          // audio_weight - 音频参考度（仅上传音频可用）
+          if (audioWeight !== 0.5) {
+            coverParams.metadata.audio_weight = audioWeight;
+          }
+        }
+
+        const coverResponse = await musicApi.createCover(coverParams);
 
         setUploadProgress(100);
 
@@ -567,7 +782,7 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
     } finally {
       setIsUploading(false);
     }
-  }, [audioUrl, prompt, tags, lyrics, onComplete]);
+  }, [audioUrl, prompt, tags, lyrics, onComplete, negativeTags, vocalGender, styleWeight, weirdnessConstraint, audioWeight]);
 
   const isFormValid = audioUrl.trim() && isValidUrl(audioUrl.trim()) && (prompt.trim() || tags.length > 0);
 
@@ -638,6 +853,101 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
               disabled={isUploading}
             />
           </FormSection>
+
+          {/* Advanced Settings */}
+          <AdvancedButton onClick={() => setAdvancedOpen(!advancedOpen)} type="button">
+            <Sliders size={18} />
+            {t('create.advancedSettings', '高级设置')}
+          </AdvancedButton>
+
+          <AdvancedSettings $open={advancedOpen}>
+            <AdvancedSection>
+              <AdvancedSectionTitle>
+                <Sliders size={16} />
+                {t('create.advancedControls', '高级控制')}
+              </AdvancedSectionTitle>
+
+              {/* Vocal Gender */}
+              <SettingItem>
+                <SettingLabel>{t('create.vocalGender', '声音性别')}</SettingLabel>
+                <SelectorGrid>
+                  {[
+                    { value: 'm' as const, label: t('create.male', '男声') },
+                    { value: 'f' as const, label: t('create.female', '女声') },
+                    { value: '' as const, label: t('create.neutral', '不指定') }
+                  ].map((option) => (
+                    <SelectorOption
+                      key={option.value}
+                      $selected={vocalGender === option.value}
+                      onClick={() => setVocalGender(option.value)}
+                      type="button"
+                    >
+                      {option.label}
+                    </SelectorOption>
+                  ))}
+                </SelectorGrid>
+              </SettingItem>
+
+              {/* Negative Tags */}
+              <SettingItem>
+                <SettingLabel>{t('create.negativeTags', '排除风格')}</SettingLabel>
+                <AdvancedTagInput
+                  type="text"
+                  placeholder={t('create.negativeTagsPlaceholder', '例如: 重金属, 嘈杂, 电子...')}
+                  value={negativeTags}
+                  onChange={(e) => setNegativeTags(e.target.value)}
+                />
+              </SettingItem>
+
+              {/* Style Weight Slider */}
+              <SliderContainer>
+                <SliderHeader>
+                  <SettingLabel>{t('create.styleWeight', '风格匹配度')}</SettingLabel>
+                  <SliderValue>{Math.round(styleWeight * 100)}%</SliderValue>
+                </SliderHeader>
+                <StyledSlider
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={styleWeight}
+                  onChange={(e) => setStyleWeight(parseFloat(e.target.value))}
+                />
+              </SliderContainer>
+
+              {/* Weirdness Constraint Slider */}
+              <SliderContainer>
+                <SliderHeader>
+                  <SettingLabel>{t('create.weirdnessConstraint', '创意程度')}</SettingLabel>
+                  <SliderValue>{Math.round(weirdnessConstraint * 100)}%</SliderValue>
+                </SliderHeader>
+                <StyledSlider
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={weirdnessConstraint}
+                  onChange={(e) => setWeirdnessConstraint(parseFloat(e.target.value))}
+                />
+              </SliderContainer>
+
+              {/* Audio Weight Slider - 仅上传音频可用 */}
+              <SliderContainer>
+                <SliderHeader>
+                  <SettingLabel>{t('create.audioWeight', '音频参考度')}</SettingLabel>
+                  <SliderValue>{Math.round(audioWeight * 100)}%</SliderValue>
+                </SliderHeader>
+                <StyledSlider
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={audioWeight}
+                  onChange={(e) => setAudioWeight(parseFloat(e.target.value))}
+                />
+              </SliderContainer>
+            </AdvancedSection>
+          </AdvancedSettings>
 
           <ButtonContainer>
             <SecondaryButton onClick={handleReset} disabled={isUploading}>

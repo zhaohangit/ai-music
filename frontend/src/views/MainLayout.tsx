@@ -8,7 +8,7 @@ import BottomPlayer from '@/components/BottomPlayer';
 const LayoutContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0F0F23, #1A1A2E, #16213E);
+  background: #F5F5F7;
   background-attachment: fixed;
 `;
 

@@ -1,60 +1,69 @@
 export const theme = {
-  // Colors
+  // Colors - Apple Music Style
   colors: {
-    // Background
+    // Background - Light mode like Apple Music
     background: {
-      start: '#0F0F23',
-      mid: '#1A1A2E',
-      end: '#16213E',
-    },
-    // Text
-    text: {
       primary: '#FFFFFF',
-      secondary: '#8B8B9F',
-      accent: '#667EEA',
-      disabled: '#4A4A5A',
+      secondary: '#F5F5F7',
+      tertiary: '#FAFAFA',
+      elevated: '#FFFFFF',
     },
-    // Primary
+    // Text - Dark on light
+    text: {
+      primary: '#1D1D1F',
+      secondary: '#86868B',
+      tertiary: '#6E6E73',
+      disabled: '#AEAEB2',
+      inverse: '#FFFFFF',
+    },
+    // Primary - Apple Music Red
     primary: {
-      main: '#667EEA',
-      light: '#8B9EF5',
-      dark: '#4C5FD9',
-      gradient: 'linear-gradient(135deg, #667EEA, #764BA2)',
+      main: '#FA2D48',
+      light: '#FF6B7F',
+      dark: '#D91E36',
+      gradient: 'linear-gradient(135deg, #FA2D48, #FC3C44)',
     },
     // Secondary
     secondary: {
-      main: '#764BA2',
-      light: '#9B6FB8',
-      dark: '#5C3A8A',
-      gradient: 'linear-gradient(135deg, #F093FB, #F5576C)',
+      main: '#FC3C44',
+      light: '#FF6B7F',
+      dark: '#D91E36',
     },
     // Semantic
-    success: '#10B981',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    info: '#3B82F6',
+    success: '#34C759',
+    warning: '#FF9500',
+    error: '#FF3B30',
+    info: '#007AFF',
 
-    // Glass Effect
-    glass: {
-      bg: 'rgba(255, 255, 255, 0.05)',
-      border: 'rgba(255, 255, 255, 0.1)',
-      shadow: 'rgba(0, 0, 0, 0.2)',
+    // Card & Surface
+    surface: {
+      card: '#FFFFFF',
+      cardHover: '#F9F9F9',
+      border: 'rgba(0, 0, 0, 0.08)',
+      divider: 'rgba(0, 0, 0, 0.06)',
+    },
+
+    // Overlay
+    overlay: {
+      light: 'rgba(0, 0, 0, 0.3)',
+      medium: 'rgba(0, 0, 0, 0.5)',
+      dark: 'rgba(0, 0, 0, 0.7)',
     },
   },
 
-  // Typography
+  // Typography - Apple SF Pro Style
   typography: {
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif",
     fontSize: {
-      xs: '0.75rem',    // 12px
-      sm: '0.875rem',   // 14px
-      base: '1rem',     // 16px
-      lg: '1.125rem',   // 18px
-      xl: '1.25rem',    // 20px
-      '2xl': '1.5rem',  // 24px
-      '3xl': '1.875rem', // 30px
-      '4xl': '2.25rem',  // 36px
-      '5xl': '3rem',     // 48px
+      xs: '0.6875rem',   // 11px
+      sm: '0.8125rem',   // 13px
+      base: '1rem',      // 16px
+      lg: '1.125rem',    // 18px
+      xl: '1.3125rem',   // 21px
+      '2xl': '1.625rem', // 26px
+      '3xl': '2rem',     // 32px
+      '4xl': '2.5rem',   // 40px
+      '5xl': '3.25rem',  // 52px
     },
     fontWeight: {
       normal: 400,
@@ -63,9 +72,9 @@ export const theme = {
       bold: 700,
     },
     lineHeight: {
-      tight: 1.25,
-      normal: 1.5,
-      relaxed: 1.75,
+      tight: 1.2,
+      normal: 1.4,
+      relaxed: 1.6,
     },
   },
 
@@ -81,32 +90,36 @@ export const theme = {
     '4xl': '96px',
   },
 
-  // Border Radius
+  // Border Radius - Apple rounded corners
   borderRadius: {
-    sm: '4px',
+    xs: '4px',
+    sm: '6px',
     md: '8px',
     lg: '12px',
     xl: '16px',
-    '2xl': '24px',
+    '2xl': '20px',
+    '3xl': '28px',
     full: '9999px',
   },
 
-  // Shadows
+  // Shadows - Apple style soft shadows
   shadows: {
-    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+    xs: '0 1px 2px rgba(0, 0, 0, 0.04)',
+    sm: '0 2px 8px rgba(0, 0, 0, 0.06)',
+    md: '0 4px 12px rgba(0, 0, 0, 0.08)',
+    lg: '0 8px 24px rgba(0, 0, 0, 0.1)',
+    xl: '0 12px 40px rgba(0, 0, 0, 0.12)',
+    card: '0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
+    cardHover: '0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)',
+    button: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
 
-  // Transitions
+  // Transitions - Apple smooth animations
   transitions: {
-    fast: '150ms ease',
-    normal: '250ms ease',
-    slow: '350ms ease',
-    spring: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    normal: '250ms cubic-bezier(0.4, 0, 0.2, 1)',
+    slow: '350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    spring: '400ms cubic-bezier(0.34, 1.56, 0.64, 1)',
   },
 
   // Z-Index
@@ -120,7 +133,7 @@ export const theme = {
     tooltip: 1070,
   },
 
-  // Breakpoints (for reference with CSS media queries)
+  // Breakpoints
   breakpoints: {
     sm: '640px',
     md: '768px',

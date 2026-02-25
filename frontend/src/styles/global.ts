@@ -8,31 +8,41 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   :root {
-    /* Background Colors */
-    --bg-gradient-start: #0F0F23;
-    --bg-gradient-mid: #1A1A2E;
-    --bg-gradient-end: #16213E;
+    /* Background Colors - Apple Music Light Theme */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F7;
+    --bg-tertiary: #FAFAFA;
+    --bg-elevated: #FFFFFF;
 
     /* Text Colors */
-    --text-primary: #FFFFFF;
-    --text-secondary: #8B8B9F;
-    --text-accent: #667EEA;
+    --text-primary: #1D1D1F;
+    --text-secondary: #86868B;
+    --text-tertiary: #6E6E73;
+    --text-disabled: #AEAEB2;
+    --text-inverse: #FFFFFF;
 
-    /* Gradient */
-    --gradient-primary: linear-gradient(135deg, #667EEA, #764BA2);
-    --gradient-secondary: linear-gradient(135deg, #F093FB, #F5576C);
+    /* Primary - Apple Music Red */
+    --accent-primary: #FA2D48;
+    --accent-light: #FF6B7F;
+    --accent-dark: #D91E36;
+    --gradient-primary: linear-gradient(135deg, #FA2D48, #FC3C44);
 
-    /* Glass Effect */
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: rgba(0, 0, 0, 0.2);
+    /* Semantic Colors */
+    --accent-success: #34C759;
+    --accent-warning: #FF9500;
+    --accent-error: #FF3B30;
+    --accent-info: #007AFF;
 
-    /* Accent Colors */
-    --accent-primary: #667EEA;
-    --accent-secondary: #764BA2;
-    --accent-success: #10B981;
-    --accent-warning: #F59E0B;
-    --accent-error: #EF4444;
+    /* Surface */
+    --surface-card: #FFFFFF;
+    --surface-card-hover: #F9F9F9;
+    --surface-border: rgba(0, 0, 0, 0.08);
+    --surface-divider: rgba(0, 0, 0, 0.06);
+
+    /* Overlay */
+    --overlay-light: rgba(0, 0, 0, 0.3);
+    --overlay-medium: rgba(0, 0, 0, 0.5);
+    --overlay-dark: rgba(0, 0, 0, 0.7);
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -42,17 +52,27 @@ export const GlobalStyle = createGlobalStyle`
     --spacing-xl: 32px;
     --spacing-2xl: 48px;
 
-    /* Border Radius */
-    --radius-sm: 4px;
+    /* Border Radius - Apple rounded corners */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
+    --radius-2xl: 20px;
     --radius-full: 9999px;
 
+    /* Shadows - Apple soft shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+
     /* Transitions */
-    --transition-fast: 150ms ease;
-    --transition-normal: 250ms ease;
-    --transition-slow: 350ms ease;
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Z-Index */
     --z-dropdown: 1000;
@@ -64,13 +84,17 @@ export const GlobalStyle = createGlobalStyle`
     --z-tooltip: 1070;
   }
 
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  html {
     font-size: 16px;
-    line-height: 1.5;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.4;
     color: var(--text-primary);
-    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
-    background-attachment: fixed;
+    background: var(--bg-secondary);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -78,16 +102,18 @@ export const GlobalStyle = createGlobalStyle`
 
   #root {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   a {
-    color: var(--text-accent);
+    color: var(--accent-primary);
     text-decoration: none;
     transition: color var(--transition-fast);
   }
 
   a:hover {
-    color: var(--accent-secondary);
+    color: var(--accent-dark);
   }
 
   button {
@@ -112,29 +138,28 @@ export const GlobalStyle = createGlobalStyle`
     display: block;
   }
 
-  /* Scrollbar Styles */
+  /* Scrollbar Styles - Apple style */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--glass-bg);
-    border-radius: var(--radius-full);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--glass-border);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: var(--radius-full);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.35);
   }
 
   /* Selection */
   ::selection {
-    background: var(--accent-primary);
+    background: rgba(250, 45, 72, 0.2);
     color: var(--text-primary);
   }
 
@@ -145,18 +170,16 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   /* Utility Classes */
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
+  .card {
+    background: var(--surface-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--surface-border);
   }
 
-  .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .card-hover:hover {
+    background: var(--surface-card-hover);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .visually-hidden {

@@ -17,17 +17,17 @@ import { useToast } from '../hooks/useToast';
 const PlayerBar = styled.div<{ $visible: boolean }>`
   position: fixed;
   bottom: 0;
-  left: 280px;
+  left: 260px;
   right: 0;
-  height: 80px;
-  background: rgba(15, 15, 35, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: 72px;
+  background: #FFFFFF;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   display: ${props => props.$visible ? 'flex' : 'none'};
   align-items: center;
   padding: 0 24px;
   gap: 16px;
   z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
 
   @media (max-width: 1200px) {
     left: 0;
@@ -43,11 +43,17 @@ const TrackInfo = styled.div`
 `;
 
 const TrackCover = styled.div<{ $imageUrl?: string }>`
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
   background: ${props => props.$imageUrl
     ? `url(${props.$imageUrl}) center/cover`
+    : 'linear-gradient(135deg, #FA2D48, #FC3C44)'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     : 'linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3))'};
   display: flex;
   align-items: center;
@@ -65,7 +71,7 @@ const TrackDetails = styled.div`
 const TrackTitle = styled.span`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -73,7 +79,7 @@ const TrackTitle = styled.span`
 
 const TrackMeta = styled.span`
   font-size: 0.75rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const PlayerControls = styled.div`
@@ -83,29 +89,30 @@ const PlayerControls = styled.div`
 `;
 
 const ControlButton = styled.button<{ $primary?: boolean }>`
-  width: ${props => props.$primary ? '44px' : '36px'};
-  height: ${props => props.$primary ? '44px' : '36px'};
+  width: ${props => props.$primary ? '40px' : '32px'};
+  height: ${props => props.$primary ? '40px' : '32px'};
   border: none;
-  border-radius: ${props => props.$primary ? '22px' : '18px'};
+  border-radius: ${props => props.$primary ? '50%' : '6px'};
   background: ${props => props.$primary
-    ? 'linear-gradient(135deg, #667EEA, #764BA2)'
-    : 'rgba(255, 255, 255, 0.08)'};
+    ? '#FA2D48'
+    : 'transparent'};
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #FFFFFF;
-  transition: all 0.2s ease;
+  color: ${props => props.$primary ? '#FFFFFF' : '#6E6E73'};
+  transition: all 0.15s ease;
 
   &:hover {
-    transform: scale(1.05);
+    transform: ${props => props.$primary ? 'scale(1.05)' : 'none'};
     background: ${props => props.$primary
-      ? 'linear-gradient(135deg, #764BA2, #667EEA)'
-      : 'rgba(255, 255, 255, 0.12)'};
+      ? '#D91E36'
+      : 'rgba(0, 0, 0, 0.04)'};
+    color: ${props => props.$primary ? '#FFFFFF' : '#1D1D1F'};
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
     transform: none;
   }
@@ -119,10 +126,10 @@ const ProgressSection = styled.div`
 `;
 
 const TimeDisplay = styled.span`
-  font-size: 0.75rem;
-  color: #8B8B9F;
-  font-family: 'IBM Plex Mono', monospace;
-  min-width: 40px;
+  font-size: 0.6875rem;
+  color: #86868B;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', monospace;
+  min-width: 36px;
 
   &:first-child {
     text-align: right;
@@ -131,21 +138,21 @@ const TimeDisplay = styled.span`
 
 const ProgressBar = styled.div`
   flex: 1;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 4px;
+  background: #E8E8ED;
+  border-radius: 2px;
   cursor: pointer;
   position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    height: 6px;
   }
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
   width: ${props => props.$progress}%;
   height: 100%;
-  background: linear-gradient(90deg, #667EEA, #764BA2);
+  background: #FA2D48;
   border-radius: 2px;
   transition: width 0.1s ease;
 `;
@@ -154,13 +161,13 @@ const VolumeSection = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 140px;
+  min-width: 120px;
 `;
 
 const VolumeButton = styled.button`
   background: none;
   border: none;
-  color: #8B8B9F;
+  color: #6E6E73;
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -168,14 +175,14 @@ const VolumeButton = styled.button`
   justify-content: center;
 
   &:hover {
-    color: #FFFFFF;
+    color: #1D1D1F;
   }
 `;
 
 const VolumeSlider = styled.div`
-  width: 80px;
+  width: 70px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E8E8ED;
   border-radius: 2px;
   cursor: pointer;
   position: relative;
@@ -184,14 +191,14 @@ const VolumeSlider = styled.div`
 const VolumeFill = styled.div<{ $volume: number }>`
   width: ${props => props.$volume}%;
   height: 100%;
-  background: #667EEA;
+  background: #FA2D48;
   border-radius: 2px;
 `;
 
 const ActionButton = styled.button<{ $active?: boolean }>`
   background: none;
   border: none;
-  color: ${props => props.$active ? '#EF4444' : '#8B8B9F'};
+  color: ${props => props.$active ? '#FA2D48' : '#6E6E73'};
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -199,7 +206,7 @@ const ActionButton = styled.button<{ $active?: boolean }>`
   justify-content: center;
 
   &:hover {
-    color: ${props => props.$active ? '#EF4444' : '#FFFFFF'};
+    color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
   }
 `;
 

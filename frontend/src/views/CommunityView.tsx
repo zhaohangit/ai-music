@@ -39,13 +39,13 @@ const TitleSection = styled.div`
 const CommunityTitle = styled.h1`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0;
 `;
 
 const CommunitySubtitle = styled.p`
   font-size: 1rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -59,14 +59,16 @@ const SearchBar = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #F5F5F7;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 10px 16px;
   width: 280px;
 
   &:focus-within {
-    border-color: rgba(102, 126, 234, 0.5);
+    border-color: rgba(250, 45, 72, 0.3);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.08);
   }
 `;
 
@@ -74,19 +76,19 @@ const SearchInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.875rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
 const FilterTabs = styled.div`
   display: flex;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #F5F5F7;
   padding: 6px;
   border-radius: 12px;
 `;
@@ -96,16 +98,17 @@ const FilterTab = styled.button<{ $active?: boolean }>`
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: ${props => props.$active ? 'rgba(102, 126, 234, 0.2)' : 'transparent'};
+  background: ${props => props.$active ? 'rgba(250, 45, 72, 0.1)' : 'transparent'};
   border-radius: 10px;
-  color: ${props => props.$active ? '#667EEA' : '#8B8B9F'};
+  color: ${props => props.$active ? '#FA2D48' : '#6E6E73'};
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    color: ${props => props.$active ? '#667EEA' : '#FFFFFF'};
+    color: ${props => props.$active ? '#FA2D48' : '#1D1D1F'};
+    background: ${props => props.$active ? 'rgba(250, 45, 72, 0.15)' : 'rgba(0, 0, 0, 0.04)'};
   }
 `;
 
@@ -116,23 +119,23 @@ const PostsGrid = styled.div`
 `;
 
 const PostCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 16px;
   overflow: hidden;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const PostCover = styled.div`
   width: 100%;
   aspect-ratio: 16/9;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,12 +145,12 @@ const PostCover = styled.div`
 const PlayOverlay = styled.button`
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: #FFFFFF;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   transition: transform 0.2s ease;
 
@@ -163,7 +166,7 @@ const PostContent = styled.div`
 const PostTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 8px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -173,7 +176,7 @@ const PostTitle = styled.h3`
 
 const PostDescription = styled.p`
   font-size: 0.875rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0 0 12px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -189,17 +192,17 @@ const PostMeta = styled.div`
 `;
 
 const PostGenre = styled.span`
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(250, 45, 72, 0.1);
   padding: 4px 10px;
   border-radius: 6px;
-  color: #667EEA;
+  color: #FA2D48;
   font-size: 0.75rem;
   font-weight: 500;
 `;
 
 const PostDuration = styled.span`
   font-size: 0.8125rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const PostAuthor = styled.div`
@@ -207,13 +210,13 @@ const PostAuthor = styled.div`
   align-items: center;
   gap: 10px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
 const AuthorAvatar = styled.div`
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -231,13 +234,13 @@ const AuthorName = styled.span`
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #FFFFFF;
+  color: #1D1D1F;
 `;
 
 const PostTime = styled.span`
   display: block;
   font-size: 0.75rem;
-  color: #8B8B9F;
+  color: #86868B;
 `;
 
 const PostActions = styled.div`
@@ -252,13 +255,13 @@ const PostAction = styled.button`
   gap: 6px;
   background: none;
   border: none;
-  color: #8B8B9F;
+  color: #6E6E73;
   font-size: 0.8125rem;
   cursor: pointer;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #667EEA;
+    color: #FA2D48;
   }
 `;
 
@@ -274,7 +277,7 @@ const EmptyState = styled.div`
 const EmptyIcon = styled.div`
   width: 80px;
   height: 80px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(250, 45, 72, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -285,13 +288,13 @@ const EmptyIcon = styled.div`
 const EmptyTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #1D1D1F;
   margin: 0 0 8px 0;
 `;
 
 const EmptyDescription = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
@@ -306,13 +309,13 @@ const LoadingState = styled.div`
 
 const LoadingText = styled.p`
   font-size: 0.9375rem;
-  color: #8B8B9F;
+  color: #86868B;
   margin: 0;
 `;
 
 const ErrorMessage = styled.div`
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   padding: 16px;
   color: #EF4444;
@@ -325,8 +328,8 @@ const ErrorMessage = styled.div`
 
 const RetryButton = styled.button`
   padding: 8px 16px;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 8px;
   color: #EF4444;
   font-size: 0.8125rem;
@@ -335,7 +338,7 @@ const RetryButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.15);
   }
 `;
 
@@ -494,7 +497,7 @@ export const CommunityView: React.FC = () => {
 
       {loading ? (
         <LoadingState>
-          <Loader2 size={40} color="#667EEA" className="spin" />
+          <Loader2 size={40} color="#FA2D48" className="spin" />
           <LoadingText>Loading community posts...</LoadingText>
         </LoadingState>
       ) : filteredPosts.length > 0 ? (

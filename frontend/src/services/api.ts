@@ -73,21 +73,29 @@ export interface MusicCreateParams {
   llmProvider?: 'glm' | 'joybuilder';
   make_instrumental?: boolean;
   mv?: 'chirp-v3-0' | 'chirp-v3-5' | 'chirp-v4' | 'chirp-auk-turbo' | 'chirp-auk' | 'chirp-bluejay' | 'chirp-crow';
-  negative_tags?: string;
+
+  /** Negative tags - styles to exclude - maps to negative_tags in Suno API */
+  negativeTags?: string;
 
   task?: 'generate' | 'extend' | 'cover' | 'remaster' | 'crop' | 'speed' | 'video' | 'wav';
 
-  // Metadata - nested object according to API spec
+  /** Advanced metadata - nested object according to Suno API spec */
   metadata?: {
-    vocal_gender?: 'm' | 'f'; // 'm' = male, 'f' = female
+    /** Vocal gender: 'm' = male, 'f' = female */
+    vocal_gender?: 'm' | 'f';
     control_sliders?: {
-      style_weight?: number; // 0-1 float
-      weirdness_constraint?: number; // 0-1 float
+      /** Style weight: 0-1 float */
+      style_weight?: number;
+      /** Weirdness constraint: 0-1 float */
+      weirdness_constraint?: number;
     };
+    /** Audio weight: 0-1 float - only for uploaded audio extend/cover */
+    audio_weight?: number;
   };
 
   // Legacy support (for backward compatibility)
   instrumental?: boolean;
+  negative_tags?: string;
   vocal_gender?: 'm' | 'f';
   control_sliders?: {
     style_weight?: number;
@@ -139,34 +147,61 @@ export interface BalanceInfo {
 }
 
 export interface ExtendParams {
+  /** Suno music ID (custom_id) - maps to continue_clip_id in Suno API */
   clipId: string;
+  /** Continue position in seconds - maps to continue_at in Suno API */
   continueAt?: number;
   prompt?: string;
   lyrics?: string;
   tags?: string;
   title?: string;
+  /** Negative tags - styles to exclude */
+  negativeTags?: string;
+  /** Advanced metadata */
+  metadata?: {
+    /** Vocal gender: 'm' = male, 'f' = female */
+    vocal_gender?: 'm' | 'f';
+    control_sliders?: {
+      /** Style weight: 0-1 float */
+      style_weight?: number;
+      /** Weirdness constraint: 0-1 float */
+      weirdness_constraint?: number;
+    };
+    /** Audio weight: 0-1 float - only for uploaded audio extend */
+    audio_weight?: number;
+  };
 }
 
 export interface AlignedLyricsParams {
+  /** Suno music ID (custom_id) */
   sunoId: string;
   lyrics: string;
 }
 
 export interface RemasterParams {
+  /** Suno music ID (custom_id) - maps to clip_id in Suno API */
   clipId: string;
+  /** Model name: v5=chirp-carp, v4.5=chirp-bass, v4=chirp-up - maps to model_name in Suno API */
   modelName?: 'chirp-carp' | 'chirp-bass' | 'chirp-up';
+  /** Variation category (v5 only): subtle, normal, high - maps to variation_category in Suno API */
   variationCategory?: 'subtle' | 'normal' | 'high';
 }
 
 export interface CropParams {
+  /** Suno music ID (custom_id) - maps to clip_id in Suno API */
   clipId: string;
+  /** Crop start time in seconds - maps to crop_start_s in Suno API */
   cropStartS: number;
+  /** Crop end time in seconds - maps to crop_end_s in Suno API */
   cropEndS: number;
 }
 
 export interface SpeedParams {
+  /** Suno music ID (custom_id) - maps to clip_id in Suno API */
   clipId: string;
+  /** Speed multiplier - maps to speed_multiplier in Suno API */
   speedMultiplier: 0.25 | 0.5 | 0.75 | 1 | 1.25 | 1.5 | 2;
+  /** Keep pitch - maps to keep_pitch in Suno API */
   keepPitch?: boolean;
   title?: string;
 }
@@ -264,12 +299,29 @@ export const musicApi = {
    * @param params.prompt - 翻唱风格描述
    * @param params.tags - 风格标签
    * @param params.lyrics - 自定义歌词
+   * @param params.negativeTags - 负面标签（排除的风格）
+   * @param params.metadata - 高级元数据设置
    */
   createCover: async (params: {
     cover_clip_id: string;
     prompt?: string;
     tags?: string;
     lyrics?: string;
+    /** Negative tags - styles to exclude */
+    negativeTags?: string;
+    /** Advanced metadata */
+    metadata?: {
+      /** Vocal gender: 'm' = male, 'f' = female */
+      vocal_gender?: 'm' | 'f';
+      control_sliders?: {
+        /** Style weight: 0-1 float */
+        style_weight?: number;
+        /** Weirdness constraint: 0-1 float */
+        weirdness_constraint?: number;
+      };
+      /** Audio weight: 0-1 float - only for uploaded audio extend/cover */
+      audio_weight?: number;
+    };
   }): Promise<ApiResponse<any>> => {
     return apiClient.post('/music/cover', params);
   },

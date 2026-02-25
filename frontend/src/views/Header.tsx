@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { Search, Bell, Globe, ChevronDown, Loader2 } from 'lucide-react';
+import { Search, Bell, Globe, ChevronDown, CheckCircle, AlertCircle, Info, Coins } from 'lucide-react';
 import { musicApi } from '../services/api';
 
 const HeaderContainer = styled.header`
-  height: 64px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 56px;
+  background: #FFFFFF;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -22,79 +20,67 @@ const HeaderContainer = styled.header`
 const SearchContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 8px 16px;
-  width: 320px;
-  transition: all 0.2s ease;
+  gap: 10px;
+  background: #F5F5F7;
+  border-radius: 8px;
+  padding: 8px 14px;
+  width: 280px;
+  transition: all 0.15s ease;
 
   &:focus-within {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(102, 126, 234, 0.5);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(250, 45, 72, 0.1);
   }
 `;
 
 const SearchIcon = styled(Search)`
-  color: #8B8B9F;
-  width: 18px;
-  height: 18px;
+  color: #86868B;
+  width: 16px;
+  height: 16px;
 `;
 
 const SearchInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
-  color: #FFFFFF;
+  color: #1D1D1F;
   font-size: 0.875rem;
   outline: none;
 
   &::placeholder {
-    color: #8B8B9F;
+    color: #86868B;
   }
 `;
 
 const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 `;
 
 const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  background: #F5F5F7;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8B8B9F;
-  transition: all 0.2s ease;
+  color: #6E6E73;
+  transition: all 0.15s ease;
   position: relative;
   cursor: pointer;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #FFFFFF;
+    background: #E8E8ED;
+    color: #1D1D1F;
   }
 `;
 
-const NotificationBadge = styled.span`
+const NotificationBadgeWrapper = styled.div`
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 18px;
-  height: 18px;
-  background: linear-gradient(135deg, #F093FB, #F5576C);
-  border-radius: 50%;
-  font-size: 0.625rem;
-  font-weight: 700;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: -2px;
+  right: -2px;
 `;
 
 const LanguageSelector = styled.div`
@@ -104,116 +90,311 @@ const LanguageSelector = styled.div`
 const LanguageButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: #FFFFFF;
-  font-size: 0.875rem;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  color: #6E6E73;
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #F5F5F7;
+    color: #1D1D1F;
   }
 `;
 
 const LanguageDropdown = styled.div<{ $open: boolean }>`
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
-  background: rgba(26, 26, 46, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 8px;
-  min-width: 140px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 130px;
   opacity: ${props => props.$open ? 1 : 0};
   visibility: ${props => props.$open ? 'visible' : 'hidden'};
-  transform: translateY(${props => props.$open ? 0 : '-8px'});
-  transition: all 0.2s ease;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(${props => props.$open ? 0 : '-6px'});
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 `;
 
 const LanguageOption = styled.button<{ $selected?: boolean }>`
   width: 100%;
-  padding: 10px 12px;
-  background: ${props => props.$selected ? 'rgba(102, 126, 234, 0.2)' : 'transparent'};
+  padding: 8px 10px;
+  background: ${props => props.$selected ? 'rgba(250, 45, 72, 0.1)' : 'transparent'};
   border: none;
-  border-radius: 8px;
-  color: ${props => props.$selected ? '#667EEA' : '#FFFFFF'};
-  font-size: 0.875rem;
+  border-radius: 6px;
+  color: ${props => props.$selected ? '#FA2D48' : '#1D1D1F'};
+  font-size: 0.8125rem;
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.1s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.04);
   }
 `;
 
 const CreditsBadge = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
-  color: #FFFFFF;
-  font-size: 0.875rem;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(250, 45, 72, 0.08) 0%, rgba(250, 45, 72, 0.04) 100%);
+  border: 1px solid rgba(250, 45, 72, 0.15);
+  border-radius: 16px;
+  color: #FA2D48;
+  font-size: 0.8125rem;
   font-weight: 600;
+  cursor: default;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.8;
+  }
 `;
 
-const CreditsIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, #667EEA, #764BA2);
-  border-radius: 50%;
+const NotificationSelector = styled.div`
+  position: relative;
+`;
+
+const NotificationDropdown = styled.div<{ $open: boolean }>`
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  width: 300px;
+  max-height: 380px;
+  overflow: hidden;
+  opacity: ${props => props.$open ? 1 : 0};
+  visibility: ${props => props.$open ? 'visible' : 'hidden'};
+  transform: translateY(${props => props.$open ? 0 : '-6px'});
+  transition: all 0.15s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+`;
+
+const NotificationHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+`;
+
+const NotificationTitle = styled.span`
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1D1D1F;
+`;
+
+const NotificationBadge = styled.span<{ $count: number }>`
+  background: ${props => props.$count > 0 ? '#FA2D48' : 'transparent'};
+  color: white;
+  font-size: 0.6875rem;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+  display: ${props => props.$count > 0 ? 'inline' : 'none'};
+`;
+
+const NotificationBadgeInline = styled.span<{ $count: number }>`
+  background: #FA2D48;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  display: ${props => props.$count > 0 ? 'flex' : 'none'};
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+`;
+
+const ClearAllButton = styled.button`
+  background: none;
+  border: none;
+  color: #86868B;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all 0.1s ease;
+
+  &:hover {
+    color: #1D1D1F;
+    background: rgba(0, 0, 0, 0.04);
+  }
+`;
+
+const NotificationList = styled.div`
+  max-height: 300px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+`;
+
+const NotificationItem = styled.div<{ $read?: boolean }>`
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: ${props => props.$read ? 'transparent' : 'rgba(250, 45, 72, 0.03)'};
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const NotificationIconWrapper = styled.div<{ $type: 'success' | 'error' | 'info' | 'warning' }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.625rem;
-  font-weight: 700;
+  flex-shrink: 0;
+  background: ${props => {
+    switch (props.$type) {
+      case 'success': return 'rgba(52, 199, 89, 0.12)';
+      case 'error': return 'rgba(255, 59, 48, 0.12)';
+      case 'warning': return 'rgba(255, 149, 0, 0.12)';
+      default: return 'rgba(250, 45, 72, 0.12)';
+    }
+  }};
+  color: ${props => {
+    switch (props.$type) {
+      case 'success': return '#34C759';
+      case 'error': return '#FF3B30';
+      case 'warning': return '#FF9500';
+      default: return '#FA2D48';
+    }
+  }};
+`;
 
-  .spin {
-    animation: spin 1s linear infinite;
-  }
+const NotificationContent = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+const NotificationMessage = styled.p`
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #1D1D1F;
+  line-height: 1.35;
+`;
+
+const NotificationTime = styled.span`
+  font-size: 0.6875rem;
+  color: #86868B;
+  margin-top: 3px;
+  display: block;
+`;
+
+const NotificationEmpty = styled.div`
+  padding: 28px 14px;
+  text-align: center;
+  color: #86868B;
+  font-size: 0.8125rem;
 `;
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
-  { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'en', name: 'English', flag: 'EN' },
+  { code: 'zh-CN', name: '简体中文', flag: '中' },
+  { code: 'ja', name: '日本語', flag: '日' },
+  { code: 'ko', name: '한국어', flag: '한' },
 ];
+
+interface Notification {
+  id: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+  message: string;
+  time: string;
+  read: boolean;
+}
 
 export const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(i18n.language || 'en');
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const languageRef = useRef<HTMLDivElement>(null);
 
-  // 获取积分余额
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: '1',
+      type: 'info',
+      message: t('header.welcomeMessage', 'Welcome to AI Music Creator'),
+      time: new Date().toISOString(),
+      read: false,
+    },
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setNotificationOpen(false);
+      }
+      if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
+        setLanguageOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     const fetchBalance = async () => {
       try {
         const response = await musicApi.getBalance();
         if (response.success && response.data) {
-          setCredits(response.data.balance);
+          const balance = response.data.balance;
+          setCredits(balance);
+
+          if (balance < 10) {
+            setNotifications(prev => [{
+              id: Date.now().toString(),
+              type: 'warning',
+              message: t('header.lowCredits', `Low credits (${balance} remaining)`),
+              time: new Date().toISOString(),
+              read: false,
+            }, ...prev]);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch balance:', error);
-        // 如果获取失败，显示默认值
         setCredits(null);
       } finally {
         setLoading(false);
@@ -221,15 +402,47 @@ export const Header: React.FC = () => {
     };
 
     fetchBalance();
-    // 每5分钟刷新一次
     const interval = setInterval(fetchBalance, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [t]);
 
   const changeLanguage = (langCode: string) => {
     i18n.changeLanguage(langCode);
     setCurrentLang(langCode);
     setLanguageOpen(false);
+  };
+
+  const markAsRead = (id: string) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
+
+  const formatTime = (timeStr: string) => {
+    const date = new Date(timeStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return t('time.justNow', 'Just now');
+    if (diffMins < 60) return t('time.minutesAgo', `${diffMins}m ago`);
+    if (diffHours < 24) return t('time.hoursAgo', `${diffHours}h ago`);
+    return t('time.daysAgo', `${diffDays}d ago`);
+  };
+
+  const getNotificationIcon = (type: Notification['type']) => {
+    switch (type) {
+      case 'success': return <CheckCircle size={14} />;
+      case 'error': return <AlertCircle size={14} />;
+      case 'warning': return <AlertCircle size={14} />;
+      default: return <Info size={14} />;
+    }
   };
 
   const currentLanguage = languages.find(lang => lang.code === currentLang) || languages[0];
@@ -247,11 +460,63 @@ export const Header: React.FC = () => {
       </SearchContainer>
 
       <HeaderActions>
-        <LanguageSelector>
+        <NotificationSelector ref={notificationRef}>
+          <IconButton
+            title={t('header.notifications', 'Notifications')}
+            onClick={() => setNotificationOpen(!notificationOpen)}
+          >
+            <Bell size={16} />
+            {unreadCount > 0 && (
+              <NotificationBadgeWrapper>
+                <NotificationBadgeInline $count={unreadCount}>
+                  {unreadCount}
+                </NotificationBadgeInline>
+              </NotificationBadgeWrapper>
+            )}
+          </IconButton>
+          <NotificationDropdown $open={notificationOpen}>
+            <NotificationHeader>
+              <div>
+                <NotificationTitle>{t('header.notifications', 'Notifications')}</NotificationTitle>
+                <NotificationBadge $count={unreadCount}>{unreadCount}</NotificationBadge>
+              </div>
+              {notifications.length > 0 && (
+                <ClearAllButton onClick={clearAllNotifications}>
+                  {t('common.clearAll', 'Clear')}
+                </ClearAllButton>
+              )}
+            </NotificationHeader>
+            <NotificationList>
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    $read={notification.read}
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    <NotificationIconWrapper $type={notification.type}>
+                      {getNotificationIcon(notification.type)}
+                    </NotificationIconWrapper>
+                    <NotificationContent>
+                      <NotificationMessage>{notification.message}</NotificationMessage>
+                      <NotificationTime>{formatTime(notification.time)}</NotificationTime>
+                    </NotificationContent>
+                  </NotificationItem>
+                ))
+              ) : (
+                <NotificationEmpty>
+                  {t('header.noNotifications', 'No notifications')}
+                </NotificationEmpty>
+              )}
+            </NotificationList>
+          </NotificationDropdown>
+        </NotificationSelector>
+
+        <LanguageSelector ref={languageRef}>
           <LanguageButton onClick={() => setLanguageOpen(!languageOpen)}>
-            <Globe size={16} />
-            <span>{currentLanguage.flag} {currentLanguage.name}</span>
-            <ChevronDown size={14} />
+            <Globe size={14} />
+            <span>{currentLanguage.flag}</span>
+            <ChevronDown size={12} />
           </LanguageButton>
           <LanguageDropdown $open={languageOpen}>
             {languages.map((lang) => (
@@ -266,14 +531,9 @@ export const Header: React.FC = () => {
           </LanguageDropdown>
         </LanguageSelector>
 
-        <IconButton>
-          <Bell size={18} />
-          <NotificationBadge>3</NotificationBadge>
-        </IconButton>
-
-        <CreditsBadge>
-          <CreditsIcon>{loading ? <Loader2 size={12} className="spin" /> : '⚡'}</CreditsIcon>
-          <span>{loading ? '加载中...' : credits !== null ? `${credits} Credits` : '积分获取失败'}</span>
+        <CreditsBadge title={t('header.credits', 'Credits')}>
+          <Coins size={14} />
+          <span>{loading ? '...' : credits !== null ? credits : '--'}</span>
         </CreditsBadge>
       </HeaderActions>
     </HeaderContainer>

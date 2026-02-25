@@ -417,7 +417,7 @@ router.post('/create',
   musicGenerationLimiter,
   validateMusicCreation,
   asyncHandler(async (req: Request, res: Response) => {
-    const { mode, prompt, title, lyrics, tags, mood, llmProvider, mv, instrumental } = req.body;
+    const { mode, prompt, title, lyrics, tags, mood, llmProvider, mv, instrumental, negativeTags, metadata } = req.body;
 
     logger.info('Music creation request', {
       mode,
@@ -508,7 +508,9 @@ router.post('/create',
           tags: tags,
           description: customPrompt,
           model: mv || 'v3.5',
-          instrumental
+          instrumental,
+          negativeTags,
+          metadata,
         });
 
         createAndStoreTrack(result.id, {
@@ -529,7 +531,7 @@ router.post('/create',
 
       // 灵感模式 - 直接调用Suno
       if (mode === 'inspiration' && prompt) {
-        const result = await sunoService.createWithPrompt(prompt, mv, instrumental);
+        const result = await sunoService.createWithPrompt(prompt, mv, instrumental, negativeTags, metadata);
 
         createAndStoreTrack(result.id, {
           title: result.title || 'Inspiration Track',
@@ -583,7 +585,7 @@ router.post('/create',
 
       // 默认：灵感模式
       if (!mode && prompt) {
-        const result = await sunoService.createWithPrompt(prompt, mv, instrumental);
+        const result = await sunoService.createWithPrompt(prompt, mv, instrumental, negativeTags, metadata);
 
         createAndStoreTrack(result.id, {
           title: result.title || 'AI Generated Track',
@@ -803,7 +805,7 @@ router.post('/cover',
   asyncHandler(async (req: Request, res: Response) => {
     // 支持 upload_id 和 cover_clip_id 两种参数名
     const coverClipId = req.body.cover_clip_id || req.body.upload_id;
-    const { prompt, tags, lyrics } = req.body;
+    const { prompt, tags, lyrics, negativeTags, metadata } = req.body;
 
     if (!coverClipId) {
       return fail(res, 1001, '翻唱歌曲ID (cover_clip_id 或 upload_id) 不能为空', 400);
@@ -813,7 +815,9 @@ router.post('/cover',
       coverClipId,
       prompt: prompt?.substring(0, 50),
       tags,
-      hasLyrics: !!lyrics
+      hasLyrics: !!lyrics,
+      negativeTags,
+      metadata
     });
 
     try {
@@ -821,6 +825,8 @@ router.post('/cover',
         coverClipId,
         prompt: lyrics || prompt,
         tags: tags,
+        negativeTags,
+        metadata,
       });
 
       // 存储翻唱任务到 musicStore
