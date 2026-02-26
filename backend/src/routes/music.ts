@@ -154,7 +154,7 @@ router.post('/batch-status',
 router.post('/extend',
   musicGenerationLimiter,
   asyncHandler(async (req: Request, res: Response) => {
-    const { clipId, continueAt, prompt, lyrics, tags, title } = req.body;
+    const { clipId, continueAt, prompt, lyrics, tags, title, negativeTags, metadata } = req.body;
 
     if (!clipId) {
       return fail(res, 1001, '请提供要续写的歌曲ID (clipId)', 400);
@@ -165,7 +165,9 @@ router.post('/extend',
       continueAt,
       hasPrompt: !!prompt,
       hasLyrics: !!lyrics,
-      tags
+      tags,
+      negativeTags,
+      metadata
     });
 
     try {
@@ -175,7 +177,9 @@ router.post('/extend',
         tags: tags,
         model: 'chirp-v3-5',
         continueClipId: clipId,
-        continueAt: continueAt ? String(continueAt) : undefined
+        continueAt: continueAt ? String(continueAt) : undefined,
+        negativeTags,
+        metadata,
       });
 
       // 存储续写任务

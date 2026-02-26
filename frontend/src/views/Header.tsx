@@ -90,53 +90,108 @@ const LanguageSelector = styled.div`
 const LanguageButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: transparent;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  color: #6E6E73;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(250, 45, 72, 0.06) 0%, rgba(250, 45, 72, 0.02) 100%);
+  border: 1px solid rgba(250, 45, 72, 0.12);
+  border-radius: 20px;
+  color: #1D1D1F;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+
+  svg:first-child {
+    color: #FA2D48;
+    opacity: 0.85;
+  }
+
+  span {
+    font-weight: 600;
+    color: #FA2D48;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  svg:last-child {
+    color: #86868B;
+    transition: transform 0.2s ease;
+  }
 
   &:hover {
-    background: #F5F5F7;
-    color: #1D1D1F;
+    background: linear-gradient(135deg, rgba(250, 45, 72, 0.1) 0%, rgba(250, 45, 72, 0.04) 100%);
+    border-color: rgba(250, 45, 72, 0.2);
+    box-shadow: 0 2px 8px rgba(250, 45, 72, 0.1);
+
+    svg:last-child {
+      transform: translateY(1px);
+    }
   }
 `;
 
 const LanguageDropdown = styled.div<{ $open: boolean }>`
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
   background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  padding: 6px;
-  min-width: 130px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 150px;
   opacity: ${props => props.$open ? 1 : 0};
   visibility: ${props => props.$open ? 'visible' : 'hidden'};
-  transform: translateY(${props => props.$open ? 0 : '-6px'});
-  transition: all 0.15s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(${props => props.$open ? 0 : '-8px'});
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: #FFFFFF;
+    border-left: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    transform: rotate(45deg);
+  }
 `;
 
 const LanguageOption = styled.button<{ $selected?: boolean }>`
   width: 100%;
-  padding: 8px 10px;
-  background: ${props => props.$selected ? 'rgba(250, 45, 72, 0.1)' : 'transparent'};
+  padding: 10px 12px;
+  background: ${props => props.$selected ? 'linear-gradient(135deg, rgba(250, 45, 72, 0.1) 0%, rgba(250, 45, 72, 0.05) 100%)' : 'transparent'};
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: ${props => props.$selected ? '#FA2D48' : '#1D1D1F'};
   font-size: 0.8125rem;
+  font-weight: ${props => props.$selected ? '600' : '500'};
   text-align: left;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: ${props => props.$selected
+      ? 'linear-gradient(135deg, rgba(250, 45, 72, 0.12) 0%, rgba(250, 45, 72, 0.06) 100%)'
+      : 'rgba(0, 0, 0, 0.04)'};
+    transform: translateX(2px);
+  }
+
+  span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: ${props => props.$selected ? 'rgba(250, 45, 72, 0.15)' : 'rgba(0, 0, 0, 0.05)'};
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: ${props => props.$selected ? '#FA2D48' : '#6E6E73'};
   }
 `;
 
@@ -525,7 +580,8 @@ export const Header: React.FC = () => {
                 $selected={lang.code === currentLang}
                 onClick={() => changeLanguage(lang.code)}
               >
-                {lang.flag} {lang.name}
+                <span>{lang.flag}</span>
+                <span>{lang.name}</span>
               </LanguageOption>
             ))}
           </LanguageDropdown>

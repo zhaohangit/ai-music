@@ -6,10 +6,25 @@
   },
   "nav": {
     "create": "作成",
+    "cover": "AIカバー",
     "library": "ライブラリ",
     "history": "履歴",
     "explore": "探索",
-    "settings": "設定"
+    "community": "コミュニティ",
+    "settings": "設定",
+    "help": "ヘルプ",
+    "apiDocs": "APIドキュメント",
+    "skills": "スキル管理",
+    "quickCreate": "クイック作成",
+    "sectionCreate": "作成",
+    "sectionTools": "ツール",
+    "sectionLibrary": "ライブラリ",
+    "sectionDiscover": "発見",
+    "lyrics": "歌詞ウィザード",
+    "styleMixer": "スタイルミキサー",
+    "advanced": "高度なツール",
+    "quickInspiration": "インスピレーション",
+    "quickCustom": "カスタムモード"
   },
   "create": {
     "title": "音楽を作成",
@@ -58,12 +73,57 @@
   },
   "settings": {
     "title": "設定",
+    "subtitle": "アカウント設定と環境設定を管理",
     "language": "言語",
     "theme": "テーマ",
     "darkMode": "ダークモード",
+    "darkModeDesc": "インターフェースにダークテーマを適用",
     "notifications": "通知",
+    "pushNotifications": "プッシュ通知",
+    "pushNotificationsDesc": "作品に関する通知を受け取る",
+    "emailNotifications": "メール通知",
+    "emailNotificationsDesc": "メールで更新を受け取る",
     "about": "について",
-    "version": "バージョン"
+    "version": "バージョン",
+    "appearance": "外観",
+    "playback": "再生",
+    "soundEffects": "効果音",
+    "soundEffectsDesc": "インタラクション時に効果音を再生",
+    "autoPlay": "自動再生",
+    "autoPlayDesc": "次のトラックを自動的に再生",
+    "billing": "請求とクレジット",
+    "currentPlan": "現在のプラン",
+    "creditsRemaining": "{{count}} クレジット残高",
+    "upgrade": "アップグレード",
+    "privacy": "プライバシーとセキュリティ",
+    "privacySettings": "プライバシー設定",
+    "privacySettingsDesc": "データとプライバシー設定を管理",
+    "configure": "設定",
+    "changePassword": "パスワード変更",
+    "changePasswordDesc": "アカウントのパスワードを更新",
+    "change": "変更",
+    "termsOfService": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "view": "表示",
+    "dangerZone": "危険区域",
+    "deleteAccount": "アカウント削除",
+    "deleteAccountDesc": "アカウントとすべてのデータを完全に削除",
+    "editProfile": "プロフィール編集",
+    "freePlan": "無料プラン",
+    "languages": {
+      "en": "英語",
+      "zh-CN": "中国語",
+      "ja": "日本語",
+      "ko": "韓国語"
+    },
+    "nativeNames": {
+      "en": "English",
+      "zh-CN": "简体中文",
+      "ja": "日本語",
+      "ko": "한국어"
+    },
+    "defaultUserName": "クリエイター",
+    "defaultUserPlan": "無料プラン"
   },
   "common": {
     "loading": "読み込み中...",
@@ -74,5 +134,17 @@
     "save": "保存",
     "delete": "削除",
     "edit": "編集"
+  },
+  "skills": {
+    "skillActive": "スキル有効",
+    "viewTips": "ヒントを見る",
+    "quickActions": "クイックアクション",
+    "inspirationDesc": "シンプルな説明、AIが完成",
+    "customDesc": "詳細なパラメータ制御",
+    "aiLyricsDesc": "スマート歌詞生成",
+    "uploadDesc": "ソース音声をアップロード",
+    "mixerDesc": "複数のスタイルをミックス",
+    "viewSkill": "スキルを見る",
+    "viewSkillDesc": "完全なスキルドキュメントを見る"
   }
 }

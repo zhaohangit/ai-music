@@ -449,13 +449,15 @@ export const ExploreView: React.FC = () => {
     fetchTracks();
   }, []);
 
-  // Derive genres from actual tracks
+  // Derive genres from actual tracks (using tags)
   const genreCount = tracks.reduce((acc, track) => {
-    acc[track.genre] = (acc[track.genre] || 0) + 1;
+    // Use first tag as genre, or 'Unknown' if no tags
+    const genre = track.tags?.[0] || 'Unknown';
+    acc[genre] = (acc[genre] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const genres = Object.entries(genreCount)
+  const genres = (Object.entries(genreCount) as [string, number][])
     .map(([name, count], index) => ({
       name,
       count: count.toString(),

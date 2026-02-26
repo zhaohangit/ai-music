@@ -1,55 +1,58 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Music,
   Mic,
   Library,
-  History,
+  Clock,
   Compass,
   Users,
   Settings,
   HelpCircle,
   User,
-  BookOpen
+  BookOpen,
+  Wand2,
+  Plus,
+  Sparkles,
+  FileText,
+  Sliders
 } from 'lucide-react';
 
 const SidebarContainer = styled.aside`
-  width: 260px;
+  width: 240px;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  background: #FAFAFA;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  background: #FFFFFF;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
   z-index: 100;
 `;
 
 const LogoSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  margin-bottom: 24px;
+  gap: 12px;
+  padding: 20px 20px 24px;
 `;
 
 const LogoIcon = styled.div`
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(135deg, #FA2D48, #FC3C44);
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(250, 45, 72, 0.25);
+  box-shadow: 0 4px 12px rgba(250, 45, 72, 0.25);
 `;
 
 const LogoText = styled.span`
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #1D1D1F;
   letter-spacing: -0.02em;
@@ -57,33 +60,45 @@ const LogoText = styled.span`
 
 const NavSection = styled.nav`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  padding: 0 12px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+  }
 `;
 
-const NavSectionTitle = styled.span`
+const NavGroup = styled.div`
+  margin-bottom: 24px;
+`;
+
+const NavGroupTitle = styled.div`
   font-size: 0.6875rem;
   font-weight: 600;
   color: #86868B;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  padding: 8px 12px;
-  margin-top: 16px;
+  letter-spacing: 0.04em;
+  padding: 0 12px;
+  margin-bottom: 8px;
 `;
 
-const NavLinkStyled = styled(NavLink)`
+const NavItem = styled(NavLink)`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #6E6E73;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.875rem;
   transition: all 0.15s ease;
-  background: transparent;
+  margin-bottom: 2px;
 
   &:hover {
     background: rgba(0, 0, 0, 0.04);
@@ -91,46 +106,90 @@ const NavLinkStyled = styled(NavLink)`
   }
 
   &.active {
-    background: rgba(250, 45, 72, 0.1);
+    background: rgba(250, 45, 72, 0.08);
     color: #FA2D48;
+
+    svg {
+      color: #FA2D48;
+    }
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+`;
+
+const CreateButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 24px);
+  margin: 0 12px 20px;
+  padding: 12px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(250, 45, 72, 0.3);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(250, 45, 72, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   svg {
     width: 18px;
     height: 18px;
-    stroke-width: 2;
   }
 `;
 
+const Divider = styled.div`
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 8px 12px 16px;
+`;
+
 const BottomSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-top: 12px;
+  padding: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 `;
 
-const UserSection = styled.div`
+const UserCard = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #FFFFFF;
-  border-radius: 10px;
-  margin-top: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  gap: 12px;
+  padding: 12px;
+  background: #F5F5F7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #E8E8ED;
+  }
 `;
 
 const UserAvatar = styled.div`
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: linear-gradient(135deg, #FA2D48, #FC3C44);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  flex-shrink: 0;
 `;
 
 const UserInfo = styled.div`
@@ -138,9 +197,8 @@ const UserInfo = styled.div`
   min-width: 0;
 `;
 
-const UserName = styled.span`
-  display: block;
-  font-size: 0.8125rem;
+const UserName = styled.div`
+  font-size: 0.875rem;
   font-weight: 600;
   color: #1D1D1F;
   white-space: nowrap;
@@ -148,80 +206,130 @@ const UserName = styled.span`
   text-overflow: ellipsis;
 `;
 
-const UserPlan = styled.span`
-  display: block;
-  font-size: 0.6875rem;
+const UserPlan = styled.div`
+  font-size: 0.75rem;
   color: #86868B;
 `;
+
+const Badge = styled.span`
+  background: #FA2D48;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: auto;
+`;
+
+interface NavItemData {
+  path: string;
+  icon: React.ElementType;
+  labelKey: string;
+  badge?: string;
+}
 
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const mainNavItems = [
-    { path: '/create', icon: Music, label: 'nav.create' },
-    { path: '/cover', icon: Mic, label: 'nav.cover' },
-    { path: '/library', icon: Library, label: 'nav.library' },
-    { path: '/history', icon: History, label: 'nav.history' },
-    { path: '/explore', icon: Compass, label: 'nav.explore' },
-    { path: '/community', icon: Users, label: 'nav.community' },
+  // 主要功能
+  const mainItems: NavItemData[] = [
+    { path: '/create', icon: Music, labelKey: 'nav.create' },
+    { path: '/cover', icon: Mic, labelKey: 'nav.cover' },
   ];
 
-  const bottomNavItems = [
-    { path: '/api-docs', icon: BookOpen, label: 'API文档' },
-    { path: '/settings', icon: Settings, label: 'nav.settings' },
-    { path: '/help', icon: HelpCircle, label: 'nav.help' },
+  // 音乐库
+  const libraryItems: NavItemData[] = [
+    { path: '/library', icon: Library, labelKey: 'nav.library' },
+    { path: '/history', icon: Clock, labelKey: 'nav.history' },
   ];
+
+  // 发现
+  const discoverItems: NavItemData[] = [
+    { path: '/explore', icon: Compass, labelKey: 'nav.explore' },
+    { path: '/community', icon: Users, labelKey: 'nav.community' },
+  ];
+
+  // 工具
+  const toolItems: NavItemData[] = [
+    { path: '/api-docs', icon: BookOpen, labelKey: 'nav.apiDocs' },
+    { path: '/skills', icon: Wand2, labelKey: 'nav.skills', badge: '26' },
+  ];
+
+  // 底部设置
+  const bottomItems: NavItemData[] = [
+    { path: '/settings', icon: Settings, labelKey: 'nav.settings' },
+    { path: '/help', icon: HelpCircle, labelKey: 'nav.help' },
+  ];
+
+  const renderNavItems = (items: NavItemData[]) => (
+    items.map(item => {
+      const Icon = item.icon;
+      return (
+        <NavItem
+          key={item.path}
+          to={item.path}
+          className={location.pathname === item.path ? 'active' : ''}
+        >
+          <Icon />
+          <span>{t(item.labelKey as any)}</span>
+          {item.badge && <Badge>{item.badge}</Badge>}
+        </NavItem>
+      );
+    })
+  );
 
   return (
     <SidebarContainer>
       <LogoSection>
         <LogoIcon>
-          <Music size={20} color="white" strokeWidth={2.5} />
+          <Music size={22} color="white" strokeWidth={2.5} />
         </LogoIcon>
         <LogoText>Music</LogoText>
       </LogoSection>
 
+      <CreateButton onClick={() => navigate('/create')}>
+        <Plus size={18} />
+        {t('nav.quickCreate')}
+      </CreateButton>
+
       <NavSection>
-        {mainNavItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLinkStyled
-              key={item.path}
-              to={item.path}
-              className={location.pathname === item.path ? 'active' : ''}
-            >
-              <Icon />
-              <span>{t(item.label as any)}</span>
-            </NavLinkStyled>
-          );
-        })}
+        <NavGroup>
+          <NavGroupTitle>{t('nav.sectionCreate')}</NavGroupTitle>
+          {renderNavItems(mainItems)}
+        </NavGroup>
+
+        <NavGroup>
+          <NavGroupTitle>{t('nav.sectionLibrary')}</NavGroupTitle>
+          {renderNavItems(libraryItems)}
+        </NavGroup>
+
+        <NavGroup>
+          <NavGroupTitle>{t('nav.sectionDiscover')}</NavGroupTitle>
+          {renderNavItems(discoverItems)}
+        </NavGroup>
+
+        <Divider />
+
+        <NavGroup>
+          <NavGroupTitle>{t('nav.sectionTools')}</NavGroupTitle>
+          {renderNavItems(toolItems)}
+        </NavGroup>
       </NavSection>
 
       <BottomSection>
-        {bottomNavItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLinkStyled
-              key={item.path}
-              to={item.path}
-              className={location.pathname === item.path ? 'active' : ''}
-            >
-              <Icon />
-              <span>{t(item.label as any)}</span>
-            </NavLinkStyled>
-          );
-        })}
+        {renderNavItems(bottomItems)}
 
-        <UserSection>
+        <UserCard onClick={() => navigate('/settings')}>
           <UserAvatar>
             <User size={16} />
           </UserAvatar>
           <UserInfo>
-            <UserName>Creator</UserName>
-            <UserPlan>Free Plan</UserPlan>
+            <UserName>{t('settings.defaultUserName')}</UserName>
+            <UserPlan>{t('settings.defaultUserPlan')}</UserPlan>
           </UserInfo>
-        </UserSection>
+        </UserCard>
       </BottomSection>
     </SidebarContainer>
   );

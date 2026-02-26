@@ -20,7 +20,8 @@ export type { SearchBoxProps } from './SearchBox';
 export { StatusBadge } from './StatusBadge';
 export type { StatusBadgeProps, StatusType } from './StatusBadge';
 
-export { AudioPlayer, AudioVisualizer } from './AudioPlayer';
+export { AudioPlayer } from './AudioPlayer';
+export { AudioVisualizer } from './AudioVisualizer';
 
 // Loading & Error Handling Components
 export { LoadingSpinner } from './LoadingSpinner';

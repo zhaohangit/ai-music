@@ -24,13 +24,34 @@ import {
   Music2,
   Zap,
   Star,
-  Lightbulb
+  Lightbulb,
+  HelpCircle
 } from 'lucide-react';
 import { fadeIn, fadeInUp, fadeInScale } from '../styles/animations';
 import { musicApi, lyricsApi, MusicInfo } from '../services/api';
 import { useAppStore } from '../hooks/useMusicStore';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useToast } from '../hooks/useToast';
+import { useSkill } from '../contexts/SkillContext';
+import { useSkillEnhancedAI } from '../hooks/useSkillEnhancedAI';
+import { useSkillAssistant } from '../hooks/useSkillAssistant';
+import { SkillHints } from '../components/SkillHints';
+import { SkillAssistantPanel, SmartInput, GuidedCreation, AIThinkingIndicator } from '../components/skill';
+import { GuidedResult } from '../services/skill/types';
+
+// 常量定义 - 移到组件外部避免每次渲染重新创建
+const GENRES = ['Electronic', 'Pop', 'Hip-Hop', 'Rock', 'Jazz', 'Classical'];
+const MOODS = ['Energetic', 'Romantic', 'Relaxing', 'Dreamy', 'Intense'];
+
+// 灵感模板数据
+const INSPIRATION_TEMPLATES = [
+  { id: 'summer-pop', name: '夏日流行', prompt: '一首轻快的夏日流行歌曲，节奏明快，旋律朗朗上口，充满阳光和活力的感觉', genre: 'Pop', mood: 'Energetic' },
+  { id: 'night-jazz', name: '深夜爵士', prompt: '一首慵懒的深夜爵士乐曲，萨克斯独奏，钢琴伴奏，营造浪漫的夜晚氛围', genre: 'Jazz', mood: 'Romantic' },
+  { id: 'dreamy-electronic', name: '梦幻电子', prompt: '一首空灵的电子音乐，合成器铺底，带有梦幻般的氛围感，适合冥想和放松', genre: 'Electronic', mood: 'Dreamy' },
+  { id: 'epic-classical', name: '史诗古典', prompt: '一首宏大的古典交响乐，弦乐和铜管乐器交织，充满戏剧性和史诗感', genre: 'Classical', mood: 'Intense' },
+  { id: 'street-hiphop', name: '街头说唱', prompt: '一首有力的嘻哈说唱歌曲，重低音鼓点，流畅的节奏，展现都市街头文化', genre: 'Hip-Hop', mood: 'Energetic' },
+  { id: 'acoustic-ballad', name: '木吉他民谣', prompt: '一首温暖的木吉他民谣，简单的编曲，真挚的情感，讲述一个动人的故事', genre: 'Pop', mood: 'Relaxing' }
+];
 
 // Global style for spin animation
 const SpinAnimationStyle = createGlobalStyle`
@@ -214,6 +235,88 @@ const TextArea = styled.textarea`
   }
 `;
 
+const TextAreaWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const TextAreaActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 4px 0 4px;
+`;
+
+// Skill 助手面板容器 - 提供间距
+const AssistantPanelWrapper = styled.div`
+  margin-top: 16px;
+`;
+
+// 快速灵感标签样式
+const QuickTagsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+`;
+
+const QuickTagsLabel = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #86868B;
+  flex-shrink: 0;
+`;
+
+const QuickTagsList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const QuickTag = styled.button`
+  padding: 4px 10px;
+  background: rgba(250, 45, 72, 0.08);
+  border: 1px solid rgba(250, 45, 72, 0.15);
+  border-radius: 14px;
+  font-size: 0.75rem;
+  color: #FA2D48;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(250, 45, 72, 0.15);
+    border-color: rgba(250, 45, 72, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+// 随机风格按钮
+const RandomStyleButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(250, 45, 72, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: #FA2D48;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: auto;
+
+  &:hover {
+    background: rgba(250, 45, 72, 0.15);
+  }
+`;
+
 const LyricsDisplay = styled.div`
   width: 100%;
   max-height: 280px;
@@ -272,6 +375,30 @@ const CopyButton = styled.button`
   }
 `;
 
+const GuidedCreationButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(52, 199, 89, 0.1);
+  border: none;
+  border-radius: 8px;
+  color: #34C759;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(52, 199, 89, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 const PromptEnhanceButton = styled.button`
   display: flex;
   align-items: center;
@@ -285,10 +412,14 @@ const PromptEnhanceButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 8px;
 
   &:hover:not(:disabled) {
     background: rgba(250, 45, 72, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
@@ -590,6 +721,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost' }>`
     border: 1px solid rgba(0, 0, 0, 0.1);
     flex: 0 0 auto;
     padding: 10px 14px;
+    margin-top: 8px;
 
     &:hover {
       color: #FA2D48;
@@ -715,6 +847,254 @@ const PlayerTime = styled.div`
   font-size: 0.75rem;
   color: #86868B;
   margin-top: 6px;
+`;
+
+// Mini Player Styles (for right panel when track is playing)
+const MiniPlayerCard = styled(GlassCard)`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const MiniPlayerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const MiniPlayerCover = styled.div`
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+`;
+
+const MiniPlayerInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const MiniPlayerTitle = styled.h4`
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1D1D1F;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const MiniPlayerMeta = styled.p`
+  font-size: 0.8125rem;
+  color: #8B8B9F;
+  margin: 0;
+`;
+
+const MiniPlayerProgress = styled.div`
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+`;
+
+const MiniPlayerProgressBar = styled.div<{ $progress: number }>`
+  width: ${props => props.$progress}%;
+  height: 100%;
+  background: #FA2D48;
+  border-radius: 2px;
+  transition: width 0.1s ease;
+`;
+
+const MiniPlayerTime = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: #8B8B9F;
+`;
+
+// Right Panel Recent List Styles
+const RightPanelSection = styled(GlassCard)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+const RightPanelHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+`;
+
+const RightPanelTitle = styled.h3`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1D1D1F;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CompactTrackList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+`;
+
+const CompactTrackItem = styled.div<{ $isActive?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: ${props => props.$isActive ? 'rgba(250, 45, 72, 0.08)' : '#F5F5F7'};
+  border: 1px solid ${props => props.$isActive ? 'rgba(250, 45, 72, 0.2)' : 'transparent'};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${props => props.$isActive ? 'rgba(250, 45, 72, 0.12)' : '#E8E8ED'};
+    transform: translateX(2px);
+  }
+`;
+
+const CompactTrackCover = styled.div<{ $isPlaying?: boolean }>`
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+`;
+
+const CompactTrackInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const CompactTrackTitle = styled.span`
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1D1D1F;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const CompactTrackMeta = styled.span`
+  display: block;
+  font-size: 0.75rem;
+  color: #8B8B9F;
+  margin-top: 2px;
+`;
+
+const CompactTrackActions = styled.div`
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  ${CompactTrackItem}:hover & {
+    opacity: 1;
+  }
+`;
+
+const CompactActionButton = styled.button`
+  width: 28px;
+  height: 28px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1D1D1F;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: #FA2D48;
+    border-color: rgba(250, 45, 72, 0.3);
+  }
+`;
+
+// Player Empty State Styles
+const PlayerEmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+`;
+
+const PlayerEmptyIcon = styled.div`
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(250, 45, 72, 0.15), rgba(252, 60, 68, 0.1));
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+`;
+
+const PlayerEmptyTitle = styled.h4`
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1D1D1F;
+  margin: 0 0 4px 0;
+`;
+
+const PlayerEmptyText = styled.p`
+  font-size: 0.8125rem;
+  color: #8B8B9F;
+  margin: 0;
+  line-height: 1.4;
 `;
 
 // Local animations (shimmer, wave for visual effects)
@@ -1257,6 +1637,31 @@ export const CreateView: React.FC = () => {
   const [polishingLyrics, setPolishingLyrics] = useState(false);
   const [recommendingStyle, setRecommendingStyle] = useState(false);
 
+  // Skill context from provider
+  const { skillContext, hints, getAIContext } = useSkill();
+
+  // Skill-enhanced AI generation
+  const { generateWithSkill, isSkillAvailable, skillName } = useSkillEnhancedAI();
+
+  // 获取当前 skill 上下文（用于 API 调用）
+  const currentSkillContext = getAIContext();
+
+  // Skill 助手功能
+  const {
+    analysis: skillAnalysis,
+    isAnalyzing,
+    optimizedDescription,
+    analyze,
+    applyRecommendation,
+    applyOptimizedDescription,
+  } = useSkillAssistant();
+
+  // 引导创作弹窗状态
+  const [showGuidedCreation, setShowGuidedCreation] = useState(false);
+
+  // 使用 ref 保存 handleGenerateMusic 的最新引用，避免闭包问题
+  const handleGenerateMusicRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -1391,8 +1796,54 @@ export const CreateView: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const genres = ['Electronic', 'Pop', 'Hip-Hop', 'Rock', 'Jazz', 'Classical'];
-  const moods = ['Energetic', 'Romantic', 'Relaxing', 'Dreamy', 'Intense'];
+  // Listen for skill quick action events
+  useEffect(() => {
+    // 一键生成 - 直接使用当前描述生成音乐
+    const handleQuickGenerate = () => {
+      if (description.trim()) {
+        // 使用 ref 调用最新的 handleGenerateMusic，避免闭包问题
+        handleGenerateMusicRef.current();
+      } else {
+        showInfo(t('skills.enterDescFirst', '请先输入音乐创意描述'), t('skills.quickGenerate', '一键生成'));
+      }
+    };
+
+    // 随机风格 - 随机推荐风格组合
+    const handleRandomStyle = () => {
+      const randomGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
+      const randomMood = MOODS[Math.floor(Math.random() * MOODS.length)];
+      setSelectedGenre(randomGenre);
+      setSelectedMood(randomMood);
+      showSuccess(
+        t('skills.styleApplied', `已应用风格: ${randomGenre} + ${randomMood}`),
+        t('skills.randomStyle', '随机风格')
+      );
+    };
+
+    // 应用灵感模板
+    const handleApplyTemplate = (event: CustomEvent) => {
+      const template = event.detail;
+      if (template) {
+        setDescription(template.prompt);
+        if (template.genre) setSelectedGenre(template.genre);
+        if (template.mood) setSelectedMood(template.mood);
+        showSuccess(
+          t('skills.templateApplied', `已应用模板: ${template.name}`),
+          t('skills.templates', '灵感模板')
+        );
+      }
+    };
+
+    window.addEventListener('skill:quick-generate', handleQuickGenerate);
+    window.addEventListener('skill:random-style', handleRandomStyle);
+    window.addEventListener('skill:apply-template', handleApplyTemplate as EventListener);
+
+    return () => {
+      window.removeEventListener('skill:quick-generate', handleQuickGenerate);
+      window.removeEventListener('skill:random-style', handleRandomStyle);
+      window.removeEventListener('skill:apply-template', handleApplyTemplate as EventListener);
+    };
+  }, [description, showInfo, showSuccess, t]);
 
   // Poll music generation status
   const pollMusicStatus = useCallback(async (taskId: string) => {
@@ -1461,13 +1912,25 @@ export const CreateView: React.FC = () => {
 
     try {
       setEnhancingPrompt(true);
-      showInfo(t('create.enhancingPrompt', '正在增强提示词...'), t('create.enhancePrompt', '增强提示词'));
+      // 显示 skill 增强提示
+      const skillHint = isSkillAvailable
+        ? t('create.skillEnhancing', '正在使用专业技能增强...')
+        : t('create.enhancingPrompt', '正在增强提示词...');
+      showInfo(skillHint, t('create.enhancePrompt', '增强提示词'));
 
-      const response = await lyricsApi.enhance(description);
+      // 传递 skill 上下文
+      const response = await lyricsApi.enhance(
+        description,
+        undefined,
+        currentSkillContext || undefined
+      );
 
       if (response.data?.enhancedPrompt) {
         setDescription(response.data.enhancedPrompt);
-        showSuccess(t('common.success'), t('create.promptEnhanced', '提示词已增强'));
+        const successMsg = isSkillAvailable
+          ? t('create.skillPromptEnhanced', '已使用专业技能增强')
+          : t('create.promptEnhanced', '提示词已增强');
+        showSuccess(successMsg, t('common.success'));
       } else {
         throw new Error('No enhanced prompt returned');
       }
@@ -1488,13 +1951,26 @@ export const CreateView: React.FC = () => {
 
     try {
       setPolishingLyrics(true);
-      showInfo(t('create.polishingLyrics', '正在润色歌词...'), t('create.polishLyrics', '润色歌词'));
+      // 显示 skill 增强提示
+      const skillHint = isSkillAvailable
+        ? t('create.skillPolishing', '正在使用歌词专业技能润色...')
+        : t('create.polishingLyrics', '正在润色歌词...');
+      showInfo(skillHint, t('create.polishLyrics', '润色歌词'));
 
-      const response = await lyricsApi.polish(lyrics, selectedGenre);
+      // 传递 skill 上下文
+      const response = await lyricsApi.polish(
+        lyrics,
+        selectedGenre,
+        undefined,
+        currentSkillContext || undefined
+      );
 
       if (response.data?.polishedLyrics) {
         setLyrics(response.data.polishedLyrics);
-        showSuccess(t('common.success'), t('create.lyricsPolished', '歌词已润色'));
+        const successMsg = isSkillAvailable
+          ? t('create.skillLyricsPolished', '已使用专业技能润色歌词')
+          : t('create.lyricsPolished', '歌词已润色');
+        showSuccess(successMsg, t('common.success'));
       } else {
         throw new Error('No polished lyrics returned');
       }
@@ -1506,6 +1982,59 @@ export const CreateView: React.FC = () => {
     }
   };
 
+  // Handle Guided Creation Complete
+  const handleGuidedComplete = (result: GuidedResult) => {
+    // 应用生成的描述
+    setDescription(result.generatedDescription);
+
+    // 应用推荐的风格设置
+    if (result.recommendedSettings) {
+      // 查找匹配的风格
+      const matchedGenre = GENRES.find(g =>
+        g.toLowerCase() === result.recommendedSettings.genre.toLowerCase()
+      );
+      if (matchedGenre) setSelectedGenre(matchedGenre);
+
+      const matchedMood = MOODS.find(m =>
+        m.toLowerCase() === result.recommendedSettings.mood.toLowerCase()
+      );
+      if (matchedMood) setSelectedMood(matchedMood);
+    }
+
+    // 分析新的描述
+    analyze(result.generatedDescription);
+
+    showSuccess(t('guided.applied', '已应用引导创作的描述和设置'), t('guided.title', '引导创作'));
+    setShowGuidedCreation(false);
+  };
+
+  // Handle Apply Style Recommendation
+  const handleApplyStyleRecommendation = (genre: string, mood: string) => {
+    // 查找匹配的风格
+    const matchedGenre = GENRES.find(g => g.toLowerCase() === genre.toLowerCase());
+    if (matchedGenre) setSelectedGenre(matchedGenre);
+
+    const matchedMood = MOODS.find(m => m.toLowerCase() === mood.toLowerCase());
+    if (matchedMood) setSelectedMood(matchedMood);
+
+    showSuccess(t('skill.styleApplied', `已应用: ${genre} + ${mood}`), t('skill.styleRecommendations', '风格推荐'));
+  };
+
+  // Handle Apply Optimized Description
+  const handleApplyOptimizedDescription = (newDescription: string) => {
+    setDescription(newDescription);
+    showSuccess(t('skill.descriptionApplied', '已应用优化描述'), t('skill.optimizedDescription', '优化后的描述'));
+  };
+
+  // Handle Tag Click from Suggestions
+  const handleTagClick = (tag: string) => {
+    const newDescription = description.trim()
+      ? `${description}，${tag}`
+      : tag;
+    setDescription(newDescription);
+    analyze(newDescription);
+  };
+
   // Handle Recommend Style
   const handleRecommendStyle = async () => {
     if (!description.trim()) {
@@ -1515,28 +2044,40 @@ export const CreateView: React.FC = () => {
 
     try {
       setRecommendingStyle(true);
-      showInfo(t('create.recommendingStyle', '正在推荐风格...'), t('create.recommendStyle', '风格推荐'));
+      // 显示 skill 增强提示
+      const skillHint = isSkillAvailable
+        ? t('create.skillRecommending', '正在基于专业知识推荐风格...')
+        : t('create.recommendingStyle', '正在推荐风格...');
+      showInfo(skillHint, t('create.recommendStyle', '风格推荐'));
 
-      const response = await lyricsApi.recommendStyle(description);
+      // 传递 skill 上下文
+      const response = await lyricsApi.recommendStyle(
+        description,
+        undefined,
+        currentSkillContext || undefined
+      );
 
       if (response.data) {
         const { tags, mood, tempo } = response.data;
         // Apply recommended settings
         if (tags && tags.length > 0) {
-          const matchedGenre = genres.find(g =>
-            tags.some(tag => g.toLowerCase().includes(tag.toLowerCase()))
+          const matchedGenre = GENRES.find((g: string) =>
+            tags.some((tag: string) => g.toLowerCase().includes(tag.toLowerCase()))
           );
           if (matchedGenre) setSelectedGenre(matchedGenre);
         }
         if (mood) {
-          const matchedMood = moods.find(m =>
+          const matchedMood = MOODS.find((m: string) =>
             m.toLowerCase().includes(mood.toLowerCase()) ||
             mood.toLowerCase().includes(m.toLowerCase())
           );
           if (matchedMood) setSelectedMood(matchedMood);
         }
         // Note: tempo/BPM is not supported by API, so we don't set it
-        showSuccess(t('common.success'), t('create.styleRecommended', '风格已推荐'));
+        const successMsg = isSkillAvailable
+          ? t('create.skillStyleRecommended', '已基于专业知识推荐风格')
+          : t('create.styleRecommended', '风格已推荐');
+        showSuccess(successMsg, t('common.success'));
       } else {
         throw new Error('No style recommendation returned');
       }
@@ -1559,12 +2100,18 @@ export const CreateView: React.FC = () => {
     try {
       startLyricsGeneration();
       setErrorVisible(false);
-      showInfo(t('common.loading'), t('create.aiLyrics'));
+      // 显示 skill 增强提示
+      const skillHint = isSkillAvailable
+        ? t('create.skillGeneratingLyrics', '正在使用歌词专业技能创作...')
+        : t('common.loading', '加载中...');
+      showInfo(skillHint, t('create.aiLyrics', 'AI歌词'));
 
+      // 传递 skill 上下文
       const response = await lyricsApi.generate({
         idea: description,
         style: selectedGenre,
         mood: selectedMood,
+        skillContext: currentSkillContext || undefined,
       });
 
       if (response.data) {
@@ -1572,7 +2119,10 @@ export const CreateView: React.FC = () => {
         // Don't replace description - keep the original prompt
         // setDescription(response.data.lyrics);
         completeLyricsGeneration(response.data);
-        showSuccess(t('common.success'), t('common.lyricsGenerated'));
+        const successMsg = isSkillAvailable
+          ? t('create.skillLyricsGenerated', '已使用专业技能生成歌词')
+          : t('common.lyricsGenerated', '歌词已生成');
+        showSuccess(successMsg, t('common.success'));
       } else {
         throw new Error('No lyrics generated');
       }
@@ -1642,8 +2192,16 @@ export const CreateView: React.FC = () => {
         }
       }
 
-      // Call the API to create music
-      const response = await musicApi.create(apiParams);
+      // Call the API to create music (with skill enhancement if available)
+      let response;
+      if (isSkillAvailable && skillName) {
+        // Use skill-enhanced generation when a skill is active
+        console.log(`[Skill] Using skill-enhanced generation with: ${skillName}`);
+        response = await generateWithSkill(apiParams);
+      } else {
+        // Standard generation when no skill is active
+        response = await musicApi.create(apiParams);
+      }
 
       if (response.data?.taskId || response.data?.task_id || response.data?.id) {
         const taskId = response.data.taskId || response.data.task_id || response.data.id;
@@ -1659,6 +2217,9 @@ export const CreateView: React.FC = () => {
       showError(errorMessage, t('common.error'));
     }
   };
+
+  // 更新 ref 以保持最新引用
+  handleGenerateMusicRef.current = handleGenerateMusic;
 
   // Handle error dismissal
   const handleDismissError = () => {
@@ -1853,6 +2414,9 @@ export const CreateView: React.FC = () => {
         {/* Top Section: Creation Form + Player */}
         <TopSection>
           <LeftPanel>
+            {/* Skill hints - keep at top for tips */}
+            <SkillHints />
+
             <GlassCard>
               <CreateHeader>
                 <CreateTitle>{t('create.title')}</CreateTitle>
@@ -1891,41 +2455,75 @@ export const CreateView: React.FC = () => {
               </ModeToggleContainer>
 
               <SectionTitle>{mode === 'inspiration' ? t('create.ideaLabel', '音乐创意') : t('create.promptLabel')}</SectionTitle>
-              <TextArea
-                placeholder={mode === 'inspiration'
-                  ? t('create.inspirationPlaceholder', '描述你想要的音乐，例如：一首关于夏天海边的轻快流行歌曲...')
-                  : t('create.promptPlaceholder')}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <PromptEnhanceButton
-                onClick={handleEnhancePrompt}
-                disabled={enhancingPrompt || !description.trim()}
-              >
-                {enhancingPrompt ? (
-                  <>
-                    <Loader2 size={14} className="spin" />
-                    {t('create.enhancing', '增强中...')}
-                  </>
-                ) : (
-                  <>
-                    <Zap size={14} />
-                    {t('create.enhancePrompt', 'AI增强提示词')}
-                  </>
-                )}
-              </PromptEnhanceButton>
+              <TextAreaWrapper>
+                {/* 使用智能输入组件 */}
+                <SmartInput
+                  value={description}
+                  onChange={(value) => {
+                    setDescription(value);
+                    analyze(value);
+                  }}
+                  placeholder={mode === 'inspiration'
+                    ? t('create.inspirationPlaceholder', '描述你想要的音乐，例如：一首关于夏天海边的轻快流行歌曲...')
+                    : t('create.promptPlaceholder')}
+                  onAnalyze={analyze}
+                />
+                <TextAreaActions>
+                  {/* 引导创作按钮 */}
+                  <GuidedCreationButton
+                    onClick={() => setShowGuidedCreation(true)}
+                    type="button"
+                  >
+                    <HelpCircle size={14} />
+                    {t('guided.startButton', '新手引导')}
+                  </GuidedCreationButton>
+                  <PromptEnhanceButton
+                    onClick={handleEnhancePrompt}
+                    disabled={enhancingPrompt || !description.trim()}
+                  >
+                    {enhancingPrompt ? (
+                      <>
+                        <Loader2 size={14} className="spin" />
+                        {t('create.enhancing', '增强中...')}
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={14} />
+                        {t('create.enhancePrompt', 'AI增强提示词')}
+                      </>
+                    )}
+                  </PromptEnhanceButton>
+                </TextAreaActions>
+              </TextAreaWrapper>
+
+              {/* Skill 助手面板 - 实时分析和建议 */}
+              {mode === 'inspiration' && description.trim() && (
+                <AssistantPanelWrapper>
+                  <SkillAssistantPanel
+                    analysis={skillAnalysis}
+                    isAnalyzing={isAnalyzing}
+                    onApplyStyle={handleApplyStyleRecommendation}
+                    onApplyDescription={handleApplyOptimizedDescription}
+                    onTagClick={handleTagClick}
+                  />
+                </AssistantPanelWrapper>
+              )}
 
               {/* Custom Mode: Lyrics Section */}
               {mode === 'custom' && (
                 <>
                   {/* Lyrics Textarea for custom mode */}
-                  <SectionTitle style={{ marginTop: '16px' }}>{t('create.lyricsLabel', '歌词 (可选)')}</SectionTitle>
-                  <TextArea
-                    placeholder={t('create.lyricsPlaceholder', '输入歌词或点击AI生成歌词...')}
-                    value={lyrics}
-                    onChange={(e) => setLyrics(e.target.value)}
-                    style={{ minHeight: '100px' }}
-                  />
+                  <SectionTitle style={{ marginTop: '16px' }}>
+                    {t('create.lyricsLabel', '歌词 (可选)')}
+                  </SectionTitle>
+                  <TextAreaWrapper>
+                    <TextArea
+                      placeholder={t('create.lyricsPlaceholder', '输入歌词或点击下方AI生成歌词按钮...')}
+                      value={lyrics}
+                      onChange={(e) => setLyrics(e.target.value)}
+                      style={{ minHeight: '100px' }}
+                    />
+                  </TextAreaWrapper>
                 </>
               )}
 
@@ -1985,9 +2583,21 @@ export const CreateView: React.FC = () => {
                         </>
                       )}
                     </StyleRecommendButton>
+                    <RandomStyleButton
+                      onClick={() => {
+                        const randomGenre = GENRES[Math.floor(Math.random() * GENRES.length)];
+                        const randomMood = MOODS[Math.floor(Math.random() * MOODS.length)];
+                        setSelectedGenre(randomGenre);
+                        setSelectedMood(randomMood);
+                        showSuccess(t('skills.styleApplied', `已应用: ${randomGenre} + ${randomMood}`), t('skills.randomStyle', '随机风格'));
+                      }}
+                    >
+                      <Zap size={12} />
+                      {t('skills.randomStyle', '随机')}
+                    </RandomStyleButton>
                   </SectionTitle>
                   <SelectorGrid>
-                    {genres.map((genre) => (
+                    {GENRES.map((genre) => (
                       <SelectorOption
                         key={genre}
                         $selected={selectedGenre === genre}
@@ -2000,7 +2610,7 @@ export const CreateView: React.FC = () => {
 
                   <SectionTitle>{t('mood.title')}</SectionTitle>
                   <SelectorGrid>
-                    {moods.map((mood) => (
+                    {MOODS.map((mood) => (
                       <SelectorOption
                         key={mood}
                         $selected={selectedMood === mood}
@@ -2168,274 +2778,324 @@ export const CreateView: React.FC = () => {
           </LeftPanel>
 
           <RightPanel>
-            <PlayerCard>
-              <PlayerCover>
-                <PlayButtonOverlay
-                  onClick={() => {
-                    if (displayTrack?.audioUrl) {
-                      if (currentTrack?.id === displayTrack.id && isPlaying) {
-                        setIsPlaying(false);
-                      } else {
-                        setCurrentTrack(displayTrack);
-                        setIsPlaying(true);
-                      }
+            <GlassCard style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: 'fit-content' }}>
+              {/* 紧凑播放器 - 当有曲目时显示 */}
+              {displayTrack?.audioUrl && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, rgba(250, 45, 72, 0.08), rgba(252, 60, 68, 0.04))',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(250, 45, 72, 0.1)'
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(135deg, #FA2D48, #FC3C44)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    cursor: 'pointer'
+                  }} onClick={() => {
+                    if (currentTrack?.id === displayTrack.id && isPlaying) {
+                      setIsPlaying(false);
+                    } else {
+                      setCurrentTrack(displayTrack);
+                      setIsPlaying(true);
                     }
-                  }}
-                  style={{ opacity: displayTrack?.audioUrl ? 1 : 0.5, cursor: displayTrack?.audioUrl ? 'pointer' : 'not-allowed' }}
-                >
-                  {currentTrack?.id === displayTrack?.id && isPlaying ? (
-                    <Pause size={28} color="white" />
-                  ) : (
-                    <Play size={28} color="white" fill="white" style={{ marginLeft: 4 }} />
-                  )}
-                </PlayButtonOverlay>
-              </PlayerCover>
-              <PlayerInfo>
-                <PlayerTitle>{displayTrack?.title || t('player.noTrackSelected')}</PlayerTitle>
-                <PlayerMeta>
-                  {displayTrack?.audioUrl
-                    ? displayTrack.duration
-                      ? `${Math.floor(displayTrack.duration / 60)}:${(displayTrack.duration % 60).toString().padStart(2, '0')}`
-                      : t('player.readyToPlay')
-                    : t('player.selectOrCreateTrack')}
-                </PlayerMeta>
-              </PlayerInfo>
-              <PlayerProgress onClick={handleProgressSeek}>
-                <PlayerProgressBar
-                  $progress={musicGeneration.status === 'generating'
-                    ? musicGeneration.progress
-                    : (playbackDuration > 0 ? progressPercent : (displayTrack?.duration ? 0 : 0))}
-                  $hasTrack={!!displayTrack?.audioUrl}
-                />
-                {displayTrack?.audioUrl && playbackDuration === 0 && musicGeneration.status !== 'generating' && (
-                  <PlayerProgressPlaceholder />
-                )}
-              </PlayerProgress>
-              <PlayerTime>
-                <span>
-                  {musicGeneration.status === 'generating'
-                    ? `${t('player.generating')} ${Math.round(musicGeneration.progress)}%`
-                    : displayTrack?.audioUrl
-                      ? formatTime(currentTime)
-                      : '0:00'}
-                </span>
-                <span>
-                  {musicGeneration.status === 'generating'
-                    ? `${Math.round(musicGeneration.progress)}%`
-                    : playbackDuration > 0
-                      ? formatTime(playbackDuration)
-                      : displayTrack?.duration
-                        ? formatTime(displayTrack.duration)
-                        : displayTrack?.audioUrl
-                          ? '加载中...'
-                          : '0:00'}
-                </span>
-              </PlayerTime>
+                  }}>
+                    {currentTrack?.id === displayTrack?.id && isPlaying ? (
+                      <Pause size={22} color="white" />
+                    ) : (
+                      <Play size={22} color="white" fill="white" style={{ marginLeft: 2 }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: '#1D1D1F',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {displayTrack?.title || t('player.noTrackSelected')}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#8B8B9F', marginTop: '2px' }}>
+                      {musicGeneration.status === 'generating'
+                        ? `${t('player.generating')} ${Math.round(musicGeneration.progress)}%`
+                        : displayTrack.duration
+                          ? `${formatTime(currentTime)} / ${formatTime(displayTrack.duration)}`
+                          : t('player.readyToPlay')}
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '3px',
+                      background: 'rgba(0,0,0,0.08)',
+                      borderRadius: '2px',
+                      marginTop: '6px',
+                      cursor: 'pointer',
+                      overflow: 'hidden'
+                    }} onClick={handleProgressSeek}>
+                      <div style={{
+                        width: `${musicGeneration.status === 'generating' ? musicGeneration.progress : (playbackDuration > 0 ? progressPercent : 0)}%`,
+                        height: '100%',
+                        background: '#FA2D48',
+                        borderRadius: '2px',
+                        transition: 'width 0.1s ease'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              <LoadingOverlay $visible={musicGeneration.status === 'generating'}>
-                <LoadingSpinner size="large" text={`${t('player.creating')} ${Math.round(musicGeneration.progress)}%`} />
-                <ProgressBar>
-                  <ProgressFill $progress={musicGeneration.progress} />
-                </ProgressBar>
-              </LoadingOverlay>
-            </PlayerCard>
+              {/* 最近创作列表 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={16} color="#8B8B9F" />
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1D1D1F' }}>
+                    {t('recent.title')}
+                  </span>
+                  {displayTracks.length > 0 && (
+                    <span style={{ fontSize: '0.75rem', color: '#8B8B9F' }}>
+                      {displayTracks.length}
+                    </span>
+                  )}
+                </div>
+                <FilterButton
+                  $active={showFavoritesOnly}
+                  onClick={() => {
+                    setShowFavoritesOnly(!showFavoritesOnly);
+                    setCurrentPage(1);
+                  }}
+                  style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                >
+                  <Heart size={14} fill={showFavoritesOnly ? '#FA2D48' : 'none'} />
+                </FilterButton>
+              </div>
+
+              {/* 曲目列表 */}
+              <div style={{ flex: 1, overflow: 'auto', maxHeight: '400px' }}>
+                {isLoadingMore ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+                    <Loader2 size={20} className="spin" color="#FA2D48" />
+                  </div>
+                ) : displayTracks.length === 0 ? (
+                  <PlayerEmptyState>
+                    <PlayerEmptyIcon>
+                      <Music2 size={24} color="#FA2D48" />
+                    </PlayerEmptyIcon>
+                    <PlayerEmptyTitle>{t('recent.noTracks')}</PlayerEmptyTitle>
+                    <PlayerEmptyText>{t('recent.generateFirst')}</PlayerEmptyText>
+                  </PlayerEmptyState>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {displayTracks.map((track) => {
+                      const isActive = currentTrack?.id === track.id;
+                      const isTrackPlaying = isActive && isPlaying;
+                      const isProcessing = track.status === 'processing';
+                      const isError = track.status === 'error';
+
+                      return (
+                        <div
+                          key={track.id}
+                          onClick={() => handlePlayTrack(track)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '10px',
+                            background: isActive ? 'rgba(250, 45, 72, 0.08)' : '#F5F5F7',
+                            border: `1px solid ${isActive ? 'rgba(250, 45, 72, 0.2)' : 'transparent'}`,
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isActive) {
+                              e.currentTarget.style.background = '#E8E8ED';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isActive) {
+                              e.currentTarget.style.background = '#F5F5F7';
+                            }
+                          }}
+                        >
+                          {/* 封面 */}
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            background: 'linear-gradient(135deg, #FA2D48, #FC3C44)',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            position: 'relative'
+                          }}>
+                            {isProcessing ? (
+                              <Loader2 size={18} className="spin" color="white" />
+                            ) : isError ? (
+                              <AlertCircle size={18} color="white" />
+                            ) : isTrackPlaying ? (
+                              <PlayingIndicator style={{ height: '16px', gap: '2px' }}>
+                                <SoundBar style={{ width: '2px', height: '100%' }} />
+                                <SoundBar style={{ width: '2px', height: '100%' }} />
+                                <SoundBar style={{ width: '2px', height: '100%' }} />
+                              </PlayingIndicator>
+                            ) : (
+                              <Play size={18} color="white" fill="white" style={{ marginLeft: 2 }} />
+                            )}
+                          </div>
+
+                          {/* 信息 */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '0.8125rem',
+                              fontWeight: 500,
+                              color: '#1D1D1F',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}>
+                              {track.title || t('recent.untitledTrack')}
+                            </div>
+                            <div style={{ fontSize: '0.6875rem', color: '#8B8B9F', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {isProcessing ? (
+                                <span style={{ color: '#F59E0B' }}>{t('common.processing', '生成中')}</span>
+                              ) : isError ? (
+                                <span style={{ color: '#EF4444' }}>{t('common.failed', '失败')}</span>
+                              ) : (
+                                <span>{track.duration ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '0:00'}</span>
+                              )}
+                              {track.createdAt && <span>{formatDateTime(track.createdAt)}</span>}
+                            </div>
+                          </div>
+
+                          {/* 操作按钮 */}
+                          <div style={{ display: 'flex', gap: '4px', opacity: 0.7 }}
+                            onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                            onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                          >
+                            <button
+                              onClick={(e) => handleToggleFavorite(e, track)}
+                              style={{
+                                width: '28px',
+                                height: '28px',
+                                background: 'transparent',
+                                border: 'none',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                color: favorites.has(track.id) ? '#FA2D48' : '#8B8B9F'
+                              }}
+                            >
+                              <Heart size={14} fill={favorites.has(track.id) ? '#FA2D48' : 'none'} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 分页 */}
+              {displayTracks.length > 0 && totalPages > 1 && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      background: currentPage === 1 ? 'transparent' : 'rgba(250, 45, 72, 0.1)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      color: currentPage === 1 ? '#C7C7CC' : '#FA2D48',
+                      opacity: currentPage === 1 ? 0.5 : 1
+                    }}
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span style={{ fontSize: '0.75rem', color: '#8B8B9F', fontWeight: 500 }}>
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      background: currentPage === totalPages ? 'transparent' : 'rgba(250, 45, 72, 0.1)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      color: currentPage === totalPages ? '#C7C7CC' : '#FA2D48',
+                      opacity: currentPage === totalPages ? 0.5 : 1
+                    }}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
+            </GlassCard>
+
+            {/* 生成中的加载覆盖层 */}
+            {musicGeneration.status === 'generating' && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(15, 15, 35, 0.9)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                zIndex: 1000
+              }}>
+                <AIThinkingIndicator visible={true} mode="music" />
+                <div style={{ width: '200px', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${musicGeneration.progress}%`,
+                    height: '100%',
+                    background: '#FA2D48',
+                    borderRadius: '2px',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>
+                  {t('player.generating')} {Math.round(musicGeneration.progress)}%
+                </span>
+              </div>
+            )}
           </RightPanel>
         </TopSection>
 
-        {/* Recent Tracks Section - Full Width Below */}
-        <RecentSection>
-          <RecentHeader>
-            <RecentTitle>
-              <Music2 size={22} />
-              {t('recent.title')}
-            </RecentTitle>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <FilterButton
-                $active={showFavoritesOnly}
-                onClick={() => {
-                  setShowFavoritesOnly(!showFavoritesOnly);
-                  setCurrentPage(1);
-                }}
-              >
-                <Heart size={16} fill={showFavoritesOnly ? '#FA2D48' : 'none'} />
-                {t('common.favorites', '收藏')}
-              </FilterButton>
-              <ViewAllButton onClick={() => {
-                setShowFavoritesOnly(false);
-                setCurrentPage(1);
-              }}>
-                {t('recent.viewAll')}
-                <ChevronRight size={18} />
-              </ViewAllButton>
-            </div>
-          </RecentHeader>
-
-          {isLoadingMore ? (
-            <LoadingMore>
-              <Loader2 size={24} className="spin" />
-              {t('common.loading') || 'Loading...'}
-            </LoadingMore>
-          ) : displayTracks.length === 0 ? (
-            <EmptyState>
-              <EmptyIcon>
-                <Music2 size={36} color="rgba(255,255,255,0.3)" />
-              </EmptyIcon>
-              <EmptyText>{t('recent.noTracks')}</EmptyText>
-              <EmptySubtext>{t('recent.generateFirst')}</EmptySubtext>
-            </EmptyState>
-          ) : (
-            <>
-              <RecentGrid>
-                {displayTracks.map((track) => {
-                  const isActive = currentTrack?.id === track.id;
-                  const isTrackPlaying = isActive && isPlaying;
-                  const isProcessing = track.status === 'processing';
-                  const isError = track.status === 'error';
-
-                  return (
-                    <RecentCard
-                      key={track.id}
-                      $isActive={isActive}
-                      $menuOpen={openMenuId === track.id}
-                      onClick={() => handlePlayTrack(track)}
-                    >
-                      <RecentCover $isPlaying={isTrackPlaying}>
-                        {track.imageUrl ? (
-                          <img
-                            src={track.imageUrl}
-                            alt={track.title || 'Track'}
-                          />
-                        ) : isProcessing ? (
-                          <Loader2 size={26} className="spin" color="#FA2D48" />
-                        ) : isError ? (
-                          <AlertCircle size={26} color="#EF4444" />
-                        ) : isTrackPlaying ? (
-                          <PlayingIndicator>
-                            <SoundBar />
-                            <SoundBar />
-                            <SoundBar />
-                          </PlayingIndicator>
-                        ) : (
-                          <Play size={26} color="#FFFFFF" fill="rgba(255, 255, 255, 0.9)" style={{ marginLeft: 3 }} />
-                        )}
-                        {/* 状态标签 */}
-                        {isProcessing && (
-                          <StatusBadge $status="processing">
-                            {t('common.processing', '生成中')}
-                          </StatusBadge>
-                        )}
-                        {isError && (
-                          <StatusBadge $status="error">
-                            {t('common.failed', '失败')}
-                          </StatusBadge>
-                        )}
-                      </RecentCover>
-                      <RecentInfo>
-                        <RecentItemTitle>{track.title || t('recent.untitledTrack')}</RecentItemTitle>
-                        <RecentMeta>
-                          {isProcessing ? (
-                            <RecentTag $processing>{t('common.generating', '生成中...')}</RecentTag>
-                          ) : isError ? (
-                            <RecentTag $error>{track.errorMessage || t('common.failed', '生成失败')}</RecentTag>
-                          ) : (
-                            <RecentTag>{track.duration ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, '0')}` : '0:00'}</RecentTag>
-                          )}
-                          {track.createdAt && <RecentTime>{formatDateTime(track.createdAt)}</RecentTime>}
-                        </RecentMeta>
-                      </RecentInfo>
-                      <RecentActions>
-                        <IconButton
-                          onClick={(e) => handleToggleFavorite(e, track)}
-                          style={{
-                            color: favorites.has(track.id) ? '#FA2D48' : undefined
-                          }}
-                        >
-                          <Heart size={18} fill={favorites.has(track.id) ? '#FA2D48' : 'none'} />
-                        </IconButton>
-                        <MoreMenuWrapper ref={openMenuId === track.id ? menuRef : null}>
-                          <IconButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenMenuId(openMenuId === track.id ? null : track.id);
-                            }}
-                            title={t('common.more')}
-                          >
-                            <MoreVertical size={18} />
-                          </IconButton>
-                          <MoreMenu $isOpen={openMenuId === track.id}>
-                            <MoreMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDownloadTrack(track);
-                              }}
-                              disabled={!track.audioUrl}
-                            >
-                              <Download size={16} />
-                              {t('common.download')}
-                            </MoreMenuItem>
-                            <MoreMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleShareTrack(track);
-                              }}
-                            >
-                              <Share2 size={16} />
-                              {t('common.share')}
-                            </MoreMenuItem>
-                            <MoreMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCopyAudioUrl(track);
-                              }}
-                              disabled={!track.audioUrl}
-                            >
-                              <Link2 size={16} />
-                              {t('common.copyAudioUrl')}
-                            </MoreMenuItem>
-                            <MenuDivider />
-                            <MoreMenuItem
-                              $danger
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteTrack(track);
-                              }}
-                            >
-                              <Trash2 size={16} />
-                              {t('common.delete')}
-                            </MoreMenuItem>
-                          </MoreMenu>
-                        </MoreMenuWrapper>
-                      </RecentActions>
-                    </RecentCard>
-                  );
-                })}
-              </RecentGrid>
-
-              {/* Pagination */}
-              {displayTracks.length > 0 && (
-                <PaginationContainer>
-                  <PaginationButton
-                    $disabled={currentPage === 1}
-                    onClick={handlePrevPage}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft size={20} />
-                  </PaginationButton>
-                  <PageIndicator>
-                    {currentPage} / {Math.max(totalPages, 1)}
-                  </PageIndicator>
-                  <PaginationButton
-                    $disabled={currentPage === totalPages || totalPages <= 1}
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages || totalPages <= 1}
-                  >
-                    <ChevronRight size={20} />
-                  </PaginationButton>
-                </PaginationContainer>
-              )}
-            </>
-          )}
-        </RecentSection>
+        {/* 引导创作弹窗 */}
+        <GuidedCreation
+          visible={showGuidedCreation}
+          onClose={() => setShowGuidedCreation(false)}
+          onComplete={handleGuidedComplete}
+        />
       </CreateContainer>
     </>
   );

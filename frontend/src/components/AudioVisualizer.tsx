@@ -47,8 +47,8 @@ const BAR_COLORS = [
 
 export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ analyser, isPlaying }) => {
   const [barHeights, setBarHeights] = useState<number[]>(Array(16).fill(4));
-  const animationFrameRef = useRef<number>();
-  const dataArrayRef = useRef<Uint8Array>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
 
   useEffect(() => {
     if (!analyser || !isPlaying) {
@@ -62,11 +62,12 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ analyser, isPl
       dataArrayRef.current = new Uint8Array(bufferLength);
     }
 
-    const dataArray = dataArrayRef.current!;
+    const dataArray = dataArrayRef.current;
+    if (!dataArray) return;
     const bufferLength = analyser.frequencyBinCount;
 
     const animate = () => {
-      analyser.getByteFrequencyData(dataArray);
+      analyser.getByteFrequencyData(dataArray as Uint8Array<ArrayBuffer>);
 
       // Calculate bar heights from frequency data
       // We'll use the lower frequency bands (bass and midrange) as they're more visually interesting

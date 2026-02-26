@@ -25,8 +25,8 @@ export const useStatusPolling = (): UseStatusPollingReturn => {
   const [progress, setProgress] = useState<number>(0);
   const [status, setStatus] = useState<'idle' | 'processing' | 'complete' | 'error'>('idle');
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   const updateMusicGenerationProgress = useAppStore(

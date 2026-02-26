@@ -356,9 +356,9 @@ export const CropModal: React.FC<CropModalProps> = ({
         cropEndS: cropEnd
       });
 
-      if (response.success) {
+      if (response.success && response.data?.taskId) {
         toast.showSuccess(t('crop.success', '裁剪任务已创建！'));
-        onSuccess?.(response.data?.taskId);
+        onSuccess?.(response.data.taskId);
         onClose();
       } else {
         toast.showError(response.error?.message || t('crop.failed', '裁剪失败'));

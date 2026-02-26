@@ -702,7 +702,11 @@ export const CoverUpload: React.FC<CoverUploadProps> = ({
       setUploadProgress(30);
 
       if (uploadResponse.success && uploadResponse.data) {
-        const uploadTaskId = uploadResponse.data.uploadId || uploadResponse.data.upload_id || uploadResponse.data.id;
+        const uploadData = uploadResponse.data as { uploadId?: string; upload_id?: string; id?: string };
+        const uploadTaskId = uploadData.uploadId || uploadData.upload_id || uploadData.id;
+        if (!uploadTaskId) {
+          throw new Error('Upload failed: no task ID returned');
+        }
         setUploadId(uploadTaskId);
 
         // 步骤2: 等待上传任务完成，获取 custom_id (suno clip_id)

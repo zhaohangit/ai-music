@@ -424,36 +424,37 @@ export const musicApi = {
 
 export const lyricsApi = {
   /**
-   * 生成歌词
+   * 生成歌词 - 支持 skill 上下文增强
    */
   generate: async (params: {
     idea: string;
     style?: string;
     mood?: string;
     llmProvider?: 'glm' | 'joybuilder';
+    skillContext?: string;  // skill 上下文
   }): Promise<ApiResponse<LyricsResult>> => {
     return apiClient.post('/lyrics/generate', params);
   },
 
   /**
-   * 增强提示词
+   * 增强提示词 - 支持 skill 上下文增强
    */
-  enhance: async (prompt: string, llmProvider?: 'glm' | 'joybuilder'): Promise<ApiResponse<{ enhancedPrompt: string }>> => {
-    return apiClient.post('/lyrics/enhance', { prompt, llmProvider });
+  enhance: async (prompt: string, llmProvider?: 'glm' | 'joybuilder', skillContext?: string): Promise<ApiResponse<{ enhancedPrompt: string }>> => {
+    return apiClient.post('/lyrics/enhance', { prompt, llmProvider, skillContext });
   },
 
   /**
-   * 润色歌词
+   * 润色歌词 - 支持 skill 上下文增强
    */
-  polish: async (lyrics: string, style?: string, llmProvider?: 'glm' | 'joybuilder'): Promise<ApiResponse<{ polishedLyrics: string }>> => {
-    return apiClient.post('/lyrics/polish', { lyrics, style, llmProvider });
+  polish: async (lyrics: string, style?: string, llmProvider?: 'glm' | 'joybuilder', skillContext?: string): Promise<ApiResponse<{ polishedLyrics: string }>> => {
+    return apiClient.post('/lyrics/polish', { lyrics, style, llmProvider, skillContext });
   },
 
   /**
-   * 风格推荐
+   * 风格推荐 - 支持 skill 上下文增强
    */
-  recommendStyle: async (description: string, llmProvider?: 'glm' | 'joybuilder'): Promise<ApiResponse<StyleRecommendation>> => {
-    return apiClient.post('/lyrics/recommend-style', { description, llmProvider });
+  recommendStyle: async (description: string, llmProvider?: 'glm' | 'joybuilder', skillContext?: string): Promise<ApiResponse<StyleRecommendation>> => {
+    return apiClient.post('/lyrics/recommend-style', { description, llmProvider, skillContext });
   },
 };
 
@@ -477,6 +478,98 @@ export const healthApi = {
    */
   live: async (): Promise<any> => {
     return apiClient.get('/health/live');
+  },
+};
+
+// ============ Skills API ============
+
+export interface SkillInfo {
+  name: string;
+  description: string;
+  path: string;
+  content: string;
+  argumentHint?: string;
+  disableModelInvocation?: boolean;
+  userInvocable?: boolean;
+  lastModified: string;
+}
+
+export interface SkillContext {
+  name: string;
+  description: string;
+  content: string;
+  argumentHint?: string;
+  /**
+   * 可选：从技能内容解析出的提示列表
+   */
+  hints?: Array<{
+    id: string;
+    title: string;
+    content: string;
+    type: 'info' | 'tip' | 'warning';
+  }>;
+  /**
+   * 可选：从技能内容解析出的操作列表
+   */
+  actions?: Array<{
+    id: string;
+    label: string;
+    description?: string;
+    icon?: string;
+    variant?: 'primary' | 'secondary' | 'outline';
+  }>;
+}
+
+export const skillsApi = {
+  /**
+   * 获取所有 skills 列表
+   */
+  list: async (): Promise<ApiResponse<SkillInfo[]>> => {
+    return apiClient.get('/skills/list');
+  },
+
+  /**
+   * 获取单个 skill 详情
+   */
+  get: async (name: string): Promise<ApiResponse<SkillInfo>> => {
+    return apiClient.get(`/skills/${name}`);
+  },
+
+  /**
+   * 创建新 skill
+   */
+  create: async (params: {
+    name: string;
+    description: string;
+    content?: string;
+    argumentHint?: string;
+  }): Promise<ApiResponse<SkillInfo>> => {
+    return apiClient.post('/skills/create', params);
+  },
+
+  /**
+   * 更新 skill
+   */
+  update: async (name: string, params: {
+    description?: string;
+    content?: string;
+    argumentHint?: string;
+  }): Promise<ApiResponse<SkillInfo>> => {
+    return apiClient.put(`/skills/${name}`, params);
+  },
+
+  /**
+   * 删除 skill
+   */
+  delete: async (name: string): Promise<ApiResponse<{ message: string }>> => {
+    return apiClient.delete(`/skills/${name}`);
+  },
+
+  /**
+   * 获取页面对应的 skill 上下文（自动加载）
+   */
+  getContext: async (page: string): Promise<ApiResponse<SkillContext | null>> => {
+    return apiClient.get(`/skills/context/${page}`);
   },
 };
 

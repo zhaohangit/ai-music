@@ -6,10 +6,25 @@
   },
   "nav": {
     "create": "만들기",
+    "cover": "AI커버",
     "library": "라이브러리",
     "history": "기록",
     "explore": "탐색",
-    "settings": "설정"
+    "community": "커뮤니티",
+    "settings": "설정",
+    "help": "도움말",
+    "apiDocs": "API문서",
+    "skills": "스킬관리",
+    "quickCreate": "빠른 생성",
+    "sectionCreate": "만들기",
+    "sectionTools": "도구",
+    "sectionLibrary": "라이브러리",
+    "sectionDiscover": "발견",
+    "lyrics": "가사 마법사",
+    "styleMixer": "스타일 믹서",
+    "advanced": "고급 도구",
+    "quickInspiration": "영감 모드",
+    "quickCustom": "커스텀 모드"
   },
   "create": {
     "title": "음악 만들기",
@@ -58,12 +73,57 @@
   },
   "settings": {
     "title": "설정",
+    "subtitle": "계정 설정 및 환경 설정 관리",
     "language": "언어",
     "theme": "테마",
     "darkMode": "다크 모드",
+    "darkModeDesc": "인터페이스에 다크 테마 사용",
     "notifications": "알림",
+    "pushNotifications": "푸시 알림",
+    "pushNotificationsDesc": "작품에 대한 알림 받기",
+    "emailNotifications": "이메일 알림",
+    "emailNotificationsDesc": "이메일로 업데이트 받기",
     "about": "정보",
-    "version": "버전"
+    "version": "버전",
+    "appearance": "외관",
+    "playback": "재생",
+    "soundEffects": "효과음",
+    "soundEffectsDesc": "상호작용 시 효과음 재생",
+    "autoPlay": "자동 재생",
+    "autoPlayDesc": "다음 트랙 자동 재생",
+    "billing": "결제 및 크레딧",
+    "currentPlan": "현재 플랜",
+    "creditsRemaining": "{{count}} 크레딧 남음",
+    "upgrade": "업그레이드",
+    "privacy": "개인정보 및 보안",
+    "privacySettings": "개인정보 설정",
+    "privacySettingsDesc": "데이터 및 개인정보 설정 관리",
+    "configure": "설정",
+    "changePassword": "비밀번호 변경",
+    "changePasswordDesc": "계정 비밀번호 업데이트",
+    "change": "변경",
+    "termsOfService": "이용약관",
+    "privacyPolicy": "개인정보 처리방침",
+    "view": "보기",
+    "dangerZone": "위험 구역",
+    "deleteAccount": "계정 삭제",
+    "deleteAccountDesc": "계정과 모든 데이터를 영구적으로 삭제",
+    "editProfile": "프로필 편집",
+    "freePlan": "무료 플랜",
+    "languages": {
+      "en": "영어",
+      "zh-CN": "중국어",
+      "ja": "일본어",
+      "ko": "한국어"
+    },
+    "nativeNames": {
+      "en": "English",
+      "zh-CN": "简体中文",
+      "ja": "日本語",
+      "ko": "한국어"
+    },
+    "defaultUserName": "크리에이터",
+    "defaultUserPlan": "무료 플랜"
   },
   "common": {
     "loading": "로딩 중...",
@@ -74,5 +134,17 @@
     "save": "저장",
     "delete": "삭제",
     "edit": "편집"
+  },
+  "skills": {
+    "skillActive": "스킬 활성",
+    "viewTips": "팁 보기",
+    "quickActions": "빠른 작업",
+    "inspirationDesc": "간단한 설명, AI 완성",
+    "customDesc": "상세 매개변수 제어",
+    "aiLyricsDesc": "스마트 가사 생성",
+    "uploadDesc": "소스 오디오 업로드",
+    "mixerDesc": "여러 스타일 믹스",
+    "viewSkill": "스킬 보기",
+    "viewSkillDesc": "전체 스킬 문서 보기"
   }
 }

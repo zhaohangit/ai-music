@@ -338,9 +338,9 @@ export const SpeedModal: React.FC<SpeedModalProps> = ({
         title: title || undefined
       });
 
-      if (response.success) {
+      if (response.success && response.data?.taskId) {
         toast.showSuccess(t('speed.success', '变速任务已创建！'));
-        onSuccess?.(response.data?.taskId);
+        onSuccess?.(response.data.taskId);
         onClose();
       } else {
         toast.showError(response.error?.message || t('speed.failed', '变速失败'));

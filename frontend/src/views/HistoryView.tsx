@@ -427,30 +427,30 @@ export const HistoryView: React.FC = () => {
 
       if (response.success && response.data) {
         // Handle different response formats
-        let items = [];
+        let items: MusicInfo[] = [];
         if (Array.isArray(response.data)) {
           items = response.data;
-        } else if (response.data.items) {
-          items = response.data.items;
-        } else if (response.data.tracks) {
-          items = response.data.tracks;
+        } else if ((response.data as { items?: MusicInfo[] }).items) {
+          items = (response.data as { items: MusicInfo[] }).items;
+        } else if ((response.data as { tracks?: MusicInfo[] }).tracks) {
+          items = (response.data as { tracks: MusicInfo[] }).tracks;
         }
 
-        const historyItems = items.map(toHistoryItem);
+        const historyItems: HistoryItemData[] = items.map(toHistoryItem);
 
         // Group by date
-        const grouped = historyItems.reduce((acc, item) => {
+        const grouped = historyItems.reduce<Record<string, HistoryItemData[]>>((acc, item) => {
           if (!acc[item.date]) {
             acc[item.date] = [];
           }
           acc[item.date].push(item);
           return acc;
-        }, {} as Record<string, HistoryItemData[]>);
+        }, {});
 
-        const groups: HistoryGroup[] = Object.entries(grouped).map(([date, historyItems]) => ({
+        const groups: HistoryGroup[] = Object.entries(grouped).map(([date, items]) => ({
           date,
-          count: historyItems.length,
-          items: historyItems,
+          count: items.length,
+          items: items,
         }));
 
         // Sort groups by date (Today first, then Yesterday, then This Week, then by date)

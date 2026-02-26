@@ -606,7 +606,7 @@ class SunoService {
    * @param variationCategory - 变化程度：subtle、normal或high (仅v5)
    * @returns 任务ID数组
    */
-  async remasterMusic(clipId: string, modelName: string = 'chirp-v5', variationCategory?: 'subtle' | 'normal' | 'high'): Promise<string[]> {
+  async remasterMusic(clipId: string, modelName: string = 'chirp-carp', variationCategory?: 'subtle' | 'normal' | 'high'): Promise<string[]> {
     try {
       logger.info('[Suno Service] Remastering music', { clipId, modelName, variationCategory });
 

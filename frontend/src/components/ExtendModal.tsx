@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { X, Scissors, Loader2, Music } from 'lucide-react';
+import { X, Scissors, Loader2, Music, ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { musicApi } from '../services/api';
 import { useToast } from '../hooks/useToast';
 
@@ -295,6 +295,145 @@ const SpinIcon = styled(Loader2)`
   }
 `;
 
+const AdvancedToggle = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #9B9BB0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #FFFFFF;
+  }
+`;
+
+const AdvancedSection = styled.div`
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+`;
+
+const SliderRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const SliderLabel = styled.div`
+  min-width: 100px;
+  font-size: 0.85rem;
+  color: #9B9BB0;
+  font-weight: 500;
+`;
+
+const Slider = styled.input`
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+`;
+
+const SliderValue = styled.div`
+  min-width: 40px;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #667EEA;
+  font-weight: 600;
+`;
+
+const GenderSelector = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+`;
+
+const GenderOption = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  ${props => props.$active ? `
+    background: linear-gradient(135deg, #667EEA, #764BA2);
+    border: none;
+    color: white;
+  ` : `
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #9B9BB0;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+    }
+  `}
+`;
+
+const AdvancedTagInput = styled.input`
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #6B6B80;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(102, 126, 234, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const AdvancedLabel = styled.label`
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9B9BB0;
+  margin-bottom: 10px;
+`;
+
 export const ExtendModal: React.FC<ExtendModalProps> = ({
   isOpen,
   onClose,
@@ -312,6 +451,14 @@ export const ExtendModal: React.FC<ExtendModalProps> = ({
   const [continueAt, setContinueAt] = useState<number>(currentDuration || 0);
   const [loading, setLoading] = useState(false);
 
+  // Advanced settings
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [negativeTags, setNegativeTags] = useState('');
+  const [vocalGender, setVocalGender] = useState<'m' | 'f' | ''>('');
+  const [styleWeight, setStyleWeight] = useState(50);
+  const [weirdnessConstraint, setWeirdnessConstraint] = useState(50);
+  const [audioWeight, setAudioWeight] = useState(50);
+
   const handleSubmit = async () => {
     if (!clipId) {
       toast.showError(t('extend.selectTrack', '请选择要续写的歌曲'));
@@ -325,10 +472,19 @@ export const ExtendModal: React.FC<ExtendModalProps> = ({
         continueAt,
         title: title || undefined,
         lyrics: lyrics || undefined,
-        tags: tags || undefined
+        tags: tags || undefined,
+        negativeTags: negativeTags || undefined,
+        metadata: {
+          vocal_gender: vocalGender || undefined,
+          control_sliders: {
+            style_weight: styleWeight !== 50 ? styleWeight : undefined,
+            weirdness_constraint: weirdnessConstraint !== 50 ? weirdnessConstraint : undefined,
+          },
+          audio_weight: audioWeight !== 50 ? audioWeight : undefined,
+        }
       });
 
-      if (response.success) {
+      if (response.success && response.data?.taskId) {
         toast.showSuccess(t('extend.success', '续写任务已创建！'));
         onSuccess?.(response.data.taskId);
         onClose();
@@ -425,6 +581,86 @@ export const ExtendModal: React.FC<ExtendModalProps> = ({
               placeholder={t('extend.tagsPlaceholder', '流行, R&B, 抒情')}
             />
           </FormGroup>
+
+          <AdvancedToggle onClick={() => setAdvancedOpen(!advancedOpen)}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Settings size={16} />
+              {t('extend.advancedSettings', '高级设置')}
+            </span>
+            {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </AdvancedToggle>
+
+          {advancedOpen && (
+            <AdvancedSection>
+              <FormGroup style={{ marginBottom: '16px' }}>
+                <AdvancedLabel>{t('extend.negativeTags', '排除风格标签')}</AdvancedLabel>
+                <AdvancedTagInput
+                  type="text"
+                  value={negativeTags}
+                  onChange={(e) => setNegativeTags(e.target.value)}
+                  placeholder={t('extend.negativeTagsPlaceholder', '不想要的风格，如：嘈杂, 重金属')}
+                />
+              </FormGroup>
+
+              <AdvancedLabel style={{ marginBottom: '10px' }}>{t('extend.vocalGender', '人声性别')}</AdvancedLabel>
+              <GenderSelector>
+                <GenderOption
+                  $active={vocalGender === ''}
+                  onClick={() => setVocalGender('')}
+                >
+                  {t('extend.random', '随机')}
+                </GenderOption>
+                <GenderOption
+                  $active={vocalGender === 'm'}
+                  onClick={() => setVocalGender('m')}
+                >
+                  {t('extend.male', '男声')}
+                </GenderOption>
+                <GenderOption
+                  $active={vocalGender === 'f'}
+                  onClick={() => setVocalGender('f')}
+                >
+                  {t('extend.female', '女声')}
+                </GenderOption>
+              </GenderSelector>
+
+              <SliderRow>
+                <SliderLabel>{t('extend.styleWeight', '风格权重')}</SliderLabel>
+                <Slider
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={styleWeight}
+                  onChange={(e) => setStyleWeight(Number(e.target.value))}
+                />
+                <SliderValue>{styleWeight}%</SliderValue>
+              </SliderRow>
+
+              <SliderRow>
+                <SliderLabel>{t('extend.weirdness', '创意程度')}</SliderLabel>
+                <Slider
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={weirdnessConstraint}
+                  onChange={(e) => setWeirdnessConstraint(Number(e.target.value))}
+                />
+                <SliderValue>{weirdnessConstraint}%</SliderValue>
+              </SliderRow>
+
+              <SliderRow>
+                <SliderLabel>{t('extend.audioWeight', '音频权重')}</SliderLabel>
+                <Slider
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={audioWeight}
+                  onChange={(e) => setAudioWeight(Number(e.target.value))}
+                />
+                <SliderValue>{audioWeight}%</SliderValue>
+              </SliderRow>
+            </AdvancedSection>
+          )}
         </ModalBody>
 
         <ModalFooter>

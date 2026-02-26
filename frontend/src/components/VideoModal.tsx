@@ -303,9 +303,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({
     try {
       const response = await musicApi.generateVideo(clipId, sunoId || clipId);
 
-      if (response.success) {
+      if (response.success && response.data?.taskId) {
         toast.showSuccess(t('video.success', '视频生成任务已创建！'));
-        onSuccess?.(response.data?.taskId);
+        onSuccess?.(response.data.taskId);
         onClose();
       } else {
         toast.showError(response.error?.message || t('video.failed', '视频生成失败'));

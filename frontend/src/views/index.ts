@@ -1,10 +1,7 @@
+// Core layout components (eagerly loaded)
 export { default as MainLayout } from './MainLayout';
 export { default as Sidebar } from './Sidebar';
 export { default as Header } from './Header';
-export { default as CreateView } from './CreateView';
-export { default as CoverView } from './CoverView';
-export { default as LibraryView } from './LibraryView';
-export { default as HistoryView } from './HistoryView';
-export { default as ExploreView } from './ExploreView';
-export { default as SettingsView } from './SettingsView';
-export { default as CommunityView } from './CommunityView';
+
+// Views are lazy-loaded in App.tsx for better code splitting
+// Do not re-export them here to allow proper chunk splitting

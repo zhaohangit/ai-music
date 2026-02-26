@@ -10,10 +10,14 @@ import {
   Pause,
   Heart,
   MoreVertical,
-  Loader2
+  Loader2,
+  Palette as PaletteIcon
 } from 'lucide-react';
 import { CoverUpload } from '../components/CoverUpload';
 import { musicApi } from '../services/api';
+import { useSkill } from '../contexts/SkillContext';
+import { SkillHints } from '../components/SkillHints';
+import { useToast } from '../hooks/useToast';
 
 const CoverContainer = styled.div`
   display: grid;
@@ -159,6 +163,34 @@ const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+// 热门风格快速选择样式
+const QuickStylesGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const QuickStyleTag = styled.button`
+  padding: 8px 14px;
+  background: rgba(250, 45, 72, 0.08);
+  border: 1px solid rgba(250, 45, 72, 0.15);
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  color: #FA2D48;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(250, 45, 72, 0.15);
+    border-color: rgba(250, 45, 72, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const RecentCoversList = styled.div`
@@ -345,7 +377,32 @@ const EmptyStateTitle = styled.h4`
 const EmptyStateText = styled.p`
   font-size: 0.875rem;
   color: #8B8B9F;
-  margin: 0;
+  margin: 0 0 20px 0;
+`;
+
+const EmptyStateButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #FA2D48, #FC3C44);
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(250, 45, 72, 0.3);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(250, 45, 72, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const LoadingState = styled.div`
@@ -414,6 +471,8 @@ interface CoverRecord {
 
 export const CoverView: React.FC = () => {
   const { t } = useTranslation();
+  const { skillContext } = useSkill();
+  const { showInfo, showSuccess } = useToast();
   const [recentCovers, setRecentCovers] = useState<CoverRecord[]>([]);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -457,6 +516,62 @@ export const CoverView: React.FC = () => {
 
     fetchCovers();
   }, []);
+
+  // Listen for skill quick action events
+  useEffect(() => {
+    // 快速上传 - 滚动到上传区域并聚焦
+    const handleQuickUpload = () => {
+      const uploadSection = document.querySelector('[data-upload-section]');
+      if (uploadSection) {
+        uploadSection.scrollIntoView({ behavior: 'smooth' });
+        // 尝试触发文件输入框
+        const fileInput = uploadSection.querySelector('input[type="file"]');
+        if (fileInput) {
+          (fileInput as HTMLInputElement).click();
+        }
+      }
+      showInfo(t('skills.selectAudio', '请选择要翻唱的音频文件'), t('skills.quickUpload', '快速上传'));
+    };
+
+    // 热门风格 - 显示热门风格选项
+    const handleHotStyles = () => {
+      const hotStyles = [
+        { name: '流行翻唱', tags: ['pop', 'modern', 'vocal'] },
+        { name: '摇滚风格', tags: ['rock', 'electric', 'energetic'] },
+        { name: '爵士改编', tags: ['jazz', 'smooth', 'saxophone'] },
+        { name: '电子混音', tags: ['electronic', 'synth', 'dance'] },
+        { name: '民谣风格', tags: ['acoustic', 'folk', 'guitar'] },
+        { name: 'R&B风格', tags: ['rnb', 'soul', 'groove'] }
+      ];
+
+      // 随机选择一个热门风格并应用
+      const randomStyle = hotStyles[Math.floor(Math.random() * hotStyles.length)];
+      window.dispatchEvent(new CustomEvent('skill:apply-cover-style', {
+        detail: randomStyle
+      }));
+      showSuccess(
+        t('skills.styleApplied', `已应用风格: ${randomStyle.name}`),
+        t('skills.hotStyles', '热门风格')
+      );
+    };
+
+    // 风格融合 - 打开风格混合器
+    const handleStyleMix = () => {
+      // 触发风格混合模式
+      window.dispatchEvent(new CustomEvent('skill:open-style-mixer'));
+      showInfo(t('skills.styleMixer', '选择两种风格进行融合'), t('skills.styleMix', '风格融合'));
+    };
+
+    window.addEventListener('skill:quick-upload', handleQuickUpload);
+    window.addEventListener('skill:hot-styles', handleHotStyles);
+    window.addEventListener('skill:style-mixer', handleStyleMix);
+
+    return () => {
+      window.removeEventListener('skill:quick-upload', handleQuickUpload);
+      window.removeEventListener('skill:hot-styles', handleHotStyles);
+      window.removeEventListener('skill:style-mixer', handleStyleMix);
+    };
+  }, [showInfo, showSuccess, t]);
 
   // 格式化相对时间
   const formatRelativeTime = (dateString: string): string => {
@@ -502,6 +617,9 @@ export const CoverView: React.FC = () => {
   return (
     <CoverContainer>
       <LeftPanel>
+        {/* Skill hints */}
+        <SkillHints />
+
         <GlassCard>
           <HeaderSection>
             <TitleSection>
@@ -558,6 +676,33 @@ export const CoverView: React.FC = () => {
 
         <GlassCard>
           <CoverUpload onComplete={handleCoverComplete} />
+        </GlassCard>
+
+        {/* 热门风格快速选择 */}
+        <GlassCard>
+          <SectionTitle>
+            <PaletteIcon size={18} />
+            {t('skills.hotStyles', '热门风格')}
+          </SectionTitle>
+          <QuickStylesGrid>
+            {[
+              { name: '流行翻唱', tags: 'pop, modern, vocal' },
+              { name: '摇滚风格', tags: 'rock, electric, energetic' },
+              { name: '爵士改编', tags: 'jazz, smooth, saxophone' },
+              { name: '电子混音', tags: 'electronic, synth, dance' },
+              { name: '民谣风格', tags: 'acoustic, folk, guitar' },
+              { name: 'R&B风格', tags: 'rnb, soul, groove' }
+            ].map((style) => (
+              <QuickStyleTag
+                key={style.name}
+                onClick={() => {
+                  showSuccess(t('skills.styleApplied', `已选择: ${style.name}`), style.name);
+                }}
+              >
+                {style.name}
+              </QuickStyleTag>
+            ))}
+          </QuickStylesGrid>
         </GlassCard>
       </LeftPanel>
 
@@ -624,6 +769,15 @@ export const CoverView: React.FC = () => {
               </EmptyStateIcon>
               <EmptyStateTitle>{t('cover.noCovers')}</EmptyStateTitle>
               <EmptyStateText>{t('cover.createFirst')}</EmptyStateText>
+              <EmptyStateButton onClick={() => {
+                const uploadSection = document.querySelector('[data-upload-section]');
+                if (uploadSection) {
+                  uploadSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}>
+                <Sparkles size={16} />
+                {t('cover.startCover', '开始翻唱')}
+              </EmptyStateButton>
             </EmptyState>
           )}
         </GlassCard>

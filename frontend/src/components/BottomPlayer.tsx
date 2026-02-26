@@ -248,7 +248,7 @@ export const BottomPlayer: React.FC = () => {
     };
     const handleEnded = () => {
       setIsPlaying(false);
-      setCurrentTime(0);
+      setStoreCurrentTime(0);
       setStoreCurrentTime(0);
     };
     const handlePlay = () => setIsPlaying(true);
@@ -331,7 +331,7 @@ export const BottomPlayer: React.FC = () => {
     setSeekListener((time: number) => {
       if (audioRef.current) {
         audioRef.current.currentTime = time;
-        setCurrentTime(time);
+        setStoreCurrentTime(time);
       }
     });
     return () => setSeekListener(null);

@@ -24,6 +24,7 @@ import musicRoutes from './routes/music';
 import lyricsRoutes from './routes/lyrics';
 import healthRoutes from './routes/health';
 import authRoutes from './routes/auth';
+import skillsRoutes from './routes/skills';
 
 // 导入服务初始化
 import sunoService from './services/sunoService';
@@ -81,6 +82,7 @@ app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/music', apiLimiter, musicRoutes);
 app.use('/api/lyrics', apiLimiter, lyricsRoutes);
+app.use('/api/skills', skillsRoutes);
 
 // API文档路由（开发环境）
 if (config.app.env === 'development') {

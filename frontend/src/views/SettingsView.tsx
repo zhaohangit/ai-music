@@ -321,10 +321,10 @@ export const SettingsView: React.FC = () => {
   }, [i18n.language]);
 
   const languages = [
-    { code: 'en', name: 'English', native: 'English', flag: '🇺🇸' },
-    { code: 'zh-CN', name: 'Chinese', native: '简体中文', flag: '🇨🇳' },
-    { code: 'ja', name: 'Japanese', native: '日本語', flag: '🇯🇵' },
-    { code: 'ko', name: 'Korean', native: '한국어', flag: '🇰🇷' },
+    { code: 'en', nameKey: 'en', nativeKey: 'en', flag: '🇺🇸' },
+    { code: 'zh-CN', nameKey: 'zh-CN', nativeKey: 'zh-CN', flag: '🇨🇳' },
+    { code: 'ja', nameKey: 'ja', nativeKey: 'ja', flag: '🇯🇵' },
+    { code: 'ko', nameKey: 'ko', nativeKey: 'ko', flag: '🇰🇷' },
   ];
 
   const changeLanguage = (langCode: string) => {
@@ -336,7 +336,7 @@ export const SettingsView: React.FC = () => {
     <SettingsContainer>
       <SettingsHeader>
         <SettingsTitle>{t('settings.title')}</SettingsTitle>
-        <SettingsSubtitle>Manage your account settings and preferences</SettingsSubtitle>
+        <SettingsSubtitle>{t('settings.subtitle')}</SettingsSubtitle>
       </SettingsHeader>
 
       {/* Profile Section */}
@@ -348,11 +348,11 @@ export const SettingsView: React.FC = () => {
             <ProfileEmail>user@example.com</ProfileEmail>
             <ProfilePlan>
               <Check size={14} />
-              Free Plan
+              {t('settings.freePlan')}
             </ProfilePlan>
           </ProfileInfo>
           <EditButton>
-            Edit Profile
+            {t('settings.editProfile')}
           </EditButton>
         </ProfileCard>
       </SettingsSection>
@@ -363,13 +363,13 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Palette size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Appearance</SectionTitle>
+          <SectionTitle>{t('settings.appearance')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Dark Mode</SettingLabel>
-              <SettingDescription>Enable dark theme for the interface</SettingDescription>
+              <SettingLabel>{t('settings.darkMode')}</SettingLabel>
+              <SettingDescription>{t('settings.darkModeDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <Toggle $active={darkMode} onClick={() => setDarkMode(!darkMode)} />
@@ -384,7 +384,7 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Globe size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Language</SectionTitle>
+          <SectionTitle>{t('settings.language')}</SectionTitle>
         </SectionHeader>
         <LanguageGrid>
           {languages.map((lang) => (
@@ -395,8 +395,8 @@ export const SettingsView: React.FC = () => {
             >
               <LanguageFlag>{lang.flag}</LanguageFlag>
               <LanguageInfo>
-                <LanguageName>{lang.name}</LanguageName>
-                <LanguageNative>{lang.native}</LanguageNative>
+                <LanguageName>{t(`settings.languages.${lang.nameKey}`)}</LanguageName>
+                <LanguageNative>{t(`settings.nativeNames.${lang.nativeKey}`)}</LanguageNative>
               </LanguageInfo>
               <CheckIcon $visible={selectedLanguage === lang.code}>
                 <Check size={12} color="white" />
@@ -412,13 +412,13 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Bell size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Notifications</SectionTitle>
+          <SectionTitle>{t('settings.notifications')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Push Notifications</SettingLabel>
-              <SettingDescription>Receive notifications about your creations</SettingDescription>
+              <SettingLabel>{t('settings.pushNotifications')}</SettingLabel>
+              <SettingDescription>{t('settings.pushNotificationsDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <Toggle $active={notifications} onClick={() => setNotifications(!notifications)} />
@@ -426,8 +426,8 @@ export const SettingsView: React.FC = () => {
           </SettingItem>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Email Notifications</SettingLabel>
-              <SettingDescription>Receive updates via email</SettingDescription>
+              <SettingLabel>{t('settings.emailNotifications')}</SettingLabel>
+              <SettingDescription>{t('settings.emailNotificationsDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <Toggle $active={true} onClick={() => {}} />
@@ -442,13 +442,13 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Volume2 size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Playback</SectionTitle>
+          <SectionTitle>{t('settings.playback')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Sound Effects</SettingLabel>
-              <SettingDescription>Play sound effects for interactions</SettingDescription>
+              <SettingLabel>{t('settings.soundEffects')}</SettingLabel>
+              <SettingDescription>{t('settings.soundEffectsDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <Toggle $active={soundEffects} onClick={() => setSoundEffects(!soundEffects)} />
@@ -456,8 +456,8 @@ export const SettingsView: React.FC = () => {
           </SettingItem>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Auto-Play</SettingLabel>
-              <SettingDescription>Automatically play next track</SettingDescription>
+              <SettingLabel>{t('settings.autoPlay')}</SettingLabel>
+              <SettingDescription>{t('settings.autoPlayDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <Toggle $active={autoPlay} onClick={() => setAutoPlay(!autoPlay)} />
@@ -472,17 +472,17 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <CreditCard size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Billing & Credits</SectionTitle>
+          <SectionTitle>{t('settings.billing')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Current Plan</SettingLabel>
-              <SettingDescription>You have 500 credits remaining</SettingDescription>
+              <SettingLabel>{t('settings.currentPlan')}</SettingLabel>
+              <SettingDescription>{t('settings.creditsRemaining', { count: 500 })}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <SelectButton>
-                Upgrade
+                {t('settings.upgrade')}
                 <ChevronRight size={16} />
               </SelectButton>
             </SettingControl>
@@ -496,29 +496,29 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Shield size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>Privacy & Security</SectionTitle>
+          <SectionTitle>{t('settings.privacy')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Privacy Settings</SettingLabel>
-              <SettingDescription>Manage your data and privacy preferences</SettingDescription>
+              <SettingLabel>{t('settings.privacySettings')}</SettingLabel>
+              <SettingDescription>{t('settings.privacySettingsDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <SelectButton>
-                Configure
+                {t('settings.configure')}
                 <ChevronRight size={16} />
               </SelectButton>
             </SettingControl>
           </SettingItem>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Change Password</SettingLabel>
-              <SettingDescription>Update your account password</SettingDescription>
+              <SettingLabel>{t('settings.changePassword')}</SettingLabel>
+              <SettingDescription>{t('settings.changePasswordDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <SelectButton>
-                Change
+                {t('settings.change')}
                 <ChevronRight size={16} />
               </SelectButton>
             </SettingControl>
@@ -532,33 +532,33 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Info size={20} color="#FA2D48" />
           </SectionIcon>
-          <SectionTitle>About</SectionTitle>
+          <SectionTitle>{t('settings.about')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Version</SettingLabel>
+              <SettingLabel>{t('settings.version')}</SettingLabel>
               <SettingDescription>AI Music Pro v1.0.0</SettingDescription>
             </SettingInfo>
           </SettingItem>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Terms of Service</SettingLabel>
+              <SettingLabel>{t('settings.termsOfService')}</SettingLabel>
             </SettingInfo>
             <SettingControl>
               <SelectButton>
-                View
+                {t('settings.view')}
                 <ChevronRight size={16} />
               </SelectButton>
             </SettingControl>
           </SettingItem>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Privacy Policy</SettingLabel>
+              <SettingLabel>{t('settings.privacyPolicy')}</SettingLabel>
             </SettingInfo>
             <SettingControl>
               <SelectButton>
-                View
+                {t('settings.view')}
                 <ChevronRight size={16} />
               </SelectButton>
             </SettingControl>
@@ -572,17 +572,17 @@ export const SettingsView: React.FC = () => {
           <SectionIcon>
             <Shield size={20} color="#EF4444" />
           </SectionIcon>
-          <SectionTitle>Danger Zone</SectionTitle>
+          <SectionTitle>{t('settings.dangerZone')}</SectionTitle>
         </SectionHeader>
         <SectionContent>
           <SettingItem>
             <SettingInfo>
-              <SettingLabel>Delete Account</SettingLabel>
-              <SettingDescription>Permanently delete your account and all data</SettingDescription>
+              <SettingLabel>{t('settings.deleteAccount')}</SettingLabel>
+              <SettingDescription>{t('settings.deleteAccountDesc')}</SettingDescription>
             </SettingInfo>
             <SettingControl>
               <DangerButton>
-                Delete Account
+                {t('settings.deleteAccount')}
               </DangerButton>
             </SettingControl>
           </SettingItem>

@@ -62,12 +62,13 @@ const AlbumArt = styled.div<{ $isPlaying: boolean; $imageUrl?: string }>`
   }
 `;
 
-const PlayButtonOverlay = styled.div`
+const PlayButtonOverlay = styled.button`
   width: 64px;
   height: 64px;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 50%;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,9 +77,14 @@ const PlayButtonOverlay = styled.div`
   position: relative;
   z-index: 1;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
