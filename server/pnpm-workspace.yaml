@@ -1,0 +1,9 @@
+allowBuilds:
+  msgpackr-extract: set this to true or false
+minimumReleaseAgeExclude:
+  - '@aws-sdk/client-s3@3.1117.0'
+  - '@aws-sdk/s3-request-presigner@3.1117.0'
+
+overrides:
+  moment: 2.31.0
+  qs: 6.16.0

@@ -1,0 +1,28 @@
+{
+  "name": "museflow-ai-music",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev:fake": "concurrently -k -n fake,server,web -c yellow,blue,magenta \"FAKE_API_KEY=local-fake-key npm run fake -w server\" \"SUNO_API_BASE_URL=http://127.0.0.1:7999 SUNO_API_KEY=local-fake-key SUNO_POLL_INTERVAL_MS=700 npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "start": "npm run start -w server",
+    "test": "npm test -w server && npm test -w web",
+    "test:e2e": "playwright test",
+    "test:e2e:production": "E2E_PRODUCTION=true E2E_BASE_URL=https://music.genalloy.com playwright test e2e/production-readonly.spec.ts",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "dev:mv": "npm run build && node scripts/dev-mv.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "concurrently": "^10.0.5"
+  },
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10"
+  }
+}

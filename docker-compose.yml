@@ -1,0 +1,241 @@
+name: museflow
+
+x-museflow-environment: &museflow-environment
+  PLATFORM_MODE: "true"
+  NODE_ENV: ${NODE_ENV:-development}
+  APP_VERSION: ${APP_VERSION:-development}
+  HOST: 0.0.0.0
+  PORT: 8787
+  PUBLIC_URL: ${PUBLIC_URL:-http://127.0.0.1:8787}
+  STATIC_DIR: /app/web/dist
+  DATA_DIR: /data
+
+  DATABASE_URL: ${MUSEFLOW_DATABASE_URL:-postgresql://${POSTGRES_USER:-museflow}:${POSTGRES_PASSWORD:-museflow-local-change-me}@postgres:5432/${POSTGRES_DB:-museflow}}
+  DATABASE_POOL_SIZE: ${DATABASE_POOL_SIZE:-12}
+  REDIS_URL: ${MUSEFLOW_REDIS_URL:-redis://valkey:6379/0}
+  REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX:-museflow:local}
+  QUEUE_DRIVER: bullmq
+  MUSIC_POLL_INTERVAL_MS: ${MUSIC_POLL_INTERVAL_MS:-4000}
+  WORKER_POLL_LEASE_MS: ${WORKER_POLL_LEASE_MS:-900000}
+  PROVIDER_RESULT_GRACE_MS: ${PROVIDER_RESULT_GRACE_MS:-300000}
+  WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-4}
+  MAX_CONCURRENT_GENERATIONS_PER_USER: ${MAX_CONCURRENT_GENERATIONS_PER_USER:-2}
+  MAX_CONCURRENT_AI_RUNS_PER_USER: ${MAX_CONCURRENT_AI_RUNS_PER_USER:-4}
+
+  STORAGE_DRIVER: s3
+  S3_ENDPOINT: ${MUSEFLOW_S3_ENDPOINT:-http://minio:9000}
+  S3_PRESIGN_ENDPOINT: ${MUSEFLOW_S3_PRESIGN_ENDPOINT:-}
+  PROVIDER_UPLOAD_URLS_REACHABLE: ${PROVIDER_UPLOAD_URLS_REACHABLE:-false}
+  S3_REGION: ${S3_REGION:-us-east-1}
+  S3_BUCKET: ${S3_BUCKET:-museflow}
+  S3_ACCESS_KEY_ID: ${MUSEFLOW_S3_ACCESS_KEY_ID:-${MINIO_ROOT_USER:-museflow-minio}}
+  S3_SECRET_ACCESS_KEY: ${MUSEFLOW_S3_SECRET_ACCESS_KEY:-${MINIO_ROOT_PASSWORD:-museflow-minio-change-me}}
+  S3_FORCE_PATH_STYLE: "true"
+  SIGNED_URL_TTL_SECONDS: ${SIGNED_URL_TTL_SECONDS:-300}
+  ALLOW_PRIVATE_ASSET_URLS: ${ALLOW_PRIVATE_ASSET_URLS:-true}
+  ASSET_HOST_ALLOWLIST: ${ASSET_HOST_ALLOWLIST:-}
+
+  AUTH_MODE: ${AUTH_MODE:-development}
+  MUSEFLOW_SESSION_SECRET: ${MUSEFLOW_SESSION_SECRET:-museflow-development-session-secret-change-me}
+  SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-museflow_session}
+  SESSION_MAX_AGE_SECONDS: ${SESSION_MAX_AGE_SECONDS:-2592000}
+  # OIDC issuer and browser-facing links must use ModelCross's canonical host.
+  # The extra_hosts entry below makes this hostname reachable from containers;
+  # unlike host.docker.internal it also matches Discovery's issuer and JWT iss.
+  MODELCROSS_OIDC_ISSUER: ${MODELCROSS_OIDC_ISSUER:-http://modelcross.localhost:3000}
+  MODELCROSS_OIDC_CLIENT_ID: ${MODELCROSS_OIDC_CLIENT_ID:-museflow}
+  MODELCROSS_OIDC_CLIENT_SECRET: ${MODELCROSS_OIDC_CLIENT_SECRET:-}
+  MODELCROSS_OIDC_REDIRECT_URI: ${MODELCROSS_OIDC_REDIRECT_URI:-http://127.0.0.1:8787/api/auth/callback}
+  MODELCROSS_OIDC_SCOPES: ${MODELCROSS_OIDC_SCOPES:-openid profile email modelcross.work modelcross.work.billing}
+  MODELCROSS_BASE_URL: ${MODELCROSS_BASE_URL:-http://modelcross.localhost:3000}
+  MODELCROSS_ACCOUNT_URL: ${MODELCROSS_ACCOUNT_URL:-http://modelcross.localhost:3000/profile}
+  MODELCROSS_WALLET_URL: ${MODELCROSS_WALLET_URL:-http://modelcross.localhost:3000/wallet}
+  MODELCROSS_ORDERS_URL: ${MODELCROSS_ORDERS_URL:-http://modelcross.localhost:3000/usage-logs}
+  MODELCROSS_TASK_TOKEN_SECRET: ${MODELCROSS_TASK_TOKEN_SECRET:-}
+  MODELCROSS_AI_RELAY_TOKEN: ${MODELCROSS_AI_RELAY_TOKEN:-}
+  MODELCROSS_LYRICS_MODEL: ${MODELCROSS_LYRICS_MODEL:-mc-music-lyrics}
+  MODELCROSS_FAST_MODEL: ${MODELCROSS_FAST_MODEL:-mc-music-fast}
+  MODELCROSS_AI_MODELS: ${MODELCROSS_AI_MODELS:-mc-music-lyrics,mc-music-fast}
+
+  # These gates are deliberately off. Enabling them is a separate rollout step.
+  BILLING_LIVE_ENABLED: ${BILLING_LIVE_ENABLED:-false}
+  AI_LIVE_ENABLED: ${AI_LIVE_ENABLED:-false}
+  AI_LOCAL_LIVE_ENABLED: ${AI_LOCAL_LIVE_ENABLED:-false}
+  # Direct Provider settings are only used by the explicit non-billing Fake
+  # Provider test path. Live billing routes through MODELCROSS_BASE_URL.
+  SUNO_API_BASE_URL: ${SUNO_API_BASE_URL:-https://open.mxapi.org}
+  SUNO_API_KEY: ${SUNO_API_KEY:-}
+  SUNO_POLL_INTERVAL_MS: ${SUNO_POLL_INTERVAL_MS:-5000}
+  SUNO_REQUEST_TIMEOUT_MS: ${SUNO_REQUEST_TIMEOUT_MS:-30000}
+
+x-museflow-service: &museflow-service
+  image: ${MUSEFLOW_IMAGE:-museflow-ai-music:local}
+  build:
+    context: .
+    target: runtime
+    args:
+      APP_VERSION: ${APP_VERSION:-development}
+  environment: *museflow-environment
+  extra_hosts:
+    - host.docker.internal:host-gateway
+    # The browser resolves *.localhost to loopback; this alias lets containers
+    # use the exact same canonical ModelCross OIDC issuer as Discovery/JWT iss.
+    - modelcross.localhost:host-gateway
+  depends_on:
+    postgres:
+      condition: service_healthy
+    valkey:
+      condition: service_healthy
+    minio-init:
+      condition: service_completed_successfully
+  networks:
+    - platform
+  restart: unless-stopped
+  stop_grace_period: 30s
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-museflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-museflow-local-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-museflow}
+    ports:
+      - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    networks:
+      - platform
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--appendonly", "yes", "--save", "60", "1000"]
+    ports:
+      - 127.0.0.1:${VALKEY_PORT:-6379}:6379
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+    networks:
+      - platform
+    restart: unless-stopped
+
+  minio:
+    image: ${MUSEFLOW_MINIO_IMAGE:-rustfs/rustfs@sha256:8cc9801755448b71a786705ce76692c77e14936cccd87cf2fc31842e58f4d1ff}
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-museflow-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-museflow-minio-change-me}
+    ports:
+      - 127.0.0.1:${MINIO_API_PORT:-9000}:9000
+      - 127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    networks:
+      - platform
+    restart: unless-stopped
+
+  minio-init:
+    image: ${MUSEFLOW_MC_IMAGE:-amazon/aws-cli@sha256:bc6b7bba44ce38f9604ede49c584824af919047ea03fbcc7c7610671fdef95d8}
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-museflow-minio}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-museflow-minio-change-me}
+      AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      AWS_EC2_METADATA_DISABLED: "true"
+      S3_BUCKET: ${S3_BUCKET:-museflow}
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        if ! aws s3api head-bucket --bucket "$${S3_BUCKET}" --endpoint-url http://minio:9000 >/dev/null 2>&1; then
+          aws s3api create-bucket --bucket "$${S3_BUCKET}" --endpoint-url http://minio:9000 >/dev/null
+        fi
+    networks:
+      - platform
+    restart: "no"
+
+  museflow-api:
+    <<: *museflow-service
+    environment:
+      <<: *museflow-environment
+      RUNTIME_ROLE: api
+    ports:
+      - 127.0.0.1:${MUSEFLOW_PORT:-8787}:8787
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:8787/health/live').then(r=>{if(!r.ok)throw new Error(String(r.status))}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  museflow-worker:
+    <<: *museflow-service
+    environment:
+      <<: *museflow-environment
+      RUNTIME_ROLE: worker
+    # The API applies/validates migrations first. The database layer also uses
+    # a migration lock, while this dependency avoids needless first-boot races.
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      museflow-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - --input-type=module
+        - -e
+        - |
+          import pg from 'pg';
+          import { Redis } from 'ioredis';
+          import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
+          const database = new pg.Pool({connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 3000});
+          const redis = new Redis(process.env.REDIS_URL, {lazyConnect: true, connectTimeout: 3000, maxRetriesPerRequest: 1});
+          const storage = new S3Client({endpoint: process.env.S3_ENDPOINT, region: process.env.S3_REGION, forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true', credentials: {accessKeyId: process.env.S3_ACCESS_KEY_ID, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY}});
+          try {
+            const [, pong] = await Promise.all([database.query('SELECT 1'), redis.connect().then(() => redis.ping()), storage.send(new HeadBucketCommand({Bucket: process.env.S3_BUCKET}))]);
+            if (pong !== 'PONG') throw new Error('Valkey ping failed');
+          } catch { process.exitCode = 1; }
+          finally { redis.disconnect(); storage.destroy(); await database.end().catch(() => undefined); }
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  platform:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  valkey-data:
+  minio-data:

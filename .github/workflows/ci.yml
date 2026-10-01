@@ -1,0 +1,212 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  PLATFORM_MODE: "true"
+  PUBLIC_URL: http://127.0.0.1:8787
+  DATABASE_URL: postgresql://museflow:museflow-ci-password@127.0.0.1:5432/museflow_test
+  TEST_DATABASE_URL: postgresql://museflow:museflow-ci-password@127.0.0.1:5432/museflow_test
+  REDIS_URL: redis://127.0.0.1:6379/0
+  TEST_REDIS_URL: redis://127.0.0.1:6379/0
+  QUEUE_DRIVER: bullmq
+  REDIS_KEY_PREFIX: museflow:ci
+  STORAGE_DRIVER: s3
+  S3_ENDPOINT: http://127.0.0.1:9000
+  S3_REGION: us-east-1
+  S3_BUCKET: museflow-ci
+  S3_ACCESS_KEY_ID: museflow-ci
+  S3_SECRET_ACCESS_KEY: museflow-ci-password
+  S3_FORCE_PATH_STYLE: "true"
+  TEST_S3_ENDPOINT: http://127.0.0.1:9000
+  TEST_S3_BUCKET: museflow-ci
+  TEST_S3_ACCESS_KEY_ID: museflow-ci
+  TEST_S3_SECRET_ACCESS_KEY: museflow-ci-password
+  ALLOW_PRIVATE_ASSET_URLS: "true"
+  AUTH_MODE: development
+  MUSEFLOW_SESSION_SECRET: museflow-ci-session-secret-never-production
+  MODELCROSS_OIDC_ISSUER: http://127.0.0.1:3000
+  MODELCROSS_BASE_URL: http://127.0.0.1:3000
+  MODELCROSS_OIDC_CLIENT_ID: museflow-ci
+  MODELCROSS_OIDC_CLIENT_SECRET: ci-only-secret
+  BILLING_LIVE_ENABLED: "false"
+  AI_LIVE_ENABLED: "false"
+  SUNO_API_BASE_URL: http://127.0.0.1:7999
+  SUNO_API_KEY: local-fake-key
+  SUNO_POLL_INTERVAL_MS: "500"
+  MUSIC_POLL_INTERVAL_MS: "500"
+  WORKER_CONCURRENCY: "2"
+  RUNTIME_ROLE: all
+
+jobs:
+  quality:
+    name: tests, types, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: museflow
+          POSTGRES_PASSWORD: museflow-ci-password
+          POSTGRES_DB: museflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U museflow -d museflow_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      valkey:
+        image: valkey/valkey:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Start private RustFS test service
+        shell: bash
+        run: |
+          docker run --detach --name museflow-ci-minio \
+            --publish 9000:9000 \
+            --env MINIO_ROOT_USER=museflow-ci \
+            --env MINIO_ROOT_PASSWORD=museflow-ci-password \
+            rustfs/rustfs@sha256:8cc9801755448b71a786705ce76692c77e14936cccd87cf2fc31842e58f4d1ff \
+            server /data
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/live >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              docker logs museflow-ci-minio
+              exit 1
+            fi
+            sleep 1
+          done
+          docker run --rm --network host \
+            --env AWS_ACCESS_KEY_ID=museflow-ci \
+            --env AWS_SECRET_ACCESS_KEY=museflow-ci-password \
+            --env AWS_DEFAULT_REGION=us-east-1 \
+            --env AWS_EC2_METADATA_DISABLED=true \
+            amazon/aws-cli@sha256:bc6b7bba44ce38f9604ede49c584824af919047ea03fbcc7c7610671fdef95d8 \
+            s3api create-bucket --bucket museflow-ci --endpoint-url http://127.0.0.1:9000
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Validate Compose model
+        run: docker compose --env-file .env.example config --quiet
+
+      - name: Server tests
+        run: npm test --workspace server
+
+      - name: Browser component and accessibility tests
+        run: npm test --workspace web
+
+      - name: TypeScript checks
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start deterministic provider and built platform
+        shell: bash
+        run: |
+          FAKE_API_KEY=local-fake-key npm run fake --workspace server \
+            >"$RUNNER_TEMP/fake-mxapi.log" 2>&1 &
+          echo "$!" >"$RUNNER_TEMP/fake-mxapi.pid"
+          for attempt in {1..30}; do
+            if curl --silent --output /dev/null http://127.0.0.1:7999/; then
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              tail --lines=200 "$RUNNER_TEMP/fake-mxapi.log"
+              exit 1
+            fi
+            sleep 1
+          done
+
+          npm start >"$RUNNER_TEMP/museflow.log" 2>&1 &
+          echo "$!" >"$RUNNER_TEMP/museflow.pid"
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:8787/health/live >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              tail --lines=200 "$RUNNER_TEMP/museflow.log"
+              exit 1
+            fi
+            sleep 1
+          done
+          curl --fail --silent --show-error http://127.0.0.1:8787/health/ready
+
+      - name: Browser end-to-end tests
+        env:
+          E2E_BASE_URL: http://127.0.0.1:8787
+          E2E_FAKE_PROVIDER: "true"
+        run: npm run test:e2e --if-present
+
+      - name: End-to-end diagnostics
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/fake-mxapi.log" ]; then
+            printf '%s\n' 'fake-mxapi.log (tail)'
+            tail --lines=120 "$RUNNER_TEMP/fake-mxapi.log"
+          fi
+          if [ -f "$RUNNER_TEMP/museflow.log" ]; then
+            printf '%s\n' 'museflow.log (tail)'
+            tail --lines=200 "$RUNNER_TEMP/museflow.log"
+          fi
+
+  container:
+    name: production container
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Build runtime image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          target: runtime
+          push: false
+          tags: museflow-ai-music:ci
+          build-args: |
+            APP_VERSION=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

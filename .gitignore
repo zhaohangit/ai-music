@@ -1,0 +1,21 @@
+node_modules/
+dist/
+data/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+__pycache__/
+
+.secrets/
+artifacts/mv-verification/
+
+.tools/
+
+# Local runtime state and generated acceptance media
+artifacts/
+server/data/
+backups/
+.tools/
+.secrets/
