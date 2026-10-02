@@ -20,6 +20,15 @@ const renderPlayer = (track = makeTrack(), onPlayingChange = vi.fn()) => render(
 );
 
 describe('Player', () => {
+
+  it('offers an explicit compact-player toggle for mobile layouts', async () => {
+    const user = userEvent.setup();
+    renderPlayer();
+    const collapse = screen.getByRole('button', { name: '收起播放器' });
+    await user.click(collapse);
+    expect(screen.getByRole('button', { name: '展开播放器' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '播放' })).toBeInTheDocument();
+  });
   it('only exposes a download link for a completed track with an audio asset', () => {
     const { rerender } = renderPlayer(makeTrack({ status: 'queued', stage: 'queued', progress: 0, file: 'premature.mp3' }));
 

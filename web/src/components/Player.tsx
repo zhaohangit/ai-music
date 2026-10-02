@@ -472,83 +472,17 @@ export function Player({
         </div>
 
         <div className="player-center">
-          {!collapsed && (
-            <div className="player-controls">
-              <button
-                type="button"
-                className={`player-control ${shuffle ? "is-active" : ""}`}
-                onClick={() => setShuffle((value) => !value)}
-                disabled={!queue.length}
-                aria-pressed={shuffle}
-                aria-label={
-                  shuffle
-                    ? text("关闭随机播放", "Disable shuffle")
-                    : text("开启随机播放", "Enable shuffle")
-                }
-                title={
-                  shuffle
-                    ? text("关闭随机播放", "Disable shuffle")
-                    : text("开启随机播放", "Enable shuffle")
-                }
-              >
-                <Shuffle width={15} height={15} />
-              </button>
-              <button
-                type="button"
-                className="player-control"
-                onClick={onPrev}
-                disabled={!track}
-                aria-label={text("上一首", "Previous track")}
-                title={text("上一首", "Previous track")}
-              >
-                <Prev width={16} height={16} />
-              </button>
-              <button
-                type="button"
-                className="player-play"
-                onClick={() => onPlayingChange(!playing)}
-                disabled={!playable}
-                aria-label={
-                  playing ? text("暂停", "Pause") : text("播放", "Play")
-                }
-              >
-                {playing ? (
-                  <Pause width={17} height={17} />
-                ) : (
-                  <Play width={17} height={17} className="translate-x-px" />
-                )}
-              </button>
-              <button
-                type="button"
-                className="player-control"
-                onClick={handleNext}
-                disabled={!track}
-                aria-label={text("下一首", "Next track")}
-                title={text("下一首", "Next track")}
-              >
-                <Next width={16} height={16} />
-              </button>
-              <button
-                type="button"
-                className={`player-control ${repeat ? "is-active" : ""}`}
-                onClick={() => setRepeat((value) => !value)}
-                disabled={!queue.length}
-                aria-pressed={repeat}
-                aria-label={
-                  repeat
-                    ? text("关闭单曲循环", "Disable repeat")
-                    : text("开启单曲循环", "Enable repeat")
-                }
-                title={
-                  repeat
-                    ? text("关闭单曲循环", "Disable repeat")
-                    : text("开启单曲循环", "Enable repeat")
-                }
-              >
-                <Repeat width={15} height={15} />
-              </button>
-            </div>
-          )}
+          <div className={`player-controls ${collapsed ? "is-compact" : ""}`}>
+            {!collapsed && <>
+              <button type="button" className={`player-control ${shuffle ? "is-active" : ""}`} onClick={() => setShuffle((value) => !value)} disabled={!queue.length} aria-pressed={shuffle} aria-label={shuffle ? text("关闭随机播放", "Disable shuffle") : text("开启随机播放", "Enable shuffle")} title={shuffle ? text("关闭随机播放", "Disable shuffle") : text("开启随机播放", "Enable shuffle")}><Shuffle width={15} height={15} /></button>
+              <button type="button" className="player-control" onClick={onPrev} disabled={!track} aria-label={text("上一首", "Previous track")} title={text("上一首", "Previous track")}><Prev width={16} height={16} /></button>
+            </>}
+            <button type="button" className="player-play" onClick={() => onPlayingChange(!playing)} disabled={!playable} aria-label={playing ? text("暂停", "Pause") : text("播放", "Play")}>{playing ? <Pause width={17} height={17} /> : <Play width={17} height={17} className="translate-x-px" />}</button>
+            {!collapsed && <>
+              <button type="button" className="player-control" onClick={handleNext} disabled={!track} aria-label={text("下一首", "Next track")} title={text("下一首", "Next track")}><Next width={16} height={16} /></button>
+              <button type="button" className={`player-control ${repeat ? "is-active" : ""}`} onClick={() => setRepeat((value) => !value)} disabled={!queue.length} aria-pressed={repeat} aria-label={repeat ? text("关闭单曲循环", "Disable repeat") : text("开启单曲循环", "Enable repeat")} title={repeat ? text("关闭单曲循环", "Disable repeat") : text("开启单曲循环", "Enable repeat")}><Repeat width={15} height={15} /></button>
+            </>}
+          </div>
           <div className="player-progress-row">
             <span>{fmtTime(time)}</span>
             <div className="player-seek-wrap">

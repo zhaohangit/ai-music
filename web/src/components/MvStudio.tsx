@@ -75,6 +75,7 @@ export function MvStudio({
     [tracks],
   );
   const [catalog, setCatalog] = useState<MvCatalog | null>(null),
+    [catalogAttempt, setCatalogAttempt] = useState(0),
     [projects, setProjects] = useState<MvProject[]>([]),
     [project, setProject] = useState<MvProject | null>(null);
   const [settings, setSettings] = useState<MvSettings>(DEFAULTS),
@@ -109,6 +110,7 @@ export function MvStudio({
   }
   useEffect(() => {
     mounted.current = true;
+    setError("");
     Promise.all([mvApi.catalog(), mvApi.list()])
       .then(([c, p]) => {
         if (mounted.current) {
@@ -122,7 +124,7 @@ export function MvStudio({
     return () => {
       mounted.current = false;
     };
-  }, []);
+  }, [catalogAttempt]);
   useEffect(() => {
     if (!settings.trackId && playable.length)
       useTrack(
@@ -323,6 +325,21 @@ export function MvStudio({
           {t("新建 MV", "New MV")}
         </button>
       </header>
+      <div className="mv-process-mobile-summary" aria-live="polite">
+        {t(`第 ${Math.min(activeSteps + 1, 5)}/5 步 · ${[
+          "歌曲与人物",
+          "分镜脚本",
+          "动态镜头",
+          "字幕与合成",
+          "成片",
+        ][Math.min(activeSteps, 4)]}`, `Step ${Math.min(activeSteps + 1, 5)} of 5 · ${[
+          "Song & character",
+          "Storyboard",
+          "Motion",
+          "Subtitles & render",
+          "Final cut",
+        ][Math.min(activeSteps, 4)]}`)}
+      </div>
       <div
         className="mv-process"
         role="region"
@@ -374,9 +391,38 @@ export function MvStudio({
         </div>
       )}
       {!catalog && !error && (
-        <p role="status">{t("正在加载视频模型…", "Loading video models…")}</p>
+        <div className="mv-status-card mv-status-loading" role="status" aria-live="polite">
+          <span className="mv-status-icon mv-skeleton-block" aria-hidden="true" />
+          <div>
+            <strong>{t("正在检查视频模型", "Checking video models")}</strong>
+            <p>{t("正在确认 Provider、渲染器和签名素材通道；完成后才能提交生成。", "Checking the provider, renderer and signed asset channel before generation.")}</p>
+          </div>
+        </div>
       )}
-      {catalog?.reason && <div className="mv-notice">{catalog.reason}</div>}
+      {error && (
+        <div className="mv-status-card mv-status-error" role="alert">
+          <span className="mv-status-icon">!</span>
+          <div>
+            <strong>{t("视频服务状态不可用", "Video service unavailable")}</strong>
+            <p>{error}</p>
+            <button type="button" className="btn-ghost" onClick={() => setCatalogAttempt((value) => value + 1)}>
+              {t("重新检查", "Check again")}
+            </button>
+          </div>
+        </div>
+      )}
+      {catalog?.reason && (
+        <div className="mv-status-card mv-status-warning" role="status">
+          <span className="mv-status-icon">!</span>
+          <div>
+            <strong>{t("生成通道需要注意", "Generation channel needs attention")}</strong>
+            <p>{catalog.reason}</p>
+            <button type="button" className="btn-ghost" onClick={() => setCatalogAttempt((value) => value + 1)}>
+              {t("刷新状态", "Refresh status")}
+            </button>
+          </div>
+        </div>
+      )}
       {tab === "setup" && (
         <div className="mv-layout">
           <div className="mv-form">

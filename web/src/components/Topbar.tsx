@@ -16,6 +16,7 @@ import {
   ListTodo,
   LogOut,
   Menu,
+  More,
   Moon,
   Plus,
   Receipt,
@@ -121,6 +122,7 @@ export function Topbar({
 }: Props) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = useState(false);
   const { language, t, toggleLanguage } = useI18n();
   const wrapper = useRef<HTMLDivElement>(null);
   const notificationWrapper = useRef<HTMLDivElement>(null);
@@ -213,6 +215,16 @@ export function Topbar({
             : (current - 1 + items.length) % items.length;
     items[next]?.focus();
   };
+
+  useEffect(() => {
+    if (!mobileActionsOpen) return;
+    const close = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".topbar-mobile-actions")) setMobileActionsOpen(false);
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [mobileActionsOpen]);
 
   return (
     <header className="app-topbar">
@@ -338,6 +350,36 @@ export function Topbar({
           <Plus width={13} height={13} /> {t("nav.topUp")}
         </button>
       ) : null}
+      <div className="topbar-mobile-actions relative sm:hidden">
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={() => setMobileActionsOpen((value) => !value)}
+          aria-label="打开更多顶部操作"
+          aria-expanded={mobileActionsOpen}
+          aria-haspopup="menu"
+          aria-controls="topbar-mobile-actions-menu"
+          title="更多操作"
+        >
+          <More width={18} height={18} />
+        </button>
+        {mobileActionsOpen && (
+          <div id="topbar-mobile-actions-menu" className="topbar-mobile-actions-menu" role="menu" aria-label="顶部操作">
+            <button type="button" role="menuitem" aria-label="切换语言" onClick={() => { toggleLanguage(); setMobileActionsOpen(false); }}>
+              <Languages width={15} height={15} /> {t("topbar.language")}
+            </button>
+            <button type="button" role="menuitem" aria-label="切换主题" onClick={() => { onThemeToggle(); setMobileActionsOpen(false); }}>
+              {theme === "light" ? <Moon width={15} height={15} /> : <Sun width={15} height={15} />} {language === "zh-CN" ? "切换主题" : "Toggle theme"}
+            </button>
+            <button type="button" role="menuitem" onClick={() => { onView("billing"); setMobileActionsOpen(false); }}>
+              <Receipt width={15} height={15} /> {t("topbar.billing")}
+            </button>
+            <button type="button" role="menuitem" onClick={() => { onView("settings"); setMobileActionsOpen(false); }}>
+              <Gear width={15} height={15} /> {t("topbar.settings")}
+            </button>
+          </div>
+        )}
+      </div>
       <div className="relative" ref={notificationWrapper}>
         <button
           ref={notificationTriggerRef}

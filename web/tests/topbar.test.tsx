@@ -21,6 +21,20 @@ function renderTopbar(currentSession = session, onView = vi.fn()) {
 }
 
 describe('Topbar', () => {
+
+  it('groups secondary controls behind a mobile actions menu', async () => {
+    const user = userEvent.setup();
+    renderTopbar();
+    const actions = screen.getByRole('button', { name: '打开更多顶部操作' });
+    expect(screen.queryByRole('menu', { name: '顶部操作' })).not.toBeInTheDocument();
+    await user.click(actions);
+    const menu = screen.getByRole('menu', { name: '顶部操作' });
+    expect(menu).toBeVisible();
+    expect(screen.getByRole('menuitem', { name: '切换语言' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: '切换主题' })).toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: '切换主题' }));
+    expect(screen.queryByRole('menu', { name: '顶部操作' })).not.toBeInTheDocument();
+  });
   it('supports menu focus, arrow navigation, and Escape focus restoration', async () => {
     const user = userEvent.setup();
     renderTopbar();
