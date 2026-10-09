@@ -601,28 +601,34 @@ export class AiAssistantService {
       })));
       return completed;
     } catch (error) {
+      const providerStatus = error && typeof error === 'object' && 'status' in error
+        ? Number((error as { status?: unknown }).status)
+        : NaN;
+      const failure = [500, 502, 503, 504].includes(providerStatus)
+        ? Object.assign(new AiCapabilityUnavailableError('AI 服务暂时繁忙，请稍后重试'), { cause: error })
+        : error;
       if (reservation) {
         try {
           await this.modelCross.settle(billingCredential, 'release', {
             operation_id: reservation.operationId,
             reservation_id: reservation.reservationId,
           }, idempotencyKey);
-          await this.repository.settleAiRunBilling(id, session.user.subject, 'released', 0, (error as Error).message);
+          await this.repository.settleAiRunBilling(id, session.user.subject, 'released', 0, (failure as Error).message);
         } catch (releaseError) {
           await this.repository.settleAiRunBilling(
             id,
             session.user.subject,
             'reconcile_required',
             0,
-            `${(error as Error).message}; release pending: ${(releaseError as Error).message}`,
+            `${(failure as Error).message}; release pending: ${(releaseError as Error).message}`,
           ).catch((mirrorError) => console.error(JSON.stringify({
             level: 'error', event: 'ai.billing.release_reconcile_failed', id,
             error: (mirrorError as Error).message,
           })));
         }
       }
-      await this.repository.failAiRun(id, session.user.subject, (error as Error).message);
-      throw error;
+      await this.repository.failAiRun(id, session.user.subject, (failure as Error).message);
+      throw failure;
     }
   }
 

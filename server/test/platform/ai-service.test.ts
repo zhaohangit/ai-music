@@ -541,6 +541,28 @@ describe('AI creation workflow', () => {
     expect(deps.modelCross.aiJson).not.toHaveBeenCalled();
   });
 
+  it('maps transient ModelCross AI failures to a retryable capability error', async () => {
+    const deps = dependencies();
+    deps.modelCross.aiJson.mockRejectedValueOnce(Object.assign(
+      new Error('ModelCross AI returned HTTP 500: The service is temporarily busy'),
+      { status: 500 },
+    ));
+    const service = new AiAssistantService(
+      testConfig({ AI_LOCAL_LIVE_ENABLED: 'true', MODELCROSS_AI_RELAY_TOKEN: 'modelcross-ai-relay-test-token' }),
+      deps.repository as unknown as PlatformRepository,
+      deps.modelCross as unknown as ModelCrossClient,
+      deps.events as unknown as PlatformEventBus,
+    );
+
+    await expect(service.assist(session('busy-owner'), {
+      action: 'prompt.optimize', input: '清晨嫩绿色林间歌曲',
+    })).rejects.toMatchObject({
+      status: 503,
+      message: 'AI 服务暂时繁忙，请稍后重试',
+    });
+    expect(deps.repository.failAiRun).toHaveBeenCalledOnce();
+  });
+
   it('returns a full-document continuation so applying it never drops the original lyrics', async () => {
     const deps = dependencies();
     const service = new AiAssistantService(
